@@ -51,6 +51,10 @@
                     <i class="fa-solid fa-chart-pie text-2xl"></i>
                     <span class="font-bold text-xl">ระบบวิเคราะห์งบการเงินและจัดเก็บลงคลาวด์</span>
                 </div>
+                <div class="flex gap-2">
+                    <button id="navBtnPnL" class="px-3 py-2 rounded-md text-sm font-medium bg-indigo-900 text-white">งบกำไรขาดทุน</button>
+                    <button id="navBtnBS" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition">งบดุล</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -352,6 +356,125 @@
                 </div>
             </div>
         </section>
+
+        <section id="balanceSheetSection" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">สรุปภาพรวมงบดุล <span id="bsBalanceStatus"></span></h2>
+                    <p class="text-sm font-medium text-emerald-600 mt-1 bg-emerald-50 inline-block px-3 py-1 rounded-md" id="bsDocInfoDisplay">
+                        ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                    <select id="fetchBSMonth" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+                        <option value="มกราคม">มกราคม</option>
+                        <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                        <option value="มีนาคม">มีนาคม</option>
+                        <option value="เมษายน">เมษายน</option>
+                        <option value="พฤษภาคม">พฤษภาคม</option>
+                        <option value="มิถุนายน">มิถุนายน</option>
+                        <option value="กรกฎาคม">กรกฎาคม</option>
+                        <option value="สิงหาคม">สิงหาคม</option>
+                        <option value="กันยายน">กันยายน</option>
+                        <option value="ตุลาคม">ตุลาคม</option>
+                        <option value="พฤศจิกายน">พฤศจิกายน</option>
+                        <option value="ธันวาคม">ธันวาคม</option>
+                    </select>
+                    <input type="number" id="fetchBSYear" value="2569" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-24" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchBSData" class="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 transition shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnResetBSDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                        <i class="fa-solid fa-file-pdf mr-1"></i> อัปโหลดไฟล์ใหม่
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500 flex flex-col justify-between">
+                    <p class="text-xs font-medium text-gray-500">รวมสินทรัพย์ทั้งหมด</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1" id="bsSumAssets">0.00</h3>
+                    <div id="bsVarAssets" class="text-xs mt-2 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> คำนวณเทียบเดือนก่อน...</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500 flex flex-col justify-between">
+                    <p class="text-xs font-medium text-gray-500">รวมหนี้สิน</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1" id="bsSumLiabilities">0.00</h3>
+                    <div id="bsVarLiabilities" class="text-xs mt-2 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> คำนวณเทียบเดือนก่อน...</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500 flex flex-col justify-between">
+                    <p class="text-xs font-medium text-gray-500">รวมส่วนผู้ถือหุ้น</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1" id="bsSumEquity">0.00</h3>
+                    <div id="bsVarEquity" class="text-xs mt-2 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> คำนวณเทียบเดือนก่อน...</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500 flex flex-col justify-between">
+                    <p class="text-xs font-medium text-gray-500">กำไร (ขาดทุน) สุทธิ</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1" id="bsSumNet">0.00</h3>
+                    <div id="bsVarNet" class="text-xs mt-2 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> คำนวณเทียบเดือนก่อน...</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-orange-500 flex flex-col justify-between">
+                    <p class="text-xs font-medium text-gray-500">กำไร (ขาดทุน) สะสม</p>
+                    <h3 class="text-xl font-bold text-gray-800 mt-1" id="bsSumRetained">0.00</h3>
+                    <div id="bsVarRetained" class="text-xs mt-2 text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> คำนวณเทียบเดือนก่อน...</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-yellow-500 flex flex-col justify-center space-y-2">
+                    <p class="text-xs font-bold text-gray-500 border-b pb-1 mb-1">อัตราส่วนทางการเงิน</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-700" title="Debt to Equity (ไม่ควรเกิน 1.5 - 2.0)">D/E Ratio:</span>
+                        <span id="bsRatioDE" class="text-sm font-bold text-indigo-600">0.00</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-700" title="Return on Assets">ROA (%):</span>
+                        <span id="bsRatioROA" class="text-sm font-bold text-emerald-600">0.00</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-700" title="Return on Equity">ROE (%):</span>
+                        <span id="bsRatioROE" class="text-sm font-bold text-blue-600">0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนสินทรัพย์ (Top 5)</h3>
+                    <div class="relative h-72 w-full flex justify-center"><canvas id="assetChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สมการบัญชี (Assets = Liab. + Equity)</h3>
+                    <div class="relative h-72 w-full flex justify-center"><canvas id="equationChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h3 class="text-lg font-semibold text-gray-800">รายละเอียดงบดุลแยกตามหมวดหมู่</h3>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button id="bsSortBtn" class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition shadow-sm whitespace-nowrap" data-sort="desc">
+                            <i class="fa-solid fa-arrow-down-9-1 mr-1"></i> เรียงมากไปน้อย
+                        </button>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="bsSearchInput" placeholder="ค้นหารายการงบดุล..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto no-scrollbar max-h-[500px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-white sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th class="py-3 px-6 text-sm font-medium text-gray-600">รายการ</th>
+                                <th class="py-3 px-6 text-sm font-medium text-gray-600 text-right">จำนวนเงิน (บาท)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bsDataTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- สคริปต์หลัก (กำหนดเป็น type="module" เพื่อรองรับ Firebase SDK) -->
@@ -380,9 +503,13 @@
         // State & Variables
         let extractedData = [];
         let currentTotals = { revenue: 0, expense: 0, netProfit: 0 };
+        let extractedType = 'pnl'; 
+        let bsExtractedData = { totalAssets: 0, totalLiabilities: 0, totalEquity: 0, netProfit: 0, retainedEarnings: 0, items: [] };
         let expenseChartInstance = null;
         let compareChartInstance = null;
-        let mainComparisonChart = null; // สำหรับกราฟโหมดเปรียบเทียบ
+        let mainComparisonChart = null; 
+        let assetChartInstance = null;
+        let bsEquationChartInstance = null;
 
         // การอ้างอิง Element ใน DOM
         const els = {
@@ -394,6 +521,7 @@
             loadingText: document.getElementById('loadingText'),
             dashboardSection: document.getElementById('dashboardSection'),
             compareSection: document.getElementById('compareSection'),
+            balanceSheetSection: document.getElementById('balanceSheetSection'),
             searchInput: document.getElementById('searchInput'),
             btnCancelSave: document.getElementById('btnCancelSave'),
             btnSaveToFirebase: document.getElementById('btnSaveToFirebase'),
@@ -403,10 +531,33 @@
             btnBackToDashboard: document.getElementById('btnBackToDashboard'),
             btnExecuteCompare: document.getElementById('btnExecuteCompare'),
             btnGoToDashboard: document.getElementById('btnGoToDashboard'),
-            filterCategory: document.getElementById('filterCategory')
+            filterCategory: document.getElementById('filterCategory'),
+            navBtnPnL: document.getElementById('navBtnPnL'),
+            navBtnBS: document.getElementById('navBtnBS'),
+            btnFetchBSData: document.getElementById('btnFetchBSData'),
+            btnResetBSDashboard: document.getElementById('btnResetBSDashboard'),
+            bsSearchInput: document.getElementById('bsSearchInput'),
+            bsSortBtn: document.getElementById('bsSortBtn')
         };
 
+        let currentBSSortDesc = true;
+
         if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => showSection('dashboardSection'));
+
+        if(els.navBtnPnL) {
+            els.navBtnPnL.addEventListener('click', () => {
+                els.navBtnPnL.className = "px-3 py-2 rounded-md text-sm font-medium bg-indigo-900 text-white";
+                els.navBtnBS.className = "px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition";
+                showSection('dashboardSection');
+            });
+        }
+        if(els.navBtnBS) {
+            els.navBtnBS.addEventListener('click', () => {
+                els.navBtnBS.className = "px-3 py-2 rounded-md text-sm font-medium bg-indigo-900 text-white";
+                els.navBtnPnL.className = "px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition";
+                showSection('balanceSheetSection');
+            });
+        }
 
         // ฟังก์ชันช่วยสลับหน้าจอ (UI State Manager)
         function showSection(sectionId) {
@@ -415,6 +566,7 @@
             els.loadingIndicator.classList.add('hidden');
             els.dashboardSection.classList.add('hidden');
             if(els.compareSection) els.compareSection.classList.add('hidden');
+            if(els.balanceSheetSection) els.balanceSheetSection.classList.add('hidden');
             
             if(sectionId) document.getElementById(sectionId).classList.remove('hidden');
         }
@@ -542,144 +694,174 @@
                 });
             }
 
-            // 1. รวมข้อความทั้งหมดที่สกัดมาได้เป็น String ก้อนเดียว (ป้องกันปัญหาการขึ้นบรรทัดใหม่ผิดพลาด)
             const fullTextStr = allTextLines.join(' ');
 
-            // 2. ฟังก์ชันช่วยค้นหาตัวเลขก้อนถัดไปทันทีหลังจากเจอ Keyword (ข้ามช่องว่างและตัวอักษรที่ไม่ใช่ตัวเลข)
             function extractNextMoney(keywordPattern) {
-                // Regex นี้จะค้นหา Keyword ตามด้วยตัวอักขระใดๆ ที่ไม่ใช่ตัวเลข/ลบ และจับก้อนตัวเลขทางการเงินถัดมาทันที
                 const regex = new RegExp(keywordPattern + '[^\\d\\-]*([\\(]?\\-?\\d+[\\,\\.\\d]*\\.\\d{2}[\\)]?)');
                 const match = fullTextStr.match(regex);
-                
                 if (match && match[1]) {
                     let rawNum = match[1];
                     let isNeg = rawNum.includes('(') || rawNum.includes('-');
-                    
-                    // ทำความสะอาดตัวเลข (ลบลูกน้ำ จุด และวงเล็บออกให้หมด)
                     let cleanNum = rawNum.replace(/[^0-9]/g, '');
-                    
-                    // แปลงเป็น Integer แล้วหารด้วย 100 เพื่อรักษาสถานะทศนิยม 2 ตำแหน่ง ป้องกัน Typo
                     let val = parseInt(cleanNum, 10) / 100;
                     return isNeg ? -val : val;
                 }
-                return 0; // คืนค่า 0 หากไม่เจอข้อมูล
+                return 0;
             }
 
-            // 3. ปรับ Regex ให้รองรับกรณีพิมพ์ผิด เช่น มี . แทน , ในหลักพัน (เช่น -452.977.34)
-            const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
-            const summaryKeywords = ['รวม', 'กำไร', 'ขาดทุน', 'ยอดยกมา', 'ยอดยกไป', 'สุทธิ'];
+            if (fullTextStr.includes('งบดุล') || fullTextStr.includes('สินทรัพย์') || fullTextStr.includes('หนี้สิน')) {
+                extractedType = 'balance_sheet';
 
-            // 4. สกัดข้อมูลทุกบรรทัดลง Array
-            allTextLines.forEach(line => {
-                const match = line.match(financeRegex);
-                if (match) {
-                    let name = match[1].replace(/\.+/g, '').trim();
-                    let rawValue = match[2];
-
-                    if (name.length < 3 || !isNaN(name)) return;
-
-                    let isNegative = rawValue.includes('(') || rawValue.includes('-');
-                    
-                    // ทำความสะอาดตัวเลขเพื่อป้องกันปัญหาจาก comma หรือ dot ที่ผิดปกติ
-                    let cleanNum = rawValue.replace(/[^0-9]/g, ''); 
-                    let value = parseInt(cleanNum, 10) / 100;
-                    if (isNegative) value = -value;
-
-                    let isSummary = summaryKeywords.some(kw => name.includes(kw));
-                    let category = 'other'; 
-                    
-                    // หมวดหมู่ต้องตรงตามคีย์เวิร์ด (เช็ครายจ่ายก่อน ป้องกันรายการเช่น "ค่าจ้างพนักงานเงินรายได้" หลุดไปหมวดรายได้)
-                    if (name.includes('ค่า') || name.includes('ต้นทุน') || name.includes('เงินเดือน') || name.includes('โบนัส') || name.includes('วัสดุ') || name.includes('สวัสดิการ') || name.includes('ภาษี') || name.includes('โอนเงิน') || name.includes('หนี้')) {
-                        category = 'expense';
-                    } else if (name.includes('รายได้') || name.includes('ดอกเบี้ยรับ') || name.includes('ยอดขาย')) {
-                        category = 'revenue';
+                let itemsList = [];
+                const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+                allTextLines.forEach(line => {
+                    const match = line.match(financeRegex);
+                    if (match) {
+                        // เพิ่มการล้างอักขระขยะให้หมดจด
+                        let name = match[1].replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
+                        let rawValue = match[2];
+                        if (name.length < 3 || !isNaN(name)) return;
+                        let isNegative = rawValue.includes('(') || rawValue.includes('-');
+                        let cleanNum = rawValue.replace(/[^0-9]/g, ''); 
+                        let value = parseInt(cleanNum, 10) / 100;
+                        if (isNegative) value = -value;
+                        
+                        // วิเคราะห์และจัดหมวดหมู่ข้อมูล
+                        let cat = 'asset';
+                        if (name.includes('รวม') || name.includes('ยอดยกมา') || name.includes('ยอดยกไป')) {
+                            cat = 'summary'; // แยกยอดรวมออกไป เพื่อไม่ให้นำมาคำนวณซ้ำในกราฟวงกลม
+                        } else if (name.includes('เจ้าหนี้') || name.includes('รับล่วงหน้า') || name.includes('ค้างจ่าย') || name.includes('หนี้สิน') || name.includes('เงินกู้')) {
+                            cat = 'liability';
+                        } else if (name.includes('ทุน') || name.includes('กำไร') || name.includes('สะสม') || name.includes('ส่วนผู้ถือหุ้น') || name.includes('สำรอง')) {
+                            cat = 'equity';
+                        }
+                        
+                        itemsList.push({ name, value, category: cat });
                     }
+                });
 
-                    if(isSummary) category = 'summary';
+                let totalAssets = extractNextMoney('รวมสินทรัพย์') || extractNextMoney('รวมส.นทร.พย');
+                // เพิ่มคำค้นหาแบบ Wildcard (.*) เพื่อจับคำที่สระหายไปตรงกลาง
+                let totalLiabilities = extractNextMoney('รวมหนี้สินหมุนเวียน') || 
+                                       extractNextMoney('รวมหน.*หมุนเวียน') || 
+                                       extractNextMoney('รวมหน.*เวียน') || 
+                                       extractNextMoney('รวมหนี้สิน') || 
+                                       extractNextMoney('รวมหน.*สิน');
+                                       
+                let totalEquity = extractNextMoney('รวมส่วนผู้ถือหุ้น') || extractNextMoney('รวมส.*นผ.*ห.*น');
+                let netProfit = extractNextMoney('ไร\\s*\\(ขาดทุน\\)\\s*สุทธิ');
+                let retainedEarnings = extractNextMoney('ไร\\s*\\(ขาดทุน\\)\\s*สะสม');
 
-                    // สกัดข้อมูลลง Array
-                    extractedData.push({ name, value, category });
+                // ระบบค้นหาสำรองระดับสูงสุด (Bulletproof Fallback)
+                if (totalAssets === 0) {
+                    let f = itemsList.find(i => i.name.includes('รวมสินทรัพย์') && !i.name.includes('หมุนเวียน') && i.value !== 0);
+                    if (f) totalAssets = Math.abs(f.value);
                 }
-            });
+                if (totalLiabilities === 0) {
+                    let f = itemsList.find(i => (i.name.includes('รวมหนี้สินหมุนเวียน') || i.name.includes('หนี้สินหมุนเวียน') || i.name.includes('หนี้หมุนเวียน')) && i.value !== 0);
+                    if (!f) f = itemsList.find(i => (i.name.includes('รวมหนี้สิน') || i.name.includes('รวมหนี้')) && !i.name.includes('ระยะยาว') && i.value !== 0);
+                    
+                    if (f) {
+                        totalLiabilities = Math.abs(f.value);
+                    } else {
+                        // ท่าไม้ตายที่ 1: ควานหารายการย่อยที่เป็นหนี้สินแล้วบวกกันเอง
+                        let sumLiab = itemsList.filter(i => i.category === 'liability').reduce((sum, i) => sum + Math.abs(i.value), 0);
+                        if (sumLiab > 0) {
+                            totalLiabilities = sumLiab;
+                        } else if (totalAssets > 0 && totalEquity > 0) {
+                            // ท่าไม้ตายที่ 2: ใช้สมการบัญชีคำนวณ (สินทรัพย์ - ส่วนผู้ถือหุ้น)
+                            totalLiabilities = totalAssets - totalEquity;
+                        }
+                    }
+                }
+                if (totalEquity === 0) {
+                    let f = itemsList.find(i => (i.name.includes('รวมส่วนผู้ถือหุ้น') || i.name.includes('รวมส่วนของผู้ถือหุ้น')) && i.value !== 0);
+                    if (f) {
+                        totalEquity = Math.abs(f.value);
+                    } else if (totalAssets > 0 && totalLiabilities > 0) {
+                        totalEquity = totalAssets - totalLiabilities;
+                    }
+                }
+                if (totalEquity === 0) {
+                    let f = itemsList.find(i => (i.name.includes('รวมส่วนผู้ถือหุ้น') || i.name.includes('รวมส่วนของผู้ถือหุ้น')) && i.value !== 0);
+                    if (f) totalEquity = Math.abs(f.value);
+                }
+                if (netProfit === 0) {
+                    let f = itemsList.find(i => i.name.includes('สุทธิ') && i.value !== 0);
+                    if (f) netProfit = f.value;
+                }
+                if (retainedEarnings === 0) {
+                    // ต้องมีคำว่า กำไร หรือ ขาดทุน ควบคู่กับคำว่า สะสม และห้ามมีคำว่า ค่าเสื่อม เด็ดขาด
+                    let f = itemsList.find(i => (i.name.includes('กำไร') || i.name.includes('ขาดทุน')) && i.name.includes('สะสม') && !i.name.includes('ค่าเสื่อม') && i.value !== 0);
+                    if (f) retainedEarnings = f.value;
+                }
 
-            // 5. ค้นหายอดสรุปและคำนวณกำไรขั้นต้น (ดึงจากบรรทัดสรุปโดยตรงเป็นหลัก เพื่อความแม่นยำทุกเดือน)
-            let tempRevenue = 0;
-            let tempExpense = 0;
-            let tempNetProfit = 0;
-
-            // 5.1 หา "กำไรขั้นต้น"
-            // *แก้ปัญหา PDF.js อ่านสระอำ (กำ) เพี้ยนเป็น นิคหิต+สระอา โดยการค้นหาแค่คำว่า "ไรขั้นต้น" แทน
-            let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
-            if (gpItem) {
-                tempRevenue = Math.abs(gpItem.value);
+                // ลบข้อมูล Hardcode ออกทั้งหมด เพื่อให้รับค่าจริงจาก PDF เสมอ
+                bsExtractedData = {
+                    totalAssets: totalAssets || 0,
+                    totalLiabilities: totalLiabilities || 0,
+                    totalEquity: totalEquity || 0,
+                    netProfit: netProfit || 0,
+                    retainedEarnings: retainedEarnings || 0,
+                    items: itemsList
+                };
             } else {
-                tempRevenue = extractNextMoney('ไรขั้นต้น');
-            }
+                extractedType = 'pnl';
+                const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+                const summaryKeywords = ['รวม', 'กำไร', 'ขาดทุน', 'ยอดยกมา', 'ยอดยกไป', 'สุทธิ'];
 
-            // หากหาบรรทัดกำไรขั้นต้นไม่พบ ค่อยคำนวณสูตรบัญชี: (รายได้หลัก + รายได้อื่น) - ต้นทุนขาย
-            if (tempRevenue === 0 || isNaN(tempRevenue)) {
-                let totalOpRev = 0;
-                let totalOtherRev = 0;
-                let cogs = 0;
+                allTextLines.forEach(line => {
+                    const match = line.match(financeRegex);
+                    if (match) {
+                        let name = match[1].replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
+                        let rawValue = match[2];
+                        if (name.length < 3 || !isNaN(name)) return;
+                        let isNegative = rawValue.includes('(') || rawValue.includes('-');
+                        let cleanNum = rawValue.replace(/[^0-9]/g, ''); 
+                        let value = parseInt(cleanNum, 10) / 100;
+                        if (isNegative) value = -value;
+                        let isSummary = summaryKeywords.some(kw => name.includes(kw));
+                        let category = 'other'; 
+                        if (name.includes('ค่า') || name.includes('ต้นทุน') || name.includes('เงินเดือน') || name.includes('โบนัส') || name.includes('วัสดุ') || name.includes('สวัสดิการ') || name.includes('ภาษี') || name.includes('โอนเงิน') || name.includes('หนี้')) {
+                            category = 'expense';
+                        } else if (name.includes('รายได้') || name.includes('ดอกเบี้ยรับ') || name.includes('ยอดขาย')) {
+                            category = 'revenue';
+                        }
+                        if(isSummary) category = 'summary';
+                        extractedData.push({ name, value, category });
+                    }
+                });
 
-                let opRevItem = extractedData.find(item => item.name.includes('รวมรายได้จากการด') && item.name.includes('***'));
-                if (opRevItem) totalOpRev = Math.abs(opRevItem.value);
-                else totalOpRev = extractNextMoney('\\*{3,}\\s*รวมรายได้จากการด');
+                let tempRevenue = 0, tempExpense = 0, tempNetProfit = 0;
+                let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
+                if (gpItem) tempRevenue = Math.abs(gpItem.value);
+                else tempRevenue = extractNextMoney('ไรขั้นต้น');
 
-                // เลี่ยงปัญหาวรรณยุกต์เพี้ยนในคำว่า "อื่น"
-                let otherRevItem = extractedData.find(item => item.name.includes('รวมรายได้อื') && item.name.includes('***'));
-                if (otherRevItem) totalOtherRev = Math.abs(otherRevItem.value);
-                else totalOtherRev = extractNextMoney('\\*{3,}\\s*รวมรายได้อื');
+                if (tempRevenue === 0 || isNaN(tempRevenue)) {
+                    let totalOpRev = extractNextMoney('\\*{3,}\\s*รวมรายได้จากการด');
+                    let totalOtherRev = extractNextMoney('\\*{3,}\\s*รวมรายได้อื');
+                    let cogs = extractNextMoney('\\*{3,}\\s*รวมต้นทุนขาย');
+                    tempRevenue = (totalOpRev + totalOtherRev) - cogs;
+                }
+                
+                let expenseItem = extractedData.find(item => item.name.includes('รวมค่าใช้จ่าย') && item.name.includes('*****'));
+                if (expenseItem) tempExpense = Math.abs(expenseItem.value);
+                else tempExpense = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย');
+                
+                if (tempExpense === 0 || isNaN(tempExpense)) {
+                    tempExpense = extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน') + extractNextMoney('รวมค่าใช้จ่ายอื่น');
+                }
 
-                let cogsItem = extractedData.find(item => item.name.includes('รวมต้นทุนขาย') && item.name.includes('***'));
-                if (cogsItem) cogs = Math.abs(cogsItem.value);
-                else cogs = extractNextMoney('\\*{3,}\\s*รวมต้นทุนขาย');
+                let netProfitItem = extractedData.find(item => item.name.includes('ไร-ขาดทุน') || item.name.includes('ไรสุทธิ'));
+                if (netProfitItem) tempNetProfit = netProfitItem.value;
+                else tempNetProfit = extractNextMoney('ไร\\s*\\-\\s*ขาดทุน') || extractNextMoney('ไรสุทธิ');
 
-                tempRevenue = (totalOpRev + totalOtherRev) - cogs;
-            }
-            
-            // 5.2 หา "รวมค่าใช้จ่าย" (เจาะจง 5 ดอกจัน)
-            let expenseItem = extractedData.find(item => item.name.includes('รวมค่าใช้จ่าย') && item.name.includes('*****'));
-            if (expenseItem) {
-                tempExpense = Math.abs(expenseItem.value);
-            } else {
-                tempExpense = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย');
-            }
-            
-            // หากหาบรรทัดสรุปใหญ่ไม่เจอ ให้หาจาก 2 หมวดย่อยหลักมาบวกกันแทน (ไม่บวกต้นทุนขายแล้ว)
-            if (tempExpense === 0 || isNaN(tempExpense)) {
-                let opEx = extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน');
-                let otherEx = extractNextMoney('รวมค่าใช้จ่ายอื่น');
-                tempExpense = opEx + otherEx;
-            }
+                if (tempRevenue === 0) tempRevenue = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
+                if (tempExpense === 0) tempExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
+                if (tempNetProfit === 0) tempNetProfit = tempRevenue - tempExpense;
 
-            // 5.3 หา "กำไรสุทธิ / กำไร-ขาดทุน"
-            // ใช้คำว่า "ไร-ขาดทุน" เพื่อเลี่ยงปัญหาสระอำเช่นกัน
-            let netProfitItem = extractedData.find(item => item.name.includes('ไร-ขาดทุน') || item.name.includes('ไรสุทธิ'));
-            if (netProfitItem) {
-                tempNetProfit = netProfitItem.value;
-            } else {
-                tempNetProfit = extractNextMoney('ไร\\s*\\-\\s*ขาดทุน');
-                if (tempNetProfit === 0) tempNetProfit = extractNextMoney('ไรสุทธิ');
+                currentTotals = { revenue: Math.abs(tempRevenue), expense: Math.abs(tempExpense), netProfit: tempNetProfit };
             }
-
-            // Fallback สุดท้าย หากหา Keyword ไม่เจอจริงๆ ค่อยบวกจากรายการย่อย
-            if (tempRevenue === 0) {
-                tempRevenue = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
-            }
-            if (tempExpense === 0) {
-                tempExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
-            }
-            if (tempNetProfit === 0) {
-                tempNetProfit = tempRevenue - tempExpense;
-            }
-
-            // จัดเก็บผลรวมเข้า State เพื่อนำไปแสดงผลบน Dashboard
-            currentTotals = {
-                revenue: Math.abs(tempRevenue),
-                expense: Math.abs(tempExpense),
-                netProfit: tempNetProfit
-            };
         }
 
         // ==========================================
@@ -701,41 +883,344 @@
                 return;
             }
 
-            // 1. สร้างเลข ID 5 หลักแบบสุ่ม
             const fileId = Math.floor(10000 + Math.random() * 90000).toString();
-
-            // 2. กำหนด Path คอลเล็กชันและเอกสาร เช่น financial_reports_2569 / พฤษภาคม
-            const collectionName = `financial_reports_${year}`;
+            const collectionName = extractedType === 'balance_sheet' ? `balance_sheet_${year}` : `financial_reports_${year}`;
             const docRef = doc(db, collectionName, month);
 
-            // ข้อมูลที่จะนำไปเก็บ
-            const documentData = {
-                fileId: fileId,
-                month: month,
-                year: year,
-                totalRevenue: currentTotals.revenue,
-                totalExpense: currentTotals.expense,
-                netProfit: currentTotals.netProfit,
-                items: extractedData,
-                timestamp: new Date().toISOString()
-            };
+            let documentData = {};
+            if (extractedType === 'balance_sheet') {
+                documentData = {
+                    fileId: fileId,
+                    month: month,
+                    year: year,
+                    reportType: 'balance_sheet',
+                    totalAssets: bsExtractedData.totalAssets,
+                    totalLiabilities: bsExtractedData.totalLiabilities,
+                    totalEquity: bsExtractedData.totalEquity,
+                    netProfit: bsExtractedData.netProfit,
+                    retainedEarnings: bsExtractedData.retainedEarnings,
+                    items: bsExtractedData.items,
+                    timestamp: new Date().toISOString()
+                };
+            } else {
+                documentData = {
+                    fileId: fileId,
+                    month: month,
+                    year: year,
+                    reportType: 'pnl',
+                    totalRevenue: currentTotals.revenue,
+                    totalExpense: currentTotals.expense,
+                    netProfit: currentTotals.netProfit,
+                    items: extractedData,
+                    timestamp: new Date().toISOString()
+                };
+            }
 
             showLoading('กำลังบันทึกข้อมูลลงฐานข้อมูล Firebase...');
 
             try {
-                // 3. จัดเก็บข้อมูลลง Firestore
                 await setDoc(docRef, documentData);
-                
                 showToast('บันทึกข้อมูลลงระบบเรียบร้อยแล้ว', 'success');
-                // อัปเดต UI Dashboard โดยเอาข้อมูลจากที่เพิ่งเซฟขึ้นมาแสดง
-                renderDashboard(documentData);
-                showSection('dashboardSection');
+                if (extractedType === 'balance_sheet') {
+                    renderBSDashboard(documentData);
+                    showSection('balanceSheetSection');
+                    if(els.navBtnBS) els.navBtnBS.click();
+                } else {
+                    renderDashboard(documentData);
+                    showSection('dashboardSection');
+                    if(els.navBtnPnL) els.navBtnPnL.click();
+                }
             } catch (error) {
                 console.error("Firebase Save Error:", error);
                 showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูลลง Firebase', 'error');
-                showSection('saveFormSection'); // กลับมาหน้าเดิมถ้าพัง
+                showSection('saveFormSection');
             }
         });
+
+        if(els.btnFetchBSData) {
+            els.btnFetchBSData.addEventListener('click', async () => {
+                const fetchMonth = document.getElementById('fetchBSMonth').value;
+                const fetchYear = document.getElementById('fetchBSYear').value;
+                if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
+
+                showLoading(`กำลังดึงข้อมูลงบดุลเดือน ${fetchMonth} ปี ${fetchYear}...`);
+                const collectionName = `balance_sheet_${fetchYear}`;
+                const docRef = doc(db, collectionName, fetchMonth);
+
+                try {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        bsExtractedData = {
+                            totalAssets: data.totalAssets,
+                            totalLiabilities: data.totalLiabilities,
+                            totalEquity: data.totalEquity,
+                            netProfit: data.netProfit,
+                            retainedEarnings: data.retainedEarnings,
+                            items: data.items || []
+                        };
+                        showToast(`ดึงข้อมูลงบดุลเดือน ${fetchMonth} สำเร็จ`, 'success');
+                        renderBSDashboard(data);
+                        showSection('balanceSheetSection');
+                    } else {
+                        showToast(`ยังไม่มีข้อมูลงบดุลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
+                        showSection('balanceSheetSection');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error');
+                    showSection('balanceSheetSection');
+                }
+            });
+        }
+
+        if(els.btnResetBSDashboard) {
+            els.btnResetBSDashboard.addEventListener('click', () => {
+                showSection('uploadSection');
+            });
+        }
+
+        function renderBSDashboard(data) {
+            document.getElementById('bsDocInfoDisplay').innerText = `ไฟล์ของเดือน: ${data.month} ${data.year} (รหัสอ้างอิงไฟล์: ${data.fileId})`;
+
+            // 1. Animate ตัวเลขบน Scorecards
+            animateValue('bsSumAssets', 0, data.totalAssets, 1000);
+            animateValue('bsSumLiabilities', 0, data.totalLiabilities, 1000);
+            animateValue('bsSumEquity', 0, data.totalEquity, 1000);
+            animateValue('bsSumNet', 0, data.netProfit, 1000);
+            // เพิ่ม Animate สำหรับกำไรสะสม
+            animateValue('bsSumRetained', 0, data.retainedEarnings || 0, 1000);
+
+            // 1.5. ระบบตรวจสอบสถานะงบดุล (Auto Balance Checker)
+            const diffBalance = data.totalAssets - (data.totalLiabilities + data.totalEquity);
+            const statusEl = document.getElementById('bsBalanceStatus');
+            if (statusEl) {
+                if (Math.abs(diffBalance) < 1) { 
+                    statusEl.innerHTML = `<span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-md ml-3 align-middle"><i class="fa-solid fa-check-circle"></i> สมดุล (ลงตัว)</span>`;
+                } else {
+                    statusEl.innerHTML = `<span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-md ml-3 align-middle"><i class="fa-solid fa-triangle-exclamation"></i> ไม่สมดุล (ส่วนต่าง ${new Intl.NumberFormat('th-TH', {minimumFractionDigits:2}).format(diffBalance)} ฿)</span>`;
+                }
+            }
+
+            // 2. คำนวณ Ratios (D/E, ROA, ROE)
+            const deRatio = data.totalEquity !== 0 ? (data.totalLiabilities / data.totalEquity) : 0;
+            const roa = data.totalAssets !== 0 ? (data.netProfit / data.totalAssets) * 100 : 0;
+            const roe = data.totalEquity !== 0 ? (data.netProfit / data.totalEquity) * 100 : 0;
+            
+            document.getElementById('bsRatioDE').innerText = deRatio.toFixed(2);
+            document.getElementById('bsRatioDE').className = deRatio > 1.5 ? 'text-sm font-bold text-red-600' : 'text-sm font-bold text-green-600';
+            
+            document.getElementById('bsRatioROA').innerText = roa.toFixed(2) + '%';
+            document.getElementById('bsRatioROA').className = roa >= 5 ? 'text-sm font-bold text-emerald-600' : (roa > 0 ? 'text-sm font-bold text-yellow-600' : 'text-sm font-bold text-red-600');
+
+            document.getElementById('bsRatioROE').innerText = roe.toFixed(2) + '%';
+            document.getElementById('bsRatioROE').className = roe >= 10 ? 'text-sm font-bold text-blue-600' : (roe > 0 ? 'text-sm font-bold text-yellow-600' : 'text-sm font-bold text-red-600');
+
+            // 3. คำนวณการเปลี่ยนแปลง MoM Variance
+            const monthNames = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            const currentIdx = monthNames.indexOf(data.month);
+            
+            if (currentIdx >= 0) {
+                let prevMonth = currentIdx > 0 ? monthNames[currentIdx - 1] : 'ธันวาคม';
+                let prevYear = currentIdx > 0 ? data.year : (parseInt(data.year) - 1).toString();
+
+                getDoc(doc(db, `balance_sheet_${prevYear}`, prevMonth)).then(snap => {
+                    const updateVar = (id, oldVal, newVal, invertGood = false) => {
+                        const el = document.getElementById(id);
+                        if(oldVal === 0) { el.innerHTML = `<span class="text-gray-400">N/A</span>`; return; }
+                        const diff = ((newVal - oldVal) / Math.abs(oldVal)) * 100;
+                        let isGood = diff > 0;
+                        if(invertGood) isGood = !isGood; // เช่น หนี้สินลดลง = ดี
+                        
+                        let colorClass = isGood ? 'text-green-600' : 'text-red-600';
+                        let iconClass = diff > 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+                        el.innerHTML = `<span class="${colorClass} font-medium"><i class="fa-solid ${iconClass}"></i> ${Math.abs(diff).toFixed(2)}%</span> <span class="text-gray-400 ml-1">เทียบเดือนก่อน</span>`;
+                    };
+
+                    if (snap.exists()) {
+                        const prev = snap.data();
+                        updateVar('bsVarAssets', prev.totalAssets, data.totalAssets);
+                        updateVar('bsVarLiabilities', prev.totalLiabilities, data.totalLiabilities, true);
+                        updateVar('bsVarEquity', prev.totalEquity, data.totalEquity);
+                        updateVar('bsVarNet', prev.netProfit, data.netProfit);
+                        // เพิ่มการอัปเดตสถานะของกำไรสะสม
+                        updateVar('bsVarRetained', prev.retainedEarnings || 0, data.retainedEarnings || 0);
+                    } else {
+                        // เพิ่ม bsVarRetained เข้าไปใน Array ด้านล่าง
+                        ['bsVarAssets', 'bsVarLiabilities', 'bsVarEquity', 'bsVarNet', 'bsVarRetained'].forEach(id => {
+                            document.getElementById(id).innerHTML = `<span class="text-gray-400">- ไม่มีข้อมูลเดือนก่อน</span>`;
+                        });
+                    }
+                });
+            }
+
+            // 4. วาด Dynamic Asset Doughnut Chart
+            let items = data.items || [];
+            let assetItems = items.filter(i => i.category === 'asset' && i.value > 0).sort((a, b) => b.value - a.value);
+            let topAssets = assetItems.slice(0, 4);
+            let otherAssetsVal = assetItems.slice(4).reduce((sum, item) => sum + item.value, 0);
+            
+            let chartLabels = topAssets.map(i => i.name.length > 25 ? i.name.substring(0, 25) + '...' : i.name);
+            let chartData = topAssets.map(i => i.value);
+            
+            if(otherAssetsVal > 0) {
+                chartLabels.push('สินทรัพย์อื่นๆ');
+                chartData.push(otherAssetsVal);
+            }
+
+            Chart.defaults.font.family = "'Prompt', sans-serif";
+            if (assetChartInstance) assetChartInstance.destroy();
+            const ctxAsset = document.getElementById('assetChart').getContext('2d');
+            assetChartInstance = new Chart(ctxAsset, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels.length > 0 ? chartLabels : ['ไม่มีข้อมูลสินทรัพย์'],
+                    datasets: [{
+                        data: chartData.length > 0 ? chartData : [1],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#64748b'],
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH').format(ctx.raw) + ' บาท' } }
+                    }
+                }
+            });
+
+            // 5. วาดกราฟสมการบัญชี (Stacked Bar Chart)
+            if (bsEquationChartInstance) bsEquationChartInstance.destroy();
+            const ctxEq = document.getElementById('equationChart').getContext('2d');
+            bsEquationChartInstance = new Chart(ctxEq, {
+                type: 'bar',
+                data: {
+                    labels: ['ฝั่งสินทรัพย์', 'ฝั่งหนี้สินและทุน'],
+                    datasets: [
+                        { label: 'สินทรัพย์', data: [data.totalAssets, 0], backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'หนี้สิน', data: [0, data.totalLiabilities], backgroundColor: '#ef4444', borderRadius: 4 },
+                        { label: 'ส่วนผู้ถือหุ้น', data: [0, data.totalEquity], backgroundColor: '#a855f7', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { 
+                            stacked: true, 
+                            ticks: { callback: (val) => val >= 1000000 ? (val/1000000).toFixed(1) + 'M' : val } 
+                        }
+                    },
+                    plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH').format(ctx.raw)} บาท` } } }
+                }
+            });
+
+            // 6. เรียกใช้ฟังก์ชันวาดตาราง (ส่ง items ไปประมวลผลต่อ)
+            bsExtractedData.items = items; 
+            renderBSTable();
+        }
+
+        // ฟังก์ชันวาดตารางงบดุล พร้อมระบบค้นหา, เรียงลำดับ และ Data Bars
+        function renderBSTable() {
+            const tbody = document.getElementById('bsDataTableBody');
+            tbody.innerHTML = '';
+            
+            const searchQuery = els.bsSearchInput ? els.bsSearchInput.value.toLowerCase() : '';
+            const sortDesc = currentBSSortDesc;
+            
+            const groups = [
+                { id: 'asset', title: '1. หมวดสินทรัพย์', color: 'text-blue-800 bg-blue-100/50 border-blue-200', barColor: 'bg-blue-200' },
+                { id: 'liability', title: '2. หมวดหนี้สิน', color: 'text-red-800 bg-red-100/50 border-red-200', barColor: 'bg-red-200' },
+                { id: 'equity', title: '3. หมวดส่วนของผู้ถือหุ้น', color: 'text-purple-800 bg-purple-100/50 border-purple-200', barColor: 'bg-purple-200' }
+            ];
+
+            let hasData = false;
+            
+            groups.forEach(g => {
+                // กรองข้อมูลตามหมวดหมู่และคำค้นหา
+                let gItems = bsExtractedData.items.filter(i => i.category === g.id && i.name.toLowerCase().includes(searchQuery));
+                
+                if (gItems.length > 0) {
+                    hasData = true;
+                    
+                    // เรียงลำดับข้อมูลโดยคิดจากมูลค่าสัมบูรณ์ (Absolute Value)
+                    gItems.sort((a, b) => sortDesc ? Math.abs(b.value) - Math.abs(a.value) : Math.abs(a.value) - Math.abs(b.value));
+                    
+                    // หาค่าสูงสุดในหมวดนี้สำหรับทำ Data Bar (ความกว้าง %)
+                    const maxVal = Math.max(...gItems.map(i => Math.abs(i.value)));
+
+                    // สร้างแถว Header (Accordion)
+                    const trHeader = document.createElement('tr');
+                    trHeader.className = `cursor-pointer border-y ${g.color} hover:opacity-90 transition select-none`;
+                    trHeader.innerHTML = `
+                        <td colspan="2" class="py-3 px-6 font-bold relative z-10">
+                            <div class="flex justify-between items-center">
+                                <span>${g.title} <span class="text-xs font-normal opacity-70 ml-2">(${gItems.length} รายการ)</span></span>
+                                <i class="fa-solid fa-chevron-up transition-transform duration-300"></i>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(trHeader);
+
+                    // สร้างแถวรายการย่อย
+                    const itemRows = [];
+                    gItems.forEach(item => {
+                        const trItem = document.createElement('tr');
+                        trItem.className = "hover:bg-gray-50 transition relative group";
+                        
+                        // คำนวณความกว้างของ Data Bar
+                        let barWidth = maxVal > 0 ? (Math.abs(item.value) / maxVal) * 100 : 0;
+                        
+                        trItem.innerHTML = `
+                            <td class="py-2 px-6 border-b border-gray-100 pl-10 relative z-10">
+                                <div class="absolute inset-y-0 left-0 ${g.barColor} opacity-30 z-[-1] transition-all duration-500 rounded-r-md" style="width: ${barWidth}%;"></div>
+                                <i class="fa-solid fa-angle-right text-gray-300 text-xs mr-2 group-hover:text-gray-500 transition-colors"></i> ${item.name}
+                            </td>
+                            <td class="py-2 px-6 border-b border-gray-100 text-right font-medium text-gray-800 relative z-10">
+                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value)}
+                            </td>
+                        `;
+                        tbody.appendChild(trItem);
+                        itemRows.push(trItem);
+                    });
+
+                    // Event Toggle (ย่อ/ขยาย)
+                    let isExpanded = true;
+                    trHeader.addEventListener('click', () => {
+                        isExpanded = !isExpanded;
+                        const icon = trHeader.querySelector('i');
+                        if (isExpanded) {
+                            icon.style.transform = 'rotate(0deg)';
+                            itemRows.forEach(row => row.classList.remove('hidden'));
+                        } else {
+                            icon.style.transform = 'rotate(180deg)';
+                            itemRows.forEach(row => row.classList.add('hidden'));
+                        }
+                    });
+                }
+            });
+
+            if (!hasData) {
+                tbody.innerHTML = `<tr><td colspan="2" class="py-6 text-center text-gray-500">ไม่พบข้อมูลที่ค้นหา</td></tr>`;
+            }
+        }
+
+        // เชื่อม Event Listener สำหรับช่อง Search และปุ่ม Sort (ทำงานเฉพาะหน้า Balance Sheet)
+        if (els.bsSearchInput) {
+            els.bsSearchInput.addEventListener('input', () => {
+                if (bsExtractedData && bsExtractedData.items.length > 0) renderBSTable();
+            });
+        }
+        
+        if (els.bsSortBtn) {
+            els.bsSortBtn.addEventListener('click', () => {
+                currentBSSortDesc = !currentBSSortDesc;
+                const icon = currentBSSortDesc ? '<i class="fa-solid fa-arrow-down-9-1 mr-1"></i> เรียงมากไปน้อย' : '<i class="fa-solid fa-arrow-up-1-9 mr-1"></i> เรียงน้อยไปมาก';
+                els.bsSortBtn.innerHTML = icon;
+                if (bsExtractedData && bsExtractedData.items.length > 0) renderBSTable();
+            });
+        }
 
         // ==========================================
         // 3. ระบบดึงข้อมูลบน Dashboard (Fetch Flow)

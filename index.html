@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบวิเคราะห์และจัดเก็บข้อมูลทางการเงิน (Financial Dashboard)</title>
+
+    <!-- นำเข้า Google Fonts: ฟอนต์ Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- นำเข้า Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- นำเข้า FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- นำเข้า PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <!-- นำเข้า Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .drag-over {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Toast Animation */
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+        .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
+        .toast-leave { animation: fadeOut 0.3s ease-in forwards; }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- แถบนำทาง (Navbar) -->
+    <nav class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-chart-pie text-2xl"></i>
+                    <span class="font-bold text-xl">ระบบวิเคราะห์งบการเงินและจัดเก็บลงคลาวด์</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- พื้นที่เนื้อหาหลัก -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ส่วนที่ 1: อัปโหลดไฟล์ PDF -->
+        <section id="uploadSection" class="bg-white rounded-xl shadow-sm p-8 mb-8 text-center border-2 border-dashed border-gray-300 transition-colors duration-300">
+            <input type="file" id="fileInput" accept="application/pdf" class="hidden">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
+                    <i class="fa-solid fa-file-pdf text-4xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold">อัปโหลดรายงานงบกำไรขาดทุน (PDF)</h2>
+                <p class="text-gray-500 text-sm max-w-md">อัปโหลดไฟล์ PDF เพื่อสกัดข้อมูลและบันทึกลงระบบฐานข้อมูล (Firestore)</p>
+                <div class="flex gap-4">
+                    <button id="btnGoToDashboard" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium shadow-sm">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> เข้าสู่หน้าแดชบอร์ด
+                    </button>
+                    <button id="btnSelectFile" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm">
+                        <i class="fa-solid fa-upload mr-2"></i> เลือกไฟล์ PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ส่วนที่ 2: ฟอร์มระบุเดือนและปีก่อนบันทึก (ซ่อนไว้ตอนแรก) -->
+        <section id="saveFormSection" class="hidden bg-white rounded-xl shadow-sm p-8 mb-8 border border-gray-200">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="bg-green-100 text-green-600 p-4 rounded-full inline-block mb-4">
+                    <i class="fa-solid fa-check-double text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">สกัดข้อมูลสำเร็จ!</h2>
+                <p class="text-gray-500 mb-6">กรุณาระบุเดือนและปีของข้อมูลชุดนี้ เพื่อจัดเก็บลงฐานข้อมูล</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ประจำเดือน</label>
+                        <select id="monthSelect" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="มกราคม">มกราคม</option>
+                            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                            <option value="มีนาคม">มีนาคม</option>
+                            <option value="เมษายน">เมษายน</option>
+                            <option value="พฤษภาคม">พฤษภาคม</option>
+                            <option value="มิถุนายน">มิถุนายน</option>
+                            <option value="กรกฎาคม">กรกฎาคม</option>
+                            <option value="สิงหาคม">สิงหาคม</option>
+                            <option value="กันยายน">กันยายน</option>
+                            <option value="ตุลาคม">ตุลาคม</option>
+                            <option value="พฤศจิกายน">พฤศจิกายน</option>
+                            <option value="ธันวาคม">ธันวาคม</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ปี (พ.ศ.)</label>
+                        <input type="number" id="yearInput" value="2569" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="เช่น 2569">
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="btnCancelSave" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">ยกเลิก</button>
+                    <button id="btnSaveToFirebase" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูล (Save to Firebase)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ส่วนแสดงสถานะกำลังโหลด -->
+        <div id="loadingIndicator" class="hidden flex-col items-center justify-center py-12">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+            <p id="loadingText" class="text-gray-600 font-medium animate-pulse">กำลังประมวลผล โปรดรอสักครู่...</p>
+        </div>
+
+        <!-- ส่วนที่ 3: แดชบอร์ดแสดงผล (Dashboard) -->
+        <section id="dashboardSection" class="hidden space-y-6">
+            
+            <!-- แถบเครื่องมือด้านบน Dashboard -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-800">สรุปภาพรวมทางการเงิน</h2>
+                    <p class="text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md" id="docInfoDisplay">
+                        ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
+                    </p>
+                </div>
+
+                <!-- ระบบดึงข้อมูลจาก Firebase -->
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                    <select id="fetchMonth" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+                        <option value="มกราคม">มกราคม</option>
+                        <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                        <option value="มีนาคม">มีนาคม</option>
+                        <option value="เมษายน">เมษายน</option>
+                        <option value="พฤษภาคม">พฤษภาคม</option>
+                        <option value="มิถุนายน">มิถุนายน</option>
+                        <option value="กรกฎาคม">กรกฎาคม</option>
+                        <option value="สิงหาคม">สิงหาคม</option>
+                        <option value="กันยายน">กันยายน</option>
+                        <option value="ตุลาคม">ตุลาคม</option>
+                        <option value="พฤศจิกายน">พฤศจิกายน</option>
+                        <option value="ธันวาคม">ธันวาคม</option>
+                    </select>
+                    <input type="number" id="fetchYear" value="2569" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-24" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnShowCompare" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 px-4 py-2 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap">
+                        <i class="fa-solid fa-code-compare mr-1"></i> โหมดเปรียบเทียบ
+                    </button>
+                    <!-- ปุ่มอัปโหลดไฟล์ใหม่ -->
+                    <button id="btnResetDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                        <i class="fa-solid fa-file-pdf mr-1"></i> อัปโหลดไฟล์ใหม่
+                    </button>
+                </div>
+            </div>
+
+            <!-- การ์ดสรุปผล (Summary Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- รายได้รวม -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">กำไรขั้นต้น</p>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-2" id="sumRevenue">0.00</h3>
+                        </div>
+                        <div class="bg-green-100 text-green-600 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    </div>
+                </div>
+
+                <!-- ค่าใช้จ่ายรวม -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">ค่าใช้จ่ายรวม</p>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-2" id="sumExpense">0.00</h3>
+                        </div>
+                        <div class="bg-red-100 text-red-600 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                    </div>
+                </div>
+
+                <!-- กำไร/ขาดทุนสุทธิ -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-indigo-500" id="netProfitCard">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500" id="netProfitLabel">กำไรสุทธิ</p>
+                            <div class="flex items-end gap-2 mt-2">
+                                <h3 class="text-2xl font-bold text-gray-800" id="sumNet">0.00</h3>
+                                <span id="netMarginBadge" class="text-xs font-medium px-2 py-1 rounded-md bg-gray-100 text-gray-500 mb-1">0.00%</span>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-100 text-indigo-600 p-3 rounded-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนกราฟ (Charts) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนค่าใช้จ่ายหลัก</h3>
+                    <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">เปรียบเทียบ กำไรขั้นต้น vs ค่าใช้จ่าย</h3>
+                    <div class="relative h-64 w-full"><canvas id="compareChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- ส่วนตารางข้อมูล (Data Table) -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h3 class="text-lg font-semibold text-gray-800">รายการข้อมูลทั้งหมด</h3>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <select id="filterCategory" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                            <option value="all">ทุกหมวดหมู่</option>
+                            <option value="revenue">เฉพาะรายได้</option>
+                            <option value="expense">เฉพาะค่าใช้จ่าย</option>
+                        </select>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหารายการ..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto no-scrollbar max-h-96">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 sticky top-0 shadow-sm">
+                            <tr>
+                                <th class="py-3 px-6 text-sm font-medium text-gray-600">ประเภท</th>
+                                <th class="py-3 px-6 text-sm font-medium text-gray-600">รายการ</th>
+                                <th class="py-3 px-6 text-sm font-medium text-gray-600 text-right">จำนวนเงิน (บาท)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            <!-- ข้อมูลตาราง -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ส่วนที่ 4: แดชบอร์ดเปรียบเทียบ (Comparison Dashboard) -->
+        <section id="compareSection" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-800">เปรียบเทียบข้อมูลทางการเงิน</h2>
+                    <p class="text-sm text-gray-500 mt-1">วิเคราะห์เปรียบเทียบ รายเดือน (MoM) รายไตรมาส (QoQ) รายปี (YoY) หรือกำหนดช่วงเวลาเอง</p>
+                </div>
+                <button id="btnBackToDashboard" class="text-sm text-gray-600 hover:text-gray-800 font-medium border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition whitespace-nowrap">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าหลัก
+                </button>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <h3 class="font-semibold text-blue-800 mb-3"><i class="fa-solid fa-chart-pie mr-2"></i>ชุดข้อมูลที่ 1 (ฐานในการเปรียบเทียบ)</h3>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <select id="compType1" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-blue-500 focus:border-blue-500">
+                                <option value="month">รายเดือน</option>
+                                <option value="quarter">รายไตรมาส</option>
+                                <option value="year">รายปี</option>
+                                <option value="custom">กำหนดช่วงเดือน</option>
+                            </select>
+                            <div id="compPeriod1Container">
+                                <select id="compPeriod1" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-blue-500 focus:border-blue-500"></select>
+                            </div>
+                            <div id="compCustom1Container" class="hidden flex-wrap gap-2 items-center">
+                                <select id="compStartMonth1" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-blue-500 focus:border-blue-500"></select>
+                                <span class="text-sm text-gray-600">ถึง</span>
+                                <select id="compEndMonth1" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-blue-500 focus:border-blue-500"></select>
+                            </div>
+                            <input type="number" id="compYear1" value="2568" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-24 bg-white focus:ring-blue-500 focus:border-blue-500" placeholder="ปี พ.ศ.">
+                        </div>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                        <h3 class="font-semibold text-purple-800 mb-3"><i class="fa-solid fa-chart-pie mr-2"></i>ชุดข้อมูลที่ 2 (ข้อมูลปัจจุบัน)</h3>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <select id="compType2" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-purple-500 focus:border-purple-500">
+                                <option value="month">รายเดือน</option>
+                                <option value="quarter">รายไตรมาส</option>
+                                <option value="year">รายปี</option>
+                                <option value="custom">กำหนดช่วงเดือน</option>
+                            </select>
+                            <div id="compPeriod2Container">
+                                <select id="compPeriod2" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-purple-500 focus:border-purple-500"></select>
+                            </div>
+                            <div id="compCustom2Container" class="hidden flex-wrap gap-2 items-center">
+                                <select id="compStartMonth2" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-purple-500 focus:border-purple-500"></select>
+                                <span class="text-sm text-gray-600">ถึง</span>
+                                <select id="compEndMonth2" class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-purple-500 focus:border-purple-500"></select>
+                            </div>
+                            <input type="number" id="compYear2" value="2569" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-24 bg-white focus:ring-purple-500 focus:border-purple-500" placeholder="ปี พ.ศ.">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="btnExecuteCompare" class="px-8 py-2.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-medium shadow-sm">
+                        <i class="fa-solid fa-chart-simple mr-2"></i> ประมวลผลเปรียบเทียบ
+                    </button>
+                </div>
+            </div>
+
+            <div id="compareResultArea" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm font-medium text-gray-500 mb-1">การเปลี่ยนแปลง: กำไรขั้นต้น</p>
+                        <div class="flex items-end gap-3 mt-2">
+                            <h3 class="text-3xl font-bold" id="diffRevenue">0.00%</h3>
+                            <i id="diffRevenueIcon" class="mb-1 text-lg"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2" id="diffRevenueText">-</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm font-medium text-gray-500 mb-1">การเปลี่ยนแปลง: ค่าใช้จ่ายรวม</p>
+                        <div class="flex items-end gap-3 mt-2">
+                            <h3 class="text-3xl font-bold" id="diffExpense">0.00%</h3>
+                            <i id="diffExpenseIcon" class="mb-1 text-lg"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2" id="diffExpenseText">-</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-sm font-medium text-gray-500 mb-1">การเปลี่ยนแปลง: กำไรสุทธิ</p>
+                        <div class="flex items-end gap-3 mt-2">
+                            <h3 class="text-3xl font-bold" id="diffNet">0.00%</h3>
+                            <i id="diffNetIcon" class="mb-1 text-lg"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2" id="diffNetText">-</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">กราฟวิเคราะห์เปรียบเทียบ</h3>
+                    <div class="relative h-80 w-full"><canvas id="comparisonChartCanvas"></canvas></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- สคริปต์หลัก (กำหนดเป็น type="module" เพื่อรองรับ Firebase SDK) -->
+    <script type="module">
+        // 1. นำเข้า Firebase และ Firestore จาก CDN ของ Firebase V9
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 2. กำหนด Firebase Configuration (ตามที่ผู้ใช้ระบุ)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYHg6vs6aGlfcijXKGxYSVDMxwFvUMRbo",
+            authDomain: "balance-sheet-kvdc.firebaseapp.com",
+            projectId: "balance-sheet-kvdc",
+            storageBucket: "balance-sheet-kvdc.firebasestorage.app",
+            messagingSenderId: "754273128506",
+            appId: "1:754273128506:web:364529ddf12183f17a6503"
+        };
+
+        // เริ่มต้นการเชื่อมต่อ Firebase และ Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // กำหนดตำแหน่ง Worker ของ PDF.js
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        // State & Variables
+        let extractedData = [];
+        let currentTotals = { revenue: 0, expense: 0, netProfit: 0 };
+        let expenseChartInstance = null;
+        let compareChartInstance = null;
+        let mainComparisonChart = null; // สำหรับกราฟโหมดเปรียบเทียบ
+
+        // การอ้างอิง Element ใน DOM
+        const els = {
+            fileInput: document.getElementById('fileInput'),
+            btnSelectFile: document.getElementById('btnSelectFile'),
+            uploadSection: document.getElementById('uploadSection'),
+            saveFormSection: document.getElementById('saveFormSection'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            loadingText: document.getElementById('loadingText'),
+            dashboardSection: document.getElementById('dashboardSection'),
+            compareSection: document.getElementById('compareSection'),
+            searchInput: document.getElementById('searchInput'),
+            btnCancelSave: document.getElementById('btnCancelSave'),
+            btnSaveToFirebase: document.getElementById('btnSaveToFirebase'),
+            btnFetchData: document.getElementById('btnFetchData'),
+            btnResetDashboard: document.getElementById('btnResetDashboard'),
+            btnShowCompare: document.getElementById('btnShowCompare'),
+            btnBackToDashboard: document.getElementById('btnBackToDashboard'),
+            btnExecuteCompare: document.getElementById('btnExecuteCompare'),
+            btnGoToDashboard: document.getElementById('btnGoToDashboard'),
+            filterCategory: document.getElementById('filterCategory')
+        };
+
+        if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => showSection('dashboardSection'));
+
+        // ฟังก์ชันช่วยสลับหน้าจอ (UI State Manager)
+        function showSection(sectionId) {
+            els.uploadSection.classList.add('hidden');
+            els.saveFormSection.classList.add('hidden');
+            els.loadingIndicator.classList.add('hidden');
+            els.dashboardSection.classList.add('hidden');
+            if(els.compareSection) els.compareSection.classList.add('hidden');
+            
+            if(sectionId) document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function showLoading(text) {
+            els.loadingText.innerText = text;
+            showSection('loadingIndicator');
+        }
+
+        // ระบบ Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+            let iconClass = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-circle-xmark' : 'fa-info-circle');
+            
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${bgClass} toast-enter pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass} text-lg"></i> <span class="font-medium text-sm">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ระบบ Animate ตัวเลข (Number Counter)
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeProgress = progress * (2 - progress);
+                const currentVal = start + (end - start) * easeProgress;
+                
+                obj.innerText = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(currentVal) + ' ฿';
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerText = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(end) + ' ฿';
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // ==========================================
+        // ส่วนการอัปโหลดและสกัดข้อมูลจาก PDF
+        // ==========================================
+
+        els.btnSelectFile.addEventListener('click', () => els.fileInput.click());
+        
+        els.fileInput.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                if (file.type !== 'application/pdf') {
+                    showToast('กรุณาอัปโหลดไฟล์ PDF เท่านั้นครับ', 'error');
+                    return;
+                }
+                
+                showLoading('กำลังสกัดข้อมูลจากไฟล์ PDF โปรดรอสักครู่...');
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    await extractDataFromPDF(arrayBuffer);
+                    
+                    showToast('สกัดข้อมูลสำเร็จ กรุณาระบุเดือนเพื่อบันทึก', 'success');
+                    showSection('saveFormSection');
+                } catch (error) {
+                    console.error("PDF Extraction Error: ", error);
+                    showToast('เกิดข้อผิดพลาดในการอ่านไฟล์ PDF โปรดลองไฟล์อื่นครับ', 'error');
+                    showSection('uploadSection');
+                }
+            }
+        });
+
+        // Event Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            els.uploadSection.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false); // ป้องกันเบราว์เซอร์เปิดไฟล์เองถ้าลากพลาด
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            els.uploadSection.addEventListener(eventName, () => els.uploadSection.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            els.uploadSection.addEventListener(eventName, () => els.uploadSection.classList.remove('drag-over'), false);
+        });
+
+        els.uploadSection.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                // โยนไฟล์ที่ลากมาเข้าไปใน input file แล้วสั่ง trigger event 'change' เหมือนตอนกดเลือกไฟล์เป๊ะๆ
+                els.fileInput.files = e.dataTransfer.files;
+                els.fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        async function extractDataFromPDF(arrayBuffer) {
+            extractedData = []; 
+            const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let allTextLines = [];
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const textContent = await page.getTextContent();
+                const linesMap = {};
+                
+                textContent.items.forEach(item => {
+                    const y = Math.round(item.transform[5] / 5) * 5; 
+                    if (!linesMap[y]) linesMap[y] = [];
+                    linesMap[y].push({ text: item.str.trim(), x: item.transform[4] });
+                });
+
+                Object.keys(linesMap).sort((a, b) => b - a).forEach(y => {
+                    const lineStr = linesMap[y].sort((a, b) => a.x - b.x).map(i => i.text).join(' ').replace(/\s+/g, ' ').trim();
+                    if (lineStr) allTextLines.push(lineStr);
+                });
+            }
+
+            // 1. รวมข้อความทั้งหมดที่สกัดมาได้เป็น String ก้อนเดียว (ป้องกันปัญหาการขึ้นบรรทัดใหม่ผิดพลาด)
+            const fullTextStr = allTextLines.join(' ');
+
+            // 2. ฟังก์ชันช่วยค้นหาตัวเลขก้อนถัดไปทันทีหลังจากเจอ Keyword (ข้ามช่องว่างและตัวอักษรที่ไม่ใช่ตัวเลข)
+            function extractNextMoney(keywordPattern) {
+                // Regex นี้จะค้นหา Keyword ตามด้วยตัวอักขระใดๆ ที่ไม่ใช่ตัวเลข/ลบ และจับก้อนตัวเลขทางการเงินถัดมาทันที
+                const regex = new RegExp(keywordPattern + '[^\\d\\-]*([\\(]?\\-?\\d+[\\,\\.\\d]*\\.\\d{2}[\\)]?)');
+                const match = fullTextStr.match(regex);
+                
+                if (match && match[1]) {
+                    let rawNum = match[1];
+                    let isNeg = rawNum.includes('(') || rawNum.includes('-');
+                    
+                    // ทำความสะอาดตัวเลข (ลบลูกน้ำ จุด และวงเล็บออกให้หมด)
+                    let cleanNum = rawNum.replace(/[^0-9]/g, '');
+                    
+                    // แปลงเป็น Integer แล้วหารด้วย 100 เพื่อรักษาสถานะทศนิยม 2 ตำแหน่ง ป้องกัน Typo
+                    let val = parseInt(cleanNum, 10) / 100;
+                    return isNeg ? -val : val;
+                }
+                return 0; // คืนค่า 0 หากไม่เจอข้อมูล
+            }
+
+            // 3. ปรับ Regex ให้รองรับกรณีพิมพ์ผิด เช่น มี . แทน , ในหลักพัน (เช่น -452.977.34)
+            const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+            const summaryKeywords = ['รวม', 'กำไร', 'ขาดทุน', 'ยอดยกมา', 'ยอดยกไป', 'สุทธิ'];
+
+            // 4. สกัดข้อมูลทุกบรรทัดลง Array
+            allTextLines.forEach(line => {
+                const match = line.match(financeRegex);
+                if (match) {
+                    let name = match[1].replace(/\.+/g, '').trim();
+                    let rawValue = match[2];
+
+                    if (name.length < 3 || !isNaN(name)) return;
+
+                    let isNegative = rawValue.includes('(') || rawValue.includes('-');
+                    
+                    // ทำความสะอาดตัวเลขเพื่อป้องกันปัญหาจาก comma หรือ dot ที่ผิดปกติ
+                    let cleanNum = rawValue.replace(/[^0-9]/g, ''); 
+                    let value = parseInt(cleanNum, 10) / 100;
+                    if (isNegative) value = -value;
+
+                    let isSummary = summaryKeywords.some(kw => name.includes(kw));
+                    let category = 'other'; 
+                    
+                    // หมวดหมู่ต้องตรงตามคีย์เวิร์ด (เช็ครายจ่ายก่อน ป้องกันรายการเช่น "ค่าจ้างพนักงานเงินรายได้" หลุดไปหมวดรายได้)
+                    if (name.includes('ค่า') || name.includes('ต้นทุน') || name.includes('เงินเดือน') || name.includes('โบนัส') || name.includes('วัสดุ') || name.includes('สวัสดิการ') || name.includes('ภาษี') || name.includes('โอนเงิน') || name.includes('หนี้')) {
+                        category = 'expense';
+                    } else if (name.includes('รายได้') || name.includes('ดอกเบี้ยรับ') || name.includes('ยอดขาย')) {
+                        category = 'revenue';
+                    }
+
+                    if(isSummary) category = 'summary';
+
+                    // สกัดข้อมูลลง Array
+                    extractedData.push({ name, value, category });
+                }
+            });
+
+            // 5. ค้นหายอดสรุปและคำนวณกำไรขั้นต้น (ดึงจากบรรทัดสรุปโดยตรงเป็นหลัก เพื่อความแม่นยำทุกเดือน)
+            let tempRevenue = 0;
+            let tempExpense = 0;
+            let tempNetProfit = 0;
+
+            // 5.1 หา "กำไรขั้นต้น"
+            // *แก้ปัญหา PDF.js อ่านสระอำ (กำ) เพี้ยนเป็น นิคหิต+สระอา โดยการค้นหาแค่คำว่า "ไรขั้นต้น" แทน
+            let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
+            if (gpItem) {
+                tempRevenue = Math.abs(gpItem.value);
+            } else {
+                tempRevenue = extractNextMoney('ไรขั้นต้น');
+            }
+
+            // หากหาบรรทัดกำไรขั้นต้นไม่พบ ค่อยคำนวณสูตรบัญชี: (รายได้หลัก + รายได้อื่น) - ต้นทุนขาย
+            if (tempRevenue === 0 || isNaN(tempRevenue)) {
+                let totalOpRev = 0;
+                let totalOtherRev = 0;
+                let cogs = 0;
+
+                let opRevItem = extractedData.find(item => item.name.includes('รวมรายได้จากการด') && item.name.includes('***'));
+                if (opRevItem) totalOpRev = Math.abs(opRevItem.value);
+                else totalOpRev = extractNextMoney('\\*{3,}\\s*รวมรายได้จากการด');
+
+                // เลี่ยงปัญหาวรรณยุกต์เพี้ยนในคำว่า "อื่น"
+                let otherRevItem = extractedData.find(item => item.name.includes('รวมรายได้อื') && item.name.includes('***'));
+                if (otherRevItem) totalOtherRev = Math.abs(otherRevItem.value);
+                else totalOtherRev = extractNextMoney('\\*{3,}\\s*รวมรายได้อื');
+
+                let cogsItem = extractedData.find(item => item.name.includes('รวมต้นทุนขาย') && item.name.includes('***'));
+                if (cogsItem) cogs = Math.abs(cogsItem.value);
+                else cogs = extractNextMoney('\\*{3,}\\s*รวมต้นทุนขาย');
+
+                tempRevenue = (totalOpRev + totalOtherRev) - cogs;
+            }
+            
+            // 5.2 หา "รวมค่าใช้จ่าย" (เจาะจง 5 ดอกจัน)
+            let expenseItem = extractedData.find(item => item.name.includes('รวมค่าใช้จ่าย') && item.name.includes('*****'));
+            if (expenseItem) {
+                tempExpense = Math.abs(expenseItem.value);
+            } else {
+                tempExpense = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย');
+            }
+            
+            // หากหาบรรทัดสรุปใหญ่ไม่เจอ ให้หาจาก 2 หมวดย่อยหลักมาบวกกันแทน (ไม่บวกต้นทุนขายแล้ว)
+            if (tempExpense === 0 || isNaN(tempExpense)) {
+                let opEx = extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน');
+                let otherEx = extractNextMoney('รวมค่าใช้จ่ายอื่น');
+                tempExpense = opEx + otherEx;
+            }
+
+            // 5.3 หา "กำไรสุทธิ / กำไร-ขาดทุน"
+            // ใช้คำว่า "ไร-ขาดทุน" เพื่อเลี่ยงปัญหาสระอำเช่นกัน
+            let netProfitItem = extractedData.find(item => item.name.includes('ไร-ขาดทุน') || item.name.includes('ไรสุทธิ'));
+            if (netProfitItem) {
+                tempNetProfit = netProfitItem.value;
+            } else {
+                tempNetProfit = extractNextMoney('ไร\\s*\\-\\s*ขาดทุน');
+                if (tempNetProfit === 0) tempNetProfit = extractNextMoney('ไรสุทธิ');
+            }
+
+            // Fallback สุดท้าย หากหา Keyword ไม่เจอจริงๆ ค่อยบวกจากรายการย่อย
+            if (tempRevenue === 0) {
+                tempRevenue = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
+            }
+            if (tempExpense === 0) {
+                tempExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
+            }
+            if (tempNetProfit === 0) {
+                tempNetProfit = tempRevenue - tempExpense;
+            }
+
+            // จัดเก็บผลรวมเข้า State เพื่อนำไปแสดงผลบน Dashboard
+            currentTotals = {
+                revenue: Math.abs(tempRevenue),
+                expense: Math.abs(tempExpense),
+                netProfit: tempNetProfit
+            };
+        }
+
+        // ==========================================
+        // 2. การบันทึกข้อมูลลง Firebase Firestore (Save Flow)
+        // ==========================================
+
+        els.btnCancelSave.addEventListener('click', () => {
+            extractedData = [];
+            els.fileInput.value = '';
+            showSection('uploadSection');
+        });
+
+        els.btnSaveToFirebase.addEventListener('click', async () => {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearInput').value;
+
+            if(!year || year.length !== 4) {
+                showToast('กรุณาระบุปี พ.ศ. ให้ถูกต้อง (4 หลัก)', 'error');
+                return;
+            }
+
+            // 1. สร้างเลข ID 5 หลักแบบสุ่ม
+            const fileId = Math.floor(10000 + Math.random() * 90000).toString();
+
+            // 2. กำหนด Path คอลเล็กชันและเอกสาร เช่น financial_reports_2569 / พฤษภาคม
+            const collectionName = `financial_reports_${year}`;
+            const docRef = doc(db, collectionName, month);
+
+            // ข้อมูลที่จะนำไปเก็บ
+            const documentData = {
+                fileId: fileId,
+                month: month,
+                year: year,
+                totalRevenue: currentTotals.revenue,
+                totalExpense: currentTotals.expense,
+                netProfit: currentTotals.netProfit,
+                items: extractedData,
+                timestamp: new Date().toISOString()
+            };
+
+            showLoading('กำลังบันทึกข้อมูลลงฐานข้อมูล Firebase...');
+
+            try {
+                // 3. จัดเก็บข้อมูลลง Firestore
+                await setDoc(docRef, documentData);
+                
+                showToast('บันทึกข้อมูลลงระบบเรียบร้อยแล้ว', 'success');
+                // อัปเดต UI Dashboard โดยเอาข้อมูลจากที่เพิ่งเซฟขึ้นมาแสดง
+                renderDashboard(documentData);
+                showSection('dashboardSection');
+            } catch (error) {
+                console.error("Firebase Save Error:", error);
+                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูลลง Firebase', 'error');
+                showSection('saveFormSection'); // กลับมาหน้าเดิมถ้าพัง
+            }
+        });
+
+        // ==========================================
+        // 3. ระบบดึงข้อมูลบน Dashboard (Fetch Flow)
+        // ==========================================
+
+        els.btnFetchData.addEventListener('click', async () => {
+            const fetchMonth = document.getElementById('fetchMonth').value;
+            const fetchYear = document.getElementById('fetchYear').value;
+
+            if(!fetchYear) {
+                showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
+                return;
+            }
+
+            showLoading(`กำลังตรวจสอบและดึงข้อมูลเดือน ${fetchMonth} ปี ${fetchYear}...`);
+
+            const collectionName = `financial_reports_${fetchYear}`;
+            const docRef = doc(db, collectionName, fetchMonth);
+
+            try {
+                // Get Document จาก Firestore
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // โหลดข้อมูลเข้าสู่ State ของระบบ
+                    extractedData = data.items;
+                    currentTotals = {
+                        revenue: data.totalRevenue,
+                        expense: data.totalExpense,
+                        netProfit: data.netProfit
+                    };
+
+                    showToast(`ดึงข้อมูลเดือน ${fetchMonth} สำเร็จ`, 'success');
+                    renderDashboard(data);
+                    showSection('dashboardSection');
+                } else {
+                    // หากไม่มีข้อมูลในเดือน/ปี ที่เลือก
+                    showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
+                    showSection('dashboardSection'); // คงหน้า Dashboard ไว้เหมือนเดิม
+                }
+            } catch (error) {
+                console.error("Firebase Fetch Error:", error);
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error');
+                showSection('dashboardSection');
+            }
+        });
+
+        // ปุ่มอัปโหลดไฟล์ใหม่ในหน้า Dashboard
+        els.btnResetDashboard.addEventListener('click', () => {
+            extractedData = [];
+            els.fileInput.value = '';
+            els.searchInput.value = '';
+            showSection('uploadSection');
+        });
+
+        // ระบบค้นหาและตัวกรองในตาราง
+        els.searchInput.addEventListener('input', () => {
+            renderTable(els.searchInput.value, els.filterCategory ? els.filterCategory.value : 'all');
+        });
+        
+        if (els.filterCategory) {
+            els.filterCategory.addEventListener('change', () => {
+                renderTable(els.searchInput.value, els.filterCategory.value);
+            });
+        }
+
+        // ==========================================
+        // ฟังก์ชันวาด UI (Dashboard, Charts, Table)
+        // ==========================================
+
+        function renderDashboard(data) {
+            // อัปเดตข้อความ Header
+            document.getElementById('docInfoDisplay').innerText = `ไฟล์ของเดือน: ${data.month} ${data.year} (รหัสอ้างอิงไฟล์: ${data.fileId})`;
+
+            // อัปเดตตัวเลขใน Summary Cards ด้วย Animation
+            animateValue('sumRevenue', 0, data.totalRevenue, 1000);
+            animateValue('sumExpense', 0, data.totalExpense, 1000);
+            animateValue('sumNet', 0, Math.abs(data.netProfit), 1000);
+
+            // จัดการสีกำไร/ขาดทุน และคำนวณ Net Profit Margin %
+            const netCard = document.getElementById('netProfitCard');
+            const netLabel = document.getElementById('netProfitLabel');
+            const marginBadge = document.getElementById('netMarginBadge');
+            
+            let marginPct = 0;
+            if (data.totalRevenue > 0) {
+                marginPct = (data.netProfit / data.totalRevenue) * 100;
+            }
+            
+            marginBadge.innerText = `Margin: ${marginPct.toFixed(2)}%`;
+
+            if (data.netProfit < 0) {
+                netCard.classList.replace('border-indigo-500', 'border-red-500');
+                netCard.classList.replace('border-green-500', 'border-red-500'); 
+                netLabel.innerText = "ขาดทุนสุทธิ";
+                netLabel.classList.replace('text-gray-500', 'text-red-500');
+                marginBadge.className = 'text-xs font-medium px-2 py-1 rounded-md bg-red-100 text-red-600 mb-1';
+            } else {
+                netCard.classList.replace('border-red-500', 'border-green-500');
+                netCard.classList.replace('border-indigo-500', 'border-green-500');
+                netLabel.innerText = "กำไรสุทธิ";
+                netLabel.classList.replace('text-red-500', 'text-gray-500');
+                marginBadge.className = 'text-xs font-medium px-2 py-1 rounded-md bg-green-100 text-green-700 mb-1';
+            }
+
+            // วาดกราฟ
+            renderCharts(data.totalRevenue, data.totalExpense);
+
+            // วาดตาราง
+            renderTable();
+        }
+
+        function renderCharts(revenue, expense) {
+            Chart.defaults.font.family = "'Prompt', sans-serif";
+            
+            let expensesList = extractedData
+                .filter(item => item.category === 'expense')
+                .map(item => ({ name: item.name, value: Math.abs(item.value) }))
+                .sort((a, b) => b.value - a.value);
+
+            let chartLabels = [];
+            let chartData = [];
+            
+            if (expensesList.length > 0) {
+                const top5 = expensesList.slice(0, 5);
+                const others = expensesList.slice(5).reduce((sum, item) => sum + item.value, 0);
+
+                chartLabels = top5.map(item => item.name);
+                chartData = top5.map(item => item.value);
+
+                if (others > 0) {
+                    chartLabels.push('ค่าใช้จ่ายอื่นๆ');
+                    chartData.push(others);
+                }
+            } else {
+                chartLabels = ['ไม่มีข้อมูลค่าใช้จ่าย'];
+                chartData = [1];
+            }
+
+            if (expenseChartInstance) expenseChartInstance.destroy();
+            if (compareChartInstance) compareChartInstance.destroy();
+
+            const ctxDoughnut = document.getElementById('expenseChart').getContext('2d');
+            expenseChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4', '#94a3b8'],
+                        hoverOffset: 15,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 12 } } },
+                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH').format(ctx.raw) + ' บาท' } }
+                    }
+                }
+            });
+
+            const ctxBar = document.getElementById('compareChart').getContext('2d');
+            compareChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['ภาพรวมทางการเงิน'],
+                    datasets: [
+                        { label: 'กำไรขั้นต้น', data: [revenue], backgroundColor: '#22c55e', hoverBackgroundColor: '#16a34a', borderRadius: 6 },
+                        { label: 'ค่าใช้จ่ายรวม', data: [expense], backgroundColor: '#ef4444', hoverBackgroundColor: '#dc2626', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (val) => {
+                                    if(val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+                                    if(val >= 1000) return (val / 1000).toFixed(0) + 'k';
+                                    return val;
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+
+        function renderTable(searchQuery = '', filterType = 'all') {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = ''; 
+
+            let filteredData = extractedData.filter(item => {
+                const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    item.category.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchType = filterType === 'all' || item.category === filterType;
+                return matchSearch && matchType;
+            });
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`;
+                return;
+            }
+
+            filteredData.forEach(item => {
+                let badgeHTML = '';
+                if (item.category === 'revenue') badgeHTML = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">รายได้</span>';
+                else if (item.category === 'expense') badgeHTML = '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">ค่าใช้จ่าย</span>';
+                else badgeHTML = '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">สรุป/อื่นๆ</span>';
+
+                let formattedValue = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value);
+                let valueClass = item.value < 0 ? 'text-red-600' : 'text-gray-800';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 border-b border-gray-100 whitespace-nowrap">${badgeHTML}</td>
+                    <td class="py-3 px-6 border-b border-gray-100">${item.name}</td>
+                    <td class="py-3 px-6 border-b border-gray-100 text-right font-medium ${valueClass}">${formattedValue}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==========================================
+        // ระบบแดชบอร์ดเปรียบเทียบ (Comparison System)
+        // ==========================================
+
+        const allMonthsList = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+        const compOptions = {
+            month: `<option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option>`,
+            quarter: `<option value="q1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="q2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="q3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="q4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option>`,
+            year: `<option value="all">ข้อมูลรวมทั้งปี</option>`
+        };
+
+        function populateCustomMonths(selectId) {
+            const el = document.getElementById(selectId);
+            if(el) el.innerHTML = compOptions.month;
+        }
+
+        function updatePeriodSelect(typeId, periodId, containerId, customContainerId) {
+            const type = document.getElementById(typeId).value;
+            const container = document.getElementById(containerId);
+            const customContainer = document.getElementById(customContainerId);
+
+            if (type === 'custom') {
+                container.classList.add('hidden');
+                customContainer.classList.remove('hidden');
+                customContainer.classList.add('flex');
+            } else {
+                container.classList.remove('hidden');
+                customContainer.classList.add('hidden');
+                customContainer.classList.remove('flex');
+                document.getElementById(periodId).innerHTML = compOptions[type];
+            }
+        }
+
+        // เชื่อม Event ผู้ใช้งานเมื่อโหลด DOM เสร็จ
+        if(document.getElementById('compType1')) {
+            populateCustomMonths('compStartMonth1');
+            populateCustomMonths('compEndMonth1');
+            populateCustomMonths('compStartMonth2');
+            populateCustomMonths('compEndMonth2');
+
+            document.getElementById('compType1').addEventListener('change', () => updatePeriodSelect('compType1', 'compPeriod1', 'compPeriod1Container', 'compCustom1Container'));
+            document.getElementById('compType2').addEventListener('change', () => updatePeriodSelect('compType2', 'compPeriod2', 'compPeriod2Container', 'compCustom2Container'));
+            
+            updatePeriodSelect('compType1', 'compPeriod1', 'compPeriod1Container', 'compCustom1Container');
+            updatePeriodSelect('compType2', 'compPeriod2', 'compPeriod2Container', 'compCustom2Container');
+        }
+
+        if(els.btnShowCompare) els.btnShowCompare.addEventListener('click', () => showSection('compareSection'));
+        if(els.btnBackToDashboard) els.btnBackToDashboard.addEventListener('click', () => showSection('dashboardSection'));
+
+        async function fetchAggregatedData(type, period, startMonth, endMonth, year) {
+            let totalRev = 0, totalExp = 0, totalNet = 0;
+            let labelText = "";
+            let monthsToFetch = [];
+
+            if (type === 'month') {
+                monthsToFetch = [period];
+                labelText = `${period} ${year}`;
+            } else if (type === 'quarter') {
+                const quarterMap = {
+                    'q1': ['มกราคม', 'กุมภาพันธ์', 'มีนาคม'], 'q2': ['เมษายน', 'พฤษภาคม', 'มิถุนายน'],
+                    'q3': ['กรกฎาคม', 'สิงหาคม', 'กันยายน'], 'q4': ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']
+                };
+                monthsToFetch = quarterMap[period];
+                labelText = `${period.toUpperCase()} ปี ${year}`;
+            } else if (type === 'year') {
+                monthsToFetch = allMonthsList;
+                labelText = `รวมทั้งปี ${year}`;
+            } else if (type === 'custom') {
+                const startIndex = allMonthsList.indexOf(startMonth);
+                const endIndex = allMonthsList.indexOf(endMonth);
+                if(startIndex <= endIndex) {
+                    monthsToFetch = allMonthsList.slice(startIndex, endIndex + 1);
+                } else {
+                    monthsToFetch = allMonthsList.slice(endIndex, startIndex + 1);
+                }
+                labelText = `${startMonth}-${endMonth} ${year}`;
+            }
+
+            for(let m of monthsToFetch) {
+                const docSnap = await getDoc(doc(db, `financial_reports_${year}`, m));
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    totalRev += d.totalRevenue || 0; totalExp += d.totalExpense || 0; totalNet += d.netProfit || 0;
+                }
+            }
+
+            return { revenue: totalRev, expense: totalExp, netProfit: totalNet, label: labelText };
+        }
+
+        function calculateDiff(oldValue, newValue) {
+            if (oldValue === 0 && newValue === 0) return { pct: 0, text: '0.00%', status: 'neutral' };
+            if (oldValue === 0) return { pct: 100, text: '+100.00%', status: 'positive' };
+            const diff = ((newValue - oldValue) / Math.abs(oldValue)) * 100;
+            let status = diff > 0 ? 'positive' : (diff < 0 ? 'negative' : 'neutral');
+            let text = diff > 0 ? `+${diff.toFixed(2)}%` : `${diff.toFixed(2)}%`;
+            return { pct: diff, text: text, status: status };
+        }
+
+        function updateDiffUI(elementId, textElementId, iconElementId, diffData, invertColor = false) {
+            const el = document.getElementById(elementId);
+            const iconEl = document.getElementById(iconElementId);
+            
+            el.innerText = diffData.text;
+            
+            let isGood = diffData.status === 'positive';
+            // สำหรับค่าใช้จ่าย: ถ้าเพิ่มขึ้น (positive) แปลว่าไม่ดี, ถ้าลดลง (negative) แปลว่าดี
+            if(invertColor && diffData.status !== 'neutral') {
+                isGood = diffData.status === 'negative';
+            }
+
+            if (diffData.status === 'neutral') {
+                el.className = 'text-3xl font-bold text-gray-500';
+                iconEl.className = 'fa-solid fa-minus text-gray-400';
+            } else if (isGood) {
+                el.className = 'text-3xl font-bold text-green-600';
+                iconEl.className = diffData.status === 'positive' ? 'fa-solid fa-arrow-trend-up text-green-500' : 'fa-solid fa-arrow-trend-down text-green-500';
+            } else {
+                el.className = 'text-3xl font-bold text-red-600';
+                iconEl.className = diffData.status === 'negative' ? 'fa-solid fa-arrow-trend-down text-red-500' : 'fa-solid fa-arrow-trend-up text-red-500';
+            }
+        }
+
+        if(els.btnExecuteCompare) {
+            els.btnExecuteCompare.addEventListener('click', async () => {
+                const y1 = document.getElementById('compYear1').value;
+                const y2 = document.getElementById('compYear2').value;
+                if(!y1 || !y2 || y1.length !== 4 || y2.length !== 4) return alert('กรุณาระบุปี พ.ศ. ให้ถูกต้อง');
+
+                const t1 = document.getElementById('compType1').value;
+                const p1 = document.getElementById('compPeriod1').value;
+                const sm1 = document.getElementById('compStartMonth1') ? document.getElementById('compStartMonth1').value : '';
+                const em1 = document.getElementById('compEndMonth1') ? document.getElementById('compEndMonth1').value : '';
+
+                const t2 = document.getElementById('compType2').value;
+                const p2 = document.getElementById('compPeriod2').value;
+                const sm2 = document.getElementById('compStartMonth2') ? document.getElementById('compStartMonth2').value : '';
+                const em2 = document.getElementById('compEndMonth2') ? document.getElementById('compEndMonth2').value : '';
+
+                els.btnExecuteCompare.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังประมวลผล...';
+                els.btnExecuteCompare.disabled = true;
+
+                try {
+                    const d1 = await fetchAggregatedData(t1, p1, sm1, em1, y1);
+                    const d2 = await fetchAggregatedData(t2, p2, sm2, em2, y2);
+
+                    const revDiff = calculateDiff(d1.revenue, d2.revenue);
+                    const expDiff = calculateDiff(d1.expense, d2.expense);
+                    const netDiff = calculateDiff(d1.netProfit, d2.netProfit);
+
+                    updateDiffUI('diffRevenue', 'diffRevenueText', 'diffRevenueIcon', revDiff, false);
+                    document.getElementById('diffRevenueText').innerText = `เทียบ ${d2.label} กับ ${d1.label}`;
+                    
+                    updateDiffUI('diffExpense', 'diffExpenseText', 'diffExpenseIcon', expDiff, true);
+                    document.getElementById('diffExpenseText').innerText = `เทียบ ${d2.label} กับ ${d1.label}`;
+                    
+                    updateDiffUI('diffNet', 'diffNetText', 'diffNetIcon', netDiff, false);
+                    document.getElementById('diffNetText').innerText = `เทียบ ${d2.label} กับ ${d1.label}`;
+
+                    renderComparisonChart(d1, d2);
+                    document.getElementById('compareResultArea').classList.remove('hidden');
+                } catch (error) {
+                    console.error("Comparison Error:", error);
+                    alert("เกิดข้อผิดพลาดระหว่างดึงข้อมูล โปรดลองใหม่อีกครั้ง");
+                } finally {
+                    els.btnExecuteCompare.innerHTML = '<i class="fa-solid fa-chart-simple mr-2"></i> ประมวลผลเปรียบเทียบ';
+                    els.btnExecuteCompare.disabled = false;
+                }
+            });
+        }
+
+        function renderComparisonChart(d1, d2) {
+            if (mainComparisonChart) mainComparisonChart.destroy();
+            const ctx = document.getElementById('comparisonChartCanvas').getContext('2d');
+            
+            mainComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['กำไรขั้นต้น', 'ค่าใช้จ่ายรวม', 'กำไรสุทธิ'],
+                    datasets: [
+                        { label: d1.label, data: [d1.revenue, d1.expense, d1.netProfit], backgroundColor: '#3b82f6', hoverBackgroundColor: '#2563eb', borderRadius: 6 },
+                        { label: d2.label, data: [d2.revenue, d2.expense, d2.netProfit], backgroundColor: '#a855f7', hoverBackgroundColor: '#9333ea', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { callback: (val) => new Intl.NumberFormat('th-TH').format(val) }
+                        }
+                    },
+                    plugins: {
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH').format(ctx.raw)} บาท` } }
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // 5. การตั้งค่าเริ่มต้นเมื่อเปิดโปรแกรม (Init Flow)
+        // ==========================================
+        async function initApp() {
+            showLoading('กำลังโหลดข้อมูลล่าสุด...');
+            const fetchMonth = document.getElementById('fetchMonth').value;
+            const fetchYear = document.getElementById('fetchYear').value;
+            const docRef = doc(db, `financial_reports_${fetchYear}`, fetchMonth);
+            
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    extractedData = data.items;
+                    currentTotals = {
+                        revenue: data.totalRevenue,
+                        expense: data.totalExpense,
+                        netProfit: data.netProfit
+                    };
+                    renderDashboard(data);
+                    showSection('dashboardSection');
+                } else {
+                    // ถ้ายังไม่มีข้อมูลของเดือนเริ่มต้น ให้เข้าหน้า Dashboard ทันทีเพื่อให้ผู้ใช้ใช้งานต่อได้
+                    showSection('dashboardSection');
+                }
+            } catch (error) {
+                console.error("Init Error:", error);
+                showSection('dashboardSection');
+            }
+        }
+
+        // เรียกใช้งานฟังก์ชันเริ่มต้นเมื่อโหลดหน้าเว็บ
+        initApp();
+    </script>
+</body>
+</html>

@@ -1652,13 +1652,37 @@
         }
 
         // ==========================================
-        // 5. การตั้งค่าเริ่มต้นเมื่อเปิดโปรแกรม (Init Flow)
+        // 5. การตั้งค่าเริ่มต้นเมื่อเปิดโปรแกรม (Init Flow) คำนวณย้อนหลังกลับไป 1 เดือนอัตโนมัติ
         // ==========================================
         async function initApp() {
             showLoading('กำลังโหลดข้อมูลล่าสุด...');
-            const fetchMonth = document.getElementById('fetchMonth').value;
-            const fetchYear = document.getElementById('fetchYear').value;
-            const docRef = doc(db, `financial_reports_${fetchYear}`, fetchMonth);
+            
+            // 5.1 ดึงวันที่ปัจจุบันจากระบบ
+            const dateObj = new Date();
+            let targetMonthIdx = dateObj.getMonth() - 1; // ลบย้อนหลังไป 1 เดือน
+            let targetThaiYear = dateObj.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+
+            // หากปัจจุบันคือเดือนมกราคม (Index 0) พอย้อนหลัง 1 เดือนจะได้ Index -1 ให้ปัดเป็นธันวาคม และลดปี พ.ศ. ลง 1 ปี
+            if (targetMonthIdx < 0) {
+                targetMonthIdx = 11; // 11 คือเดือนธันวาคม
+                targetThaiYear = targetThaiYear - 1;
+            }
+
+            const monthNames = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            const targetThaiMonth = monthNames[targetMonthIdx];
+
+            // 5.2 ตั้งค่าเดือนและปีที่คำนวณได้ให้กับ Input Elements ของงบกำไรขาดทุน
+            if (document.getElementById('fetchMonth')) document.getElementById('fetchMonth').value = targetThaiMonth;
+            if (document.getElementById('fetchYear')) document.getElementById('fetchYear').value = targetThaiYear;
+            if (document.getElementById('monthSelect')) document.getElementById('monthSelect').value = targetThaiMonth;
+            if (document.getElementById('yearInput')) document.getElementById('yearInput').value = targetThaiYear;
+
+            // 5.3 ตั้งค่าเดือนและปีที่คำนวณได้ให้กับ Input Elements ของงบดุล (แท็บที่ 2)
+            if (document.getElementById('fetchBSMonth')) document.getElementById('fetchBSMonth').value = targetThaiMonth;
+            if (document.getElementById('fetchBSYear')) document.getElementById('fetchBSYear').value = targetThaiYear;
+
+            // 5.4 ดึงข้อมูลงบกำไรขาดทุนย้อนหลังล่าสุดมาแสดงผล
+            const docRef = doc(db, `financial_reports_${targetThaiYear}`, targetThaiMonth);
             
             try {
                 const docSnap = await getDoc(docRef);
@@ -1671,15 +1695,33 @@
                         netProfit: data.netProfit
                     };
                     renderDashboard(data);
-                    showSection('dashboardSection');
-                } else {
-                    // ถ้ายังไม่มีข้อมูลของเดือนเริ่มต้น ให้เข้าหน้า Dashboard ทันทีเพื่อให้ผู้ใช้ใช้งานต่อได้
-                    showSection('dashboardSection');
                 }
             } catch (error) {
-                console.error("Init Error:", error);
-                showSection('dashboardSection');
+                console.error("Init PnL Error:", error);
             }
+
+            // 5.5 ดึงข้อมูลงบดุลล่าสุดมาเตรียมพร้อมในหน่วยความจำ (แก้ไขชื่อคีย์ตัวแปรให้ตรงกับระบบคำนวณย้อนหลัง)
+            const bsDocRef = doc(db, `balance_sheet_${targetThaiYear}`, targetThaiMonth);
+            try {
+                const bsDocSnap = await getDoc(bsDocRef);
+                if (bsDocSnap.exists()) {
+                    const bsData = bsDocSnap.data();
+                    bsExtractedData = {
+                        totalAssets: bsData.totalAssets,
+                        totalLiabilities: bsData.totalLiabilities,
+                        totalEquity: bsData.totalEquity,
+                        netProfit: bsData.netProfit,
+                        retainedEarnings: bsData.retainedEarnings,
+                        items: bsData.items || []
+                    };
+                    renderBSDashboard(bsData);
+                }
+            } catch (error) {
+                console.error("Init BS Error:", error);
+            }
+
+            // เปิดหน้าแดชบอร์ดงบกำไรขาดทุนเป็นหลักตอนเริ่มต้น
+            showSection('dashboardSection');
         }
 
         // เรียกใช้งานฟังก์ชันเริ่มต้นเมื่อโหลดหน้าเว็บ

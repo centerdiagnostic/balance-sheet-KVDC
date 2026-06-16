@@ -213,6 +213,7 @@
                 <!-- ระบบดึงข้อมูลจาก Firebase -->
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
                     <select id="fetchMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">รวมทั้งปี</option>
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -458,6 +459,7 @@
 
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
                     <select id="fetchBSMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="all">รวมทั้งปี</option>
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -584,6 +586,7 @@
 
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
                     <select id="fetchSampleMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">รวมทั้งปี</option>
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -634,8 +637,9 @@
                         <i data-lucide="circle-dollar-sign" class="w-20 h-20 text-emerald-600"></i>
                     </div>
                     <p class="text-sm font-semibold text-emerald-600 mb-1 z-10">จำนวนเงินรวม (บาท)</p>
-                    <div class="flex items-baseline mb-4 z-10 w-full overflow-hidden">
-                        <h3 id="kpi-amount" class="text-2xl 2xl:text-3xl font-bold text-slate-900 tracking-tight truncate w-full" title="จำนวนเงินรวม">0</h3>
+                    <div class="flex flex-wrap items-baseline gap-y-1 mb-4 z-10 w-full">
+                        <h3 id="kpi-amount" class="text-2xl 2xl:text-3xl font-bold text-slate-900 tracking-tight" title="จำนวนเงินรวม">0</h3>
+                        <span id="badge-amount" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2 shrink-0"></span>
                     </div>
                     <div class="mt-auto flex items-center text-xs text-emerald-700 font-medium bg-emerald-100/60 w-fit px-2.5 py-1 rounded-md z-10 border border-emerald-200 shadow-sm">
                         รายได้รวมทั้งหมด
@@ -1534,28 +1538,57 @@
                 const fetchYear = document.getElementById('fetchBSYear').value;
                 if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
 
-                showLoading(`กำลังดึงข้อมูลงบดุลเดือน ${fetchMonth} ปี ${fetchYear}...`);
+                showLoading(`กำลังดึงข้อมูลงบดุล${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
                 const collectionName = `balance_sheet_${fetchYear}`;
-                const docRef = doc(db, collectionName, fetchMonth);
 
                 try {
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        bsExtractedData = {
-                            totalAssets: data.totalAssets,
-                            totalLiabilities: data.totalLiabilities,
-                            totalEquity: data.totalEquity,
-                            netProfit: data.netProfit,
-                            retainedEarnings: data.retainedEarnings,
-                            items: data.items || []
-                        };
-                        showToast(`ดึงข้อมูลงบดุลเดือน ${fetchMonth} สำเร็จ`, 'success');
-                        renderBSDashboard(data);
-                        showSection('balanceSheetSection');
+                    if (fetchMonth === 'all') {
+                        const querySnapshot = await getDocs(collection(db, collectionName));
+                        if (!querySnapshot.empty) {
+                            const monthOrder = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                            let latestDoc = null;
+                            let latestIdx = -1;
+                            querySnapshot.forEach(doc => {
+                                let idx = monthOrder.indexOf(doc.id);
+                                if (idx > latestIdx) { latestIdx = idx; latestDoc = doc.data(); }
+                            });
+                            latestDoc.month = `รวมทั้งปี (ยอดสิ้นสุด ${monthOrder[latestIdx]})`;
+                            latestDoc.year = fetchYear;
+                            bsExtractedData = {
+                                totalAssets: latestDoc.totalAssets,
+                                totalLiabilities: latestDoc.totalLiabilities,
+                                totalEquity: latestDoc.totalEquity,
+                                netProfit: latestDoc.netProfit,
+                                retainedEarnings: latestDoc.retainedEarnings,
+                                items: latestDoc.items || []
+                            };
+                            showToast(`ดึงข้อมูลงบดุลรวมทั้งปี ${fetchYear} สำเร็จ`, 'success');
+                            renderBSDashboard(latestDoc);
+                            showSection('balanceSheetSection');
+                        } else {
+                            showToast(`ยังไม่มีข้อมูลงบดุลของปี ${fetchYear} ในระบบ`, 'error');
+                            showSection('balanceSheetSection');
+                        }
                     } else {
-                        showToast(`ยังไม่มีข้อมูลงบดุลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
-                        showSection('balanceSheetSection');
+                        const docRef = doc(db, collectionName, fetchMonth);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            bsExtractedData = {
+                                totalAssets: data.totalAssets,
+                                totalLiabilities: data.totalLiabilities,
+                                totalEquity: data.totalEquity,
+                                netProfit: data.netProfit,
+                                retainedEarnings: data.retainedEarnings,
+                                items: data.items || []
+                            };
+                            showToast(`ดึงข้อมูลงบดุลเดือน ${fetchMonth} สำเร็จ`, 'success');
+                            renderBSDashboard(data);
+                            showSection('balanceSheetSection');
+                        } else {
+                            showToast(`ยังไม่มีข้อมูลงบดุลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
+                            showSection('balanceSheetSection');
+                        }
                     }
                 } catch (error) {
                     console.error(error);
@@ -2178,21 +2211,97 @@
         }
 
         // ผูกปุ่มการทำงาน
+        async function fetchSampleDataAgg(year, month) {
+            let data = { totalSamples: 0, totalAmount: 0, items: [], totalISO: 0, totalNonISO: 0 };
+            try {
+                if (month === 'all') {
+                    const snap = await getDocs(collection(db, `sample_reports_${year}`));
+                    if (snap.empty) return null;
+                    snap.forEach(doc => {
+                        let d = doc.data();
+                        data.totalSamples += d.totalSamples || 0;
+                        data.totalAmount += d.totalAmount || 0;
+                        data.items = data.items.concat(d.items || []);
+                    });
+                } else {
+                    const snap = await getDoc(doc(db, `sample_reports_${year}`, month));
+                    if (snap.exists()) {
+                        let d = snap.data();
+                        data.totalSamples = d.totalSamples || 0;
+                        data.totalAmount = d.totalAmount || 0;
+                        data.items = d.items || [];
+                    } else return null;
+                }
+                
+                data.items.forEach(row => {
+                    let samplesStr = row.Number_of_Samples || row.samples || row.Samples || row['จำนวนตัวอย่าง'] || 0;
+                    const samples = parseInt(samplesStr) || 0;
+                    let isoStatus = row.ISO_Status || row.ISO_Status || row.ISO || row.Status || row.isoStatus || '';
+                    const val = String(isoStatus).toUpperCase().trim();
+                    const isISO = val === 'ISO' || val === 'TRUE' || val === 'YES' || val === 'ได้' || val === 'ผ่าน' || (val.includes('ISO') && !val.includes('NON'));
+                    if(isISO) data.totalISO += samples;
+                    else data.totalNonISO += samples;
+                });
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function updateSampleBadge(id, oldVal, newVal) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('hidden');
+            if (oldVal === 0) {
+                 el.innerHTML = `<i class="fa-solid fa-minus"></i> -`;
+                 el.className = 'flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2 bg-slate-100 text-slate-500 shrink-0';
+                 return;
+            }
+            const diff = ((newVal - oldVal) / Math.abs(oldVal)) * 100;
+            const isGood = diff >= 0; 
+            const colorClass = isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+            const iconClass = isGood ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            el.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${Math.abs(diff).toFixed(1)}%`;
+            el.className = `flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2 shrink-0 ${colorClass}`;
+        }
+
         if(els.btnFetchSampleData) {
             els.btnFetchSampleData.addEventListener('click', async () => {
                 const fetchMonth = document.getElementById('fetchSampleMonth').value;
                 const fetchYear = document.getElementById('fetchSampleYear').value;
                 if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
 
-                showLoading(`กำลังดึงข้อมูลจำนวนตัวอย่างเดือน ${fetchMonth} ปี ${fetchYear}...`);
-                const docRef = doc(db, `sample_reports_${fetchYear}`, fetchMonth);
+                showLoading(`กำลังดึงข้อมูลจำนวนตัวอย่าง${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
 
                 try {
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        sampleExtractedData = { totalSamples: data.totalSamples, totalAmount: data.totalAmount, items: data.items || [] };
-                        renderSampleDashboard(data);
+                    const currData = await fetchSampleDataAgg(fetchYear, fetchMonth);
+                    
+                    if (currData && currData.items.length > 0) {
+                        currData.month = fetchMonth === 'all' ? 'รวมทั้งปี' : fetchMonth;
+                        currData.year = fetchYear;
+                        currData.fileId = fetchMonth === 'all' ? 'AGGREGATED' : 'FETCHED';
+                        
+                        sampleExtractedData = { totalSamples: currData.totalSamples, totalAmount: currData.totalAmount, items: currData.items };
+                        renderSampleDashboard(currData);
+                        
+                        let prevYear = fetchYear;
+                        let prevMonth = fetchMonth;
+                        if (fetchMonth === 'all') {
+                            prevYear = (parseInt(fetchYear) - 1).toString();
+                        } else {
+                            const monthNames = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                            let idx = monthNames.indexOf(fetchMonth);
+                            if (idx === 0) { prevMonth = 'ธันวาคม'; prevYear = (parseInt(fetchYear) - 1).toString(); }
+                            else { prevMonth = monthNames[idx - 1]; }
+                        }
+                        
+                        const prevData = await fetchSampleDataAgg(prevYear, prevMonth);
+                        
+                        updateSampleBadge('badge-total', prevData ? prevData.totalSamples : 0, currData.totalSamples);
+                        updateSampleBadge('badge-amount', prevData ? prevData.totalAmount : 0, currData.totalAmount);
+                        updateSampleBadge('badge-iso', prevData ? prevData.totalISO : 0, currData.totalISO);
+                        updateSampleBadge('badge-noniso', prevData ? prevData.totalNonISO : 0, currData.totalNonISO);
+
                         showToast(`ดึงข้อมูลสำเร็จ`, 'success');
                         showSection('sampleSection');
                     } else {
@@ -2236,33 +2345,57 @@
                 return;
             }
 
-            showLoading(`กำลังตรวจสอบและดึงข้อมูลเดือน ${fetchMonth} ปี ${fetchYear}...`);
+            showLoading(`กำลังตรวจสอบและดึงข้อมูล${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
 
             const collectionName = `financial_reports_${fetchYear}`;
-            const docRef = doc(db, collectionName, fetchMonth);
 
             try {
-                // Get Document จาก Firestore
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    // โหลดข้อมูลเข้าสู่ State ของระบบ
-                    extractedData = data.items;
-                    currentTotals = {
-                        revenue: data.totalRevenue,
-                        expense: data.totalExpense,
-                        netProfit: data.netProfit
-                    };
-
-                    showToast(`ดึงข้อมูลเดือน ${fetchMonth} สำเร็จ`, 'success');
-                    renderDashboard(data);
-                    showSection('dashboardSection');
+                if (fetchMonth === 'all') {
+                    const querySnapshot = await getDocs(collection(db, collectionName));
+                    if (!querySnapshot.empty) {
+                        let aggData = { month: 'รวมทั้งปี', year: fetchYear, fileId: 'AGGREGATED', totalRevenue: 0, totalExpense: 0, netProfit: 0, items: [] };
+                        let itemsMap = {};
+                        querySnapshot.forEach(doc => {
+                            const d = doc.data();
+                            aggData.totalRevenue += d.totalRevenue || 0;
+                            aggData.totalExpense += d.totalExpense || 0;
+                            aggData.netProfit += d.netProfit || 0;
+                            (d.items || []).forEach(item => {
+                                let key = item.name + '_' + item.category;
+                                if(!itemsMap[key]) itemsMap[key] = { ...item };
+                                else itemsMap[key].value += item.value;
+                            });
+                        });
+                        aggData.items = Object.values(itemsMap);
+                        extractedData = aggData.items;
+                        currentTotals = { revenue: aggData.totalRevenue, expense: aggData.totalExpense, netProfit: aggData.netProfit };
+                        showToast(`ดึงข้อมูลรวมทั้งปี ${fetchYear} สำเร็จ`, 'success');
+                        renderDashboard(aggData);
+                        showSection('dashboardSection');
+                    } else {
+                        showToast(`ยังไม่มีข้อมูลของปี ${fetchYear} ในระบบ`, 'error');
+                        showSection('dashboardSection');
+                    }
                 } else {
-                    // หากไม่มีข้อมูลในเดือน/ปี ที่เลือก
-                    showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
-                    showSection('dashboardSection'); // คงหน้า Dashboard ไว้เหมือนเดิม
+                    const docRef = doc(db, collectionName, fetchMonth);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        extractedData = data.items;
+                        currentTotals = {
+                            revenue: data.totalRevenue,
+                            expense: data.totalExpense,
+                            netProfit: data.netProfit
+                        };
+
+                        showToast(`ดึงข้อมูลเดือน ${fetchMonth} สำเร็จ`, 'success');
+                        renderDashboard(data);
+                        showSection('dashboardSection');
+                    } else {
+                        showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
+                        showSection('dashboardSection');
+                    }
                 }
             } catch (error) {
                 console.error("Firebase Fetch Error:", error);

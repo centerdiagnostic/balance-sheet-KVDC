@@ -672,6 +672,58 @@
             }
         });
 
+        // ฟังก์ชันแก้ไขและทำความสะอาดคำภาษาไทยที่มักเพี้ยนจากการสกัด PDF
+        function cleanThaiText(text) {
+            if (!text) return "";
+            let cleaned = text.replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
+            
+            // 1. ท่าไม้ตายขั้นสุดยอด: คลุมถุงชนวลี (Phrase Wildcard) ไม่สนใจสระตรงกลางที่มองไม่เห็น
+            if (cleaned.includes("อวัสดุวิทยาศาสตร์")) {
+                cleaned = cleaned.replace(/ซ.*อวัสดุวิทยาศาสตร์/, "ซื้อวัสดุวิทยาศาสตร์");
+            }
+            if (cleaned.includes("อมราคา") && cleaned.includes("ค่าเส")) {
+                cleaned = cleaned.replace(/ค่าเส.*อมราคา/, "ค่าเสื่อมราคา");
+            }
+            if (cleaned.includes("ลูกหน")) {
+                cleaned = cleaned.replace(/ลูกหน.*-\s*/, "ลูกหนี้ - ");
+                cleaned = cleaned.replace(/ลูกหน.*/, (match) => match.includes("โรงพยาบาล") || match.includes("หน่วย") || match.includes("บุคคล") ? match.replace(/ลูกหน.*?/, "ลูกหนี้") : match);
+            }
+
+            // 2. ท่าไม้ตายเสริม: ดัก Replace ตรงๆ
+            cleaned = cleaned.replace(/ซีÊอ/g, "ซื้อ").replace(/ซีEอ/g, "ซื้อ");
+            cleaned = cleaned.replace(/ค่าเสีÊอม/g, "ค่าเสื่อม").replace(/ค่าเสีEอม/g, "ค่าเสื่อม");
+            cleaned = cleaned.replace(/ลูกหนีÊ/g, "ลูกหนี้").replace(/ลูกหนีE/g, "ลูกหนี้");
+
+            // 3. พจนานุกรมดักแก้คำเพี้ยนยอดฮิตจาก PDF.js 
+            const correctionMap = {
+                "หนสน": "หนี้สิน",
+                "หนี้สน": "หนี้สิน",
+                "หมนเวียน": "หมุนเวียน",
+                "หมุนเวยน": "หมุนเวียน",
+                "สณทรัพย์": "สินทรัพย์",
+                "ส.นทร.พย": "สินทรัพย์",
+                "สระสม": "สะสม",
+                "ครณภัณฑ์": "ครุภัณฑ์",
+                "ครภัณฑ์": "ครุภัณฑ์",
+                "โรงพยาบาลสสัตว์": "โรงพยาบาลสัตว์",
+                "ด.เนินงาน": "ดำเนินงาน",
+                "ดำเนินงานงาน": "ดำเนินงาน",
+                "รายได้อื": "รายได้อื่น",
+                "รายได้อื่น ๆ": "รายได้อื่นๆ",
+                "ไรขั้นต้น": "กำไรขั้นต้น",
+                "ไรสุทธิ": "กำไรสุทธิ",
+                "ไร-ขาดทุน": "กำไร-ขาดทุน",
+                "ดอกเบย": "ดอกเบี้ย"
+            };
+            
+            Object.keys(correctionMap).forEach(key => {
+                const regex = new RegExp(key, 'g');
+                cleaned = cleaned.replace(regex, correctionMap[key]);
+            });
+            
+            return cleaned;
+        }
+
         async function extractDataFromPDF(arrayBuffer) {
             extractedData = []; 
             const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -709,7 +761,7 @@
                 return 0;
             }
 
-            if (fullTextStr.includes('งบดุล') || fullTextStr.includes('สินทรัพย์') || fullTextStr.includes('หนี้สิน')) {
+            if (fullTextStr.includes('งบดุล') || fullTextStr.includes('สินทรัพย์') || fullTextStr.includes('หนี้สิน') || fullTextStr.includes('หนสน') || fullTextStr.includes('สณทรัพย์')) {
                 extractedType = 'balance_sheet';
 
                 let itemsList = [];
@@ -717,8 +769,8 @@
                 allTextLines.forEach(line => {
                     const match = line.match(financeRegex);
                     if (match) {
-                        // เพิ่มการล้างอักขระขยะให้หมดจด
-                        let name = match[1].replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
+                        // เรียกใช้งานฟังก์ชันล้างคำเพี้ยนอัตโนมัติ
+                        let name = cleanThaiText(match[1]);
                         let rawValue = match[2];
                         if (name.length < 3 || !isNaN(name)) return;
                         let isNegative = rawValue.includes('(') || rawValue.includes('-');
@@ -782,10 +834,6 @@
                         totalEquity = totalAssets - totalLiabilities;
                     }
                 }
-                if (totalEquity === 0) {
-                    let f = itemsList.find(i => (i.name.includes('รวมส่วนผู้ถือหุ้น') || i.name.includes('รวมส่วนของผู้ถือหุ้น')) && i.value !== 0);
-                    if (f) totalEquity = Math.abs(f.value);
-                }
                 if (netProfit === 0) {
                     let f = itemsList.find(i => i.name.includes('สุทธิ') && i.value !== 0);
                     if (f) netProfit = f.value;
@@ -807,13 +855,14 @@
                 };
             } else {
                 extractedType = 'pnl';
-                const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+                const financeRegex = /^(.*?)\s+([\(]?\-?[:,\d\.]+\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
                 const summaryKeywords = ['รวม', 'กำไร', 'ขาดทุน', 'ยอดยกมา', 'ยอดยกไป', 'สุทธิ'];
 
                 allTextLines.forEach(line => {
                     const match = line.match(financeRegex);
                     if (match) {
-                        let name = match[1].replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
+                        // เรียกใช้งานฟังก์ชันล้างคำเพี้ยนอัตโนมัติ
+                        let name = cleanThaiText(match[1]);
                         let rawValue = match[2];
                         if (name.length < 3 || !isNaN(name)) return;
                         let isNegative = rawValue.includes('(') || rawValue.includes('-');
@@ -1419,36 +1468,92 @@
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = ''; 
 
-            let filteredData = extractedData.filter(item => {
-                const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                    item.category.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchType = filterType === 'all' || item.category === filterType;
-                return matchSearch && matchType;
+            // กำหนดกลุ่มหมวดหมู่สำหรับงบกำไรขาดทุน
+            const groups = [
+                { id: 'revenue', title: '1. หมวดรายได้', color: 'text-green-800 bg-green-100/50 border-green-200', barColor: 'bg-green-200', badgeHTML: '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">รายได้</span>' },
+                { id: 'expense', title: '2. หมวดค่าใช้จ่าย', color: 'text-red-800 bg-red-100/50 border-red-200', barColor: 'bg-red-200', badgeHTML: '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">ค่าใช้จ่าย</span>' },
+                { id: 'summary', title: '3. หมวดสรุป/อื่นๆ', color: 'text-gray-800 bg-gray-100/50 border-gray-200', barColor: 'bg-gray-200', badgeHTML: '<span class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md text-xs font-medium">สรุป/อื่นๆ</span>' }
+            ];
+
+            let hasData = false;
+
+            groups.forEach(g => {
+                // ข้ามการสร้าง Group หากมีการ Filter แล้วไม่ตรงกับหมวดหมู่นั้นๆ
+                if (filterType !== 'all' && g.id !== filterType) return;
+
+                // กรองข้อมูลตามหมวดหมู่และคำค้นหา
+                let gItems = extractedData.filter(i => {
+                    const matchCat = (g.id === 'summary') ? (i.category === 'summary' || i.category === 'other') : (i.category === g.id);
+                    const matchSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase()) || i.category.toLowerCase().includes(searchQuery.toLowerCase());
+                    return matchCat && matchSearch;
+                });
+
+                if (gItems.length > 0) {
+                    hasData = true;
+
+                    // เรียงข้อมูลจากมากไปน้อย (Absolute Value) เหมือนในงบดุล
+                    gItems.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+                    
+                    // หาค่าสูงสุดสำหรับทำความยาวของ Data Bar
+                    const maxVal = Math.max(...gItems.map(i => Math.abs(i.value)));
+
+                    // 1. สร้างแถว Header (กดเพื่อ ย่อ/ขยาย)
+                    const trHeader = document.createElement('tr');
+                    trHeader.className = `cursor-pointer border-y ${g.color} hover:opacity-90 transition select-none`;
+                    trHeader.innerHTML = `
+                        <td colspan="3" class="py-3 px-6 font-bold relative z-10">
+                            <div class="flex justify-between items-center">
+                                <span>${g.title} <span class="text-xs font-normal opacity-70 ml-2">(${gItems.length} รายการ)</span></span>
+                                <i class="fa-solid fa-chevron-up transition-transform duration-300"></i>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(trHeader);
+
+                    // 2. สร้างแถวรายการย่อย (พร้อม Data Bar)
+                    const itemRows = [];
+                    gItems.forEach(item => {
+                        let barWidth = maxVal > 0 ? (Math.abs(item.value) / maxVal) * 100 : 0;
+                        let valueClass = item.value < 0 ? 'text-red-600' : 'text-gray-800';
+
+                        const trItem = document.createElement('tr');
+                        trItem.className = "hover:bg-gray-50 transition relative group";
+                        trItem.innerHTML = `
+                            <td class="py-2 px-6 border-b border-gray-100 whitespace-nowrap relative z-10 w-32">
+                                <div class="absolute inset-y-0 left-0 ${g.barColor} opacity-30 z-[-1] transition-all duration-500 rounded-r-md" style="width: ${barWidth}%;"></div>
+                                ${g.badgeHTML}
+                            </td>
+                            <td class="py-2 px-6 border-b border-gray-100 relative z-10">
+                                <i class="fa-solid fa-angle-right text-gray-300 text-xs mr-2 group-hover:text-gray-500 transition-colors"></i> ${item.name}
+                            </td>
+                            <td class="py-2 px-6 border-b border-gray-100 text-right font-medium ${valueClass} relative z-10">
+                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value)}
+                            </td>
+                        `;
+                        tbody.appendChild(trItem);
+                        itemRows.push(trItem);
+                    });
+
+                    // 3. ผูกระบบ Toggle (ย่อ/ขยาย) เมื่อคลิกที่ Header
+                    let isExpanded = true;
+                    trHeader.addEventListener('click', () => {
+                        isExpanded = !isExpanded;
+                        const icon = trHeader.querySelector('i');
+                        if (isExpanded) {
+                            icon.style.transform = 'rotate(0deg)';
+                            itemRows.forEach(row => row.classList.remove('hidden'));
+                        } else {
+                            icon.style.transform = 'rotate(180deg)';
+                            itemRows.forEach(row => row.classList.add('hidden'));
+                        }
+                    });
+                }
             });
 
-            if (filteredData.length === 0) {
+            // กรณีไม่มีข้อมูลหลังจากค้นหา/ฟิลเตอร์
+            if (!hasData) {
                 tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`;
-                return;
             }
-
-            filteredData.forEach(item => {
-                let badgeHTML = '';
-                if (item.category === 'revenue') badgeHTML = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">รายได้</span>';
-                else if (item.category === 'expense') badgeHTML = '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">ค่าใช้จ่าย</span>';
-                else badgeHTML = '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">สรุป/อื่นๆ</span>';
-
-                let formattedValue = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value);
-                let valueClass = item.value < 0 ? 'text-red-600' : 'text-gray-800';
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
-                tr.innerHTML = `
-                    <td class="py-3 px-6 border-b border-gray-100 whitespace-nowrap">${badgeHTML}</td>
-                    <td class="py-3 px-6 border-b border-gray-100">${item.name}</td>
-                    <td class="py-3 px-6 border-b border-gray-100 text-right font-medium ${valueClass}">${formattedValue}</td>
-                `;
-                tbody.appendChild(tr);
-            });
         }
 
         // ==========================================

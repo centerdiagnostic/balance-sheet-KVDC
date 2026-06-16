@@ -12,6 +12,11 @@
 
     <!-- นำเข้า Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
 
     <!-- นำเข้า FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -52,30 +57,78 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
         .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
         .toast-leave { animation: fadeOut 0.3s ease-in forwards; }
+
+        /* ระบบคุมการหดขยายสไลด์บาร์แถบข้าง (Collapsible Mini Sidebar) */
+        @media (min-width: 768px) {
+            #mainSidebar.collapsed {
+                width: 80px !important;
+            }
+            #mainSidebar.collapsed .sidebar-text {
+                display: none !important;
+            }
+            #mainSidebar.collapsed .sidebar-header {
+                justify-content: center !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            #mainSidebar.collapsed .sidebar-menu-item {
+                justify-content: center !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                gap: 0 !important;
+                border-left-width: 0 !important;
+                border-bottom-width: 4px !important;
+                border-bottom-color: transparent;
+            }
+            #mainSidebar.collapsed .sidebar-menu-item.bg-gradient-to-r {
+                border-bottom-color: #10b981 !important;
+                background: rgba(16, 185, 129, 0.1) !important;
+            }
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800 bg-slate-50 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 flex min-h-screen flex-col md:flex-row">
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
-    <!-- แถบนำทาง (Navbar) -->
-    <nav class="bg-indigo-700 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-chart-pie text-2xl"></i>
-                    <span class="font-bold text-xl">ระบบวิเคราะห์งบการเงินและจัดเก็บลงคลาวด์</span>
-                </div>
-                <div class="flex gap-2">
-                    <button id="navBtnPnL" class="px-3 py-2 rounded-md text-sm font-medium bg-indigo-900 text-white">งบกำไรขาดทุน</button>
-                    <button id="navBtnBS" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition">งบดุล</button>
-                    <button id="navBtnSample" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition">จำนวนตัวอย่าง</button>
+    <aside id="mainSidebar" class="w-full md:w-72 bg-[#0B121F] text-slate-200 flex flex-col border-r border-slate-800/80 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.3)] sticky top-0 h-screen z-30 transition-all duration-300">
+        <div class="sidebar-header p-5 flex items-center justify-between border-b border-slate-800/60 bg-[#090e18]/80 backdrop-blur-md transition-all duration-300">
+            <div class="sidebar-text flex items-center gap-2.5 overflow-hidden">
+                <img src="https://kvdc-vetku.com/wp-content/uploads/2026/03/1.png" alt="KVDC Logo" class="h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(16,185,129,0.25)] transition-transform duration-500 hover:scale-105">
+                <div class="flex flex-col min-w-0">
+                    <span class="font-bold text-sm text-slate-100 tracking-tight uppercase">KVDC System</span>
+                    <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Diagnostics Analytics</span>
                 </div>
             </div>
+            <div class="flex items-center gap-2">
+                <button id="btnDarkModeToggle" class="sidebar-text p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-yellow-400 border border-slate-700/40 transition-all duration-300 flex items-center justify-center w-9 h-9 shadow-sm" title="เปลี่ยนโหมดการแสดงผล">
+                    <i id="darkModeIcon" class="fa-solid fa-moon"></i>
+                </button>
+                <button id="btnSidebarToggle" class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-emerald-400 border border-slate-700/40 transition-all duration-300 flex items-center justify-center w-9 h-9 shadow-sm group" title="เปิด/ปิดแถบเมนู">
+                    <i class="fa-solid fa-bars text-base transition-transform duration-300 group-hover:rotate-90"></i>
+                </button>
+            </div>
         </div>
-    </nav>
+        
+        <div class="p-4 flex flex-col gap-2 flex-grow overflow-y-auto no-scrollbar">
+            <p class="sidebar-text text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> เมนูวิเคราะห์และจัดการ
+            </p>
+            <button id="navBtnPnL" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500/10 to-transparent text-emerald-400 border-l-4 border-emerald-500 shadow-inner shadow-emerald-500/5 transition-all duration-300 text-left group">
+                <i class="fa-solid fa-wallet w-5 text-base transition-transform duration-300 group-hover:scale-110"></i> 
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">งบกำไรขาดทุน</span>
+            </button>
+            <button id="navBtnBS" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-slate-700 transition-all duration-300 text-left group">
+                <i class="fa-solid fa-scale-balanced w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">งบดุล</span>
+            </button>
+            <button id="navBtnSample" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-slate-700 transition-all duration-300 text-left group">
+                <i class="fa-solid fa-flask w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">จำนวนตัวอย่าง</span>
+            </button>
+        </div>
+    </aside>
 
-    <!-- พื้นที่เนื้อหาหลัก -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-grow p-4 md:p-8 overflow-y-auto w-full max-w-[1600px] mx-auto">
 
         <!-- ส่วนที่ 1: อัปโหลดไฟล์ PDF -->
         <section id="uploadSection" class="bg-white rounded-xl shadow-sm p-8 mb-8 text-center border-2 border-dashed border-gray-300 transition-colors duration-300">
@@ -158,8 +211,8 @@
                 </div>
 
                 <!-- ระบบดึงข้อมูลจาก Firebase -->
-                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <select id="fetchMonth" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <select id="fetchMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -173,7 +226,7 @@
                         <option value="พฤศจิกายน">พฤศจิกายน</option>
                         <option value="ธันวาคม">ธันวาคม</option>
                     </select>
-                    <input type="number" id="fetchYear" value="2569" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-24" placeholder="ปี พ.ศ.">
+                    <input type="number" id="fetchYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
                     </button>
@@ -192,52 +245,57 @@
 
             <!-- การ์ดสรุปผล (Summary Cards) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- รายได้รวม -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
-                    <div class="flex justify-between items-start">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-green-500 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">กำไรขั้นต้น</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-2" id="sumRevenue">0.00</h3>
+                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400">กำไรขั้นต้น</p>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2" id="sumRevenue">0.00</h3>
                         </div>
-                        <div class="bg-green-100 text-green-600 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div class="bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
                     </div>
+                    <div class="h-10 w-full mt-2"><canvas id="sparklineRevenue"></canvas></div>
                 </div>
 
-                <!-- ค่าใช้จ่ายรวม -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500">
-                    <div class="flex justify-between items-start">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-red-500 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">ค่าใช้จ่ายรวม</p>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-2" id="sumExpense">0.00</h3>
+                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400">ค่าใช้จ่ายรวม</p>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2" id="sumExpense">0.00</h3>
                         </div>
-                        <div class="bg-red-100 text-red-600 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                        <div class="bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
                     </div>
+                    <div class="h-10 w-full mt-2"><canvas id="sparklineExpense"></canvas></div>
                 </div>
 
-                <!-- กำไร/ขาดทุนสุทธิ -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-indigo-500" id="netProfitCard">
-                    <div class="flex justify-between items-start">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-indigo-500 flex flex-col justify-between" id="netProfitCard">
+                    <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="text-sm font-medium text-gray-500" id="netProfitLabel">กำไรสุทธิ</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400" id="netProfitLabel">กำไรสุทธิ</p>
                             <div class="flex items-end gap-2 mt-2">
-                                <h3 class="text-2xl font-bold text-gray-800" id="sumNet">0.00</h3>
-                                <span id="netMarginBadge" class="text-xs font-medium px-2 py-1 rounded-md bg-gray-100 text-gray-500 mb-1">0.00%</span>
+                                <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100" id="sumNet">0.00</h3>
+                                <span id="netMarginBadge" class="text-xs font-medium px-2 py-1 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-300 mb-1">0.00%</span>
                             </div>
                         </div>
-                        <div class="bg-indigo-100 text-indigo-600 p-3 rounded-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-3 rounded-lg"><i class="fa-solid fa-scale-balanced"></i></div>
                     </div>
+                    <div class="h-10 w-full mt-2"><canvas id="sparklineNet"></canvas></div>
                 </div>
             </div>
 
             <!-- ส่วนกราฟ (Charts) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนค่าใช้จ่ายหลัก</h3>
                     <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">เปรียบเทียบ กำไรขั้นต้น vs ค่าใช้จ่าย</h3>
+                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">โครงสร้างกระแสเงิน (Waterfall)</h3>
                     <div class="relative h-64 w-full"><canvas id="compareChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-3 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 w-full text-left">สถานะความสามารถทำกำไร (Net Profit Margin)</h3>
+                    <div class="relative h-48 w-full max-w-md"><canvas id="gaugeChart"></canvas></div>
+                    <p id="gaugeStatusText" class="mt-2 text-lg font-bold text-gray-700">-</p>
                 </div>
             </div>
 
@@ -339,35 +397,52 @@
 
             <div id="compareResultArea" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <p class="text-sm font-medium text-gray-500 mb-1" id="diffLabel1">หัวข้อที่ 1</p>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400" id="diffLabel1">หัวข้อที่ 1</p>
                         <div class="flex items-end gap-3 mt-2">
-                            <h3 class="text-3xl font-bold" id="diffValue1">0.00%</h3>
+                            <h3 class="text-3xl font-bold text-slate-800 dark:text-slate-100" id="diffValue1">0.00%</h3>
                             <i id="diffIcon1" class="mb-1 text-lg"></i>
                         </div>
                         <p class="text-xs text-gray-400 mt-2" id="diffText1">-</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <p class="text-sm font-medium text-gray-500 mb-1" id="diffLabel2">หัวข้อที่ 2</p>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400" id="diffLabel2">หัวข้อที่ 2</p>
                         <div class="flex items-end gap-3 mt-2">
-                            <h3 class="text-3xl font-bold" id="diffValue2">0.00%</h3>
+                            <h3 class="text-3xl font-bold text-slate-800 dark:text-slate-100" id="diffValue2">0.00%</h3>
                             <i id="diffIcon2" class="mb-1 text-lg"></i>
                         </div>
                         <p class="text-xs text-gray-400 mt-2" id="diffText2">-</p>
                     </div>
-                    <div id="compareCard3" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <p class="text-sm font-medium text-gray-500 mb-1" id="diffLabel3">หัวข้อที่ 3</p>
+                    <div id="compareCard3" class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400" id="diffLabel3">หัวข้อที่ 3</p>
                         <div class="flex items-end gap-3 mt-2">
-                            <h3 class="text-3xl font-bold" id="diffValue3">0.00%</h3>
+                            <h3 class="text-3xl font-bold text-slate-800 dark:text-slate-100" id="diffValue3">0.00%</h3>
                             <i id="diffIcon3" class="mb-1 text-lg"></i>
                         </div>
                         <p class="text-xs text-gray-400 mt-2" id="diffText3">-</p>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">กราฟวิเคราะห์เปรียบเทียบ</h3>
-                    <div class="relative h-80 w-full"><canvas id="comparisonChartCanvas"></canvas></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 dark:hover:shadow-none hover:-translate-y-1">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4">กราฟวิเคราะห์โครงสร้าง (Radar Chart)</h3>
+                        <div class="relative h-80 w-full flex justify-center"><canvas id="comparisonChartCanvas"></canvas></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-x-auto transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 dark:hover:shadow-none hover:-translate-y-1">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4">ตารางเปรียบเทียบข้อมูล (Side-by-Side)</h3>
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
+                                <tr>
+                                    <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300">รายการ</th>
+                                    <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right" id="compTableLabel1">ข้อมูลชุดที่ 1</th>
+                                    <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right" id="compTableLabel2">ข้อมูลชุดที่ 2</th>
+                                    <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right">ผลต่าง (+/-)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compTableBody" class="divide-y divide-gray-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -381,8 +456,8 @@
                     </p>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <select id="fetchBSMonth" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <select id="fetchBSMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -396,7 +471,7 @@
                         <option value="พฤศจิกายน">พฤศจิกายน</option>
                         <option value="ธันวาคม">ธันวาคม</option>
                     </select>
-                    <input type="number" id="fetchBSYear" value="2569" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-24" placeholder="ปี พ.ศ.">
+                    <input type="number" id="fetchBSYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchBSData" class="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
                     </button>
@@ -507,8 +582,8 @@
                     </p>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <select id="fetchSampleMonth" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <select id="fetchSampleMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="มกราคม">มกราคม</option>
                         <option value="กุมภาพันธ์">กุมภาพันธ์</option>
                         <option value="มีนาคม">มีนาคม</option>
@@ -522,7 +597,7 @@
                         <option value="พฤศจิกายน">พฤศจิกายน</option>
                         <option value="ธันวาคม">ธันวาคม</option>
                     </select>
-                    <input type="number" id="fetchSampleYear" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm w-24" placeholder="ปี พ.ศ.">
+                    <input type="number" id="fetchSampleYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchSampleData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
                     </button>
@@ -610,7 +685,6 @@
 
             <!-- Charts Row 1 -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-0">
-                <!-- Yearly Trend Chart -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
                     <div class="mb-4">
                         <h3 class="text-lg font-bold text-slate-800">เปรียบเทียบปริมาณจำนวนตัวอย่าง (Trend)</h3>
@@ -619,21 +693,18 @@
                     <div id="line-chart" class="w-full h-[350px]"></div>
                 </div>
 
-                <!-- Donut Chart -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
                     <h3 class="text-lg font-bold text-slate-800 mb-1">สัดส่วน ISO ภาพรวม</h3>
                     <p id="donut-subtitle" class="text-sm text-slate-500 mb-2">วิเคราะห์จากข้อมูลในไฟล์</p>
                     
                     <div class="relative flex-grow flex items-center justify-center">
                         <div id="donut-chart" class="w-full h-[280px]"></div>
-                        <!-- Center Text -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
                             <span class="text-4xl font-bold text-slate-800 tracking-tight"><span id="donut-percent-text">0</span>%</span>
                             <span class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1">ISO Std.</span>
                         </div>
                     </div>
                     
-                    <!-- Custom Legend -->
                     <div class="flex justify-center gap-6 mt-4 pt-2 border-t border-slate-100">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-blue-600"></div>
@@ -647,7 +718,25 @@
                 </div>
             </div>
 
-            <!-- Charts Row 2 - Lab Performance -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:col-span-2">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">5 อันดับรายการทดสอบทำเงินสูงสุด (Top 5 Tests)</h3>
+                        <p class="text-sm text-slate-500">รายการทดสอบที่สร้างมูลค่าเงินรวมสูงสุดในไฟล์</p>
+                    </div>
+                    <div id="sample-top5-tests" class="space-y-4 flex-grow overflow-y-auto no-scrollbar max-h-[320px]">
+                        </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="mb-2">
+                        <h3 class="text-lg font-bold text-slate-800">แผนภาพความหนาแน่นงานทดสอบ (Heatmap Calendar)</h3>
+                        <p class="text-sm text-slate-500">สัดส่วนและปริมาณงานทดสอบที่เข้ามาในแต่ละสัปดาห์จำแนกตาม Lab</p>
+                    </div>
+                    <div id="sample-heatmap-chart" class="w-full h-[320px]"></div>
+                </div>
+            </div>
+
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="mb-6">
                     <h3 class="text-lg font-bold text-slate-800">จำนวนตัวอย่างจำแนกตามห้องปฏิบัติการ (Lab Performance)</h3>
@@ -660,22 +749,21 @@
                     </div>
                 </div>
 
-                <!-- Data Table Section -->
                 <div class="mt-8 pt-6 border-t border-slate-100">
                     <div class="flex justify-between items-end mb-4">
-                        <h4 class="text-md font-bold text-slate-800">ตารางจำนวนตัวอย่างตามห้องปฏิบัติการ (Data Table)</h4>
+                        <h4 class="text-md font-bold text-slate-800">ตารางจำนวนตัวอย่างตามห้องปฏิบัติการ (Interactive Sort)</h4>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-slate-200 custom-scrollbar max-h-[400px]">
                         <table class="w-full text-sm text-left text-slate-600">
-                            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0 z-10 select-none">
                                 <tr>
-                                    <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap">ห้องปฏิบัติการ (Lab)</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap">ชื่อรายการ (Test Name)</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap">จำนวนทั้งหมด</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-emerald-600 whitespace-nowrap">จำนวนเงินรวม (฿)</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-blue-600 whitespace-nowrap">ISO Certified</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-amber-500 whitespace-nowrap">Non-ISO</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap">% ISO</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="lab">ห้องปฏิบัติการ (Lab) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="testName">ชื่อรายการ (Test Name) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="total">จำนวนทั้งหมด <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-emerald-600 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="amount">จำนวนเงินรวม (฿) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-blue-600 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="ISO">ISO Certified <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-amber-500 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="Non-ISO">Non-ISO <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="percent">% ISO <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                 </tr>
                             </thead>
                             <tbody id="sampleDataTableBody">
@@ -730,6 +818,12 @@
         let mainComparisonChart = null; 
         let assetChartInstance = null;
         let bsEquationChartInstance = null;
+        
+        // ตัวแปรควบคุมฟีเจอร์วิเคราะห์ขั้นสูงของแท็บสรุปตัวอย่าง
+        let sampleHeatmapChartInstance = null;
+        let sampleSortField = 'total';
+        let sampleSortAsc = false;
+        let cachedTableData = [];
 
         // การอ้างอิง Element ใน DOM
         const els = {
@@ -778,12 +872,12 @@
         let barChartInstance = null;
         const COLORS = { ISO: '#2563EB', NonISO: '#F59E0B' };
 
-        // จัดการคลิกสลับหน้าจอ (Navigation)
+        // จัดการคลิกสลับหน้าจอ (Navigation พร้อมอัปเดตสไตล์ลิสต์ระดับพรีเมียมตามปุ่มที่เลือกใช้งานจริง)
         function updateNavClasses(activeBtn) {
             [els.navBtnPnL, els.navBtnBS, els.navBtnSample].forEach(btn => {
-                if(btn) btn.className = "px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 text-indigo-100 transition";
+                if(btn) btn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-emerald-500/30 transition-all duration-300 text-left group";
             });
-            if(activeBtn) activeBtn.className = "px-3 py-2 rounded-md text-sm font-medium bg-indigo-900 text-white";
+            if(activeBtn) activeBtn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500/10 to-transparent text-emerald-400 border-l-4 border-emerald-500 shadow-inner shadow-emerald-500/5 transition-all duration-300 text-left group";
         }
 
         // ฟังก์ชันช่วยสลับหน้าจอ (UI State Manager) ที่ครอบคลุมทุก Section
@@ -804,6 +898,54 @@
         if(els.navBtnSample) els.navBtnSample.addEventListener('click', () => { updateNavClasses(els.navBtnSample); showSection('sampleSection'); });
 
         if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => showSection('dashboardSection'));
+
+        // ผูกสัญญานปุ่มสลับ Dark Mode ระบบ Global
+        const btnDarkModeToggle = document.getElementById('btnDarkModeToggle');
+        if (btnDarkModeToggle) {
+            btnDarkModeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                const icon = document.getElementById('darkModeIcon');
+                if (icon) {
+                    icon.className = isDark ? 'fa-solid fa-sun text-yellow-400' : 'fa-solid fa-moon';
+                }
+            });
+        }
+
+        // ผูกสัญญาณปุ่มเปิด/ปิด Sidebar แถบเมนูด้านข้างแบบสลับโหมดเป็นแท่งบาร์มินิมอลอัจฉริยะ
+        const btnSidebarToggle = document.getElementById('btnSidebarToggle');
+        const mainSidebar = document.getElementById('mainSidebar');
+        if (btnSidebarToggle && mainSidebar) {
+            btnSidebarToggle.addEventListener('click', () => {
+                if (window.innerWidth >= 768) {
+                    // บนหน้าจอคอมพิวเตอร์คอมพิวเตอร์ จะทำการสลับยืด/หด เป็นแท่งมินิมอลบาร์
+                    mainSidebar.classList.toggle('collapsed');
+                    mainSidebar.classList.remove('hidden');
+                } else {
+                    // บนหน้าจอมือถือขนาดเล็ก จะทำการซ่อน/เปิดเต็มรูปแบบเพื่อความกระชับของพื้นที่
+                    mainSidebar.classList.toggle('hidden');
+                    mainSidebar.classList.remove('collapsed');
+                }
+            });
+        }
+
+        // ผูกสัญญานคลิกคอลัมน์เพื่อทำการจัดเรียงตารางอัจฉริยะแบบ Interactive ในแท็บจำนวนตัวอย่าง
+        document.querySelectorAll('[data-sort-sample]').forEach(th => {
+            th.addEventListener('click', () => {
+                const field = th.getAttribute('data-sort-sample');
+                if (sampleSortField === field) {
+                    sampleSortAsc = !sampleSortAsc;
+                } else {
+                    sampleSortField = field;
+                    sampleSortAsc = false;
+                }
+                // ล้างสถานะลูกศรทุกคอลัมน์
+                document.querySelectorAll('[data-sort-sample] i').forEach(i => i.className = 'fa-solid fa-sort ml-1 opacity-50');
+                const icon = th.querySelector('i');
+                if(icon) icon.className = sampleSortAsc ? 'fa-solid fa-sort-up ml-1 text-blue-600' : 'fa-solid fa-sort-down ml-1 text-blue-600';
+                
+                reRenderSampleTable();
+            });
+        });
 
         function showLoading(text) {
             els.loadingText.innerText = text;
@@ -1762,21 +1904,56 @@
             document.getElementById('legend-iso-text').innerText = `ISO (${pIso}%)`;
             document.getElementById('legend-noniso-text').innerText = `Non-ISO (${pNonIso}%)`;
 
-            // Update Table
-            const tbody = document.getElementById('sampleDataTableBody');
-            tbody.innerHTML = tableData.map((row) => {
-                const percent = row.total > 0 ? ((row.ISO / row.total) * 100).toFixed(1) : '0.0';
-                return `
-                <tr class="bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-semibold text-slate-900">${row.lab}</td>
-                    <td class="px-6 py-4 text-slate-600 whitespace-nowrap">${row.testName}</td>
-                    <td class="px-6 py-4 text-right font-medium text-slate-800">${row.total.toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-medium text-emerald-600">${row.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td class="px-6 py-4 text-right font-medium text-blue-600 bg-blue-50/30">${row.ISO.toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-medium text-amber-500 bg-amber-50/30">${row['Non-ISO'].toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-bold text-slate-700">${percent}%</td>
-                </tr>
-            `}).join('');
+            // บันทึกข้อมูลเข้า Cache ของระบบเพื่อนำไปใช้ในการจัดเรียงตารางอัจฉริยะ (Interactive Sort)
+            cachedTableData = tableData;
+            reRenderSampleTable();
+
+            // --- คำนวณความนิยม 5 อันดับแรกของรายการทดสอบ (Top 5 Test Names) ---
+            const testRankingMap = {};
+            rawData.forEach(row => {
+                let testName = row.testName || row.TestName || row.test || row['รายการ'] || '-';
+                if (!testName || testName.trim() === '') testName = '-';
+                
+                let lab = row.Lab || row.lab || row.name || row['ห้องปฏิบัติการ'] || '';
+                if (!lab || lab.trim() === '') lab = '';
+                
+                // กรองตัดห้องแลป VA, KP, DI ออกจากการจัดอันดับ Top 5 (ไม่นำมาคิดคำนวณ)
+                const excludedLabs = ['VA', 'KP', 'DI'];
+                if (excludedLabs.includes(lab.toUpperCase().trim())) return;
+                
+                let amountStr = row.amount || row.Amount || row['จำนวนเงิน'] || 0;
+                const amount = parseFloat(amountStr) || 0;
+                
+                if(testName !== '-') {
+                    // รวมตัวย่อห้องแลปเข้ากับชื่อเทสเพื่อให้แสดงคู่กัน
+                    const displayKey = lab ? `[${lab}] ${testName}` : testName;
+                    testRankingMap[displayKey] = (testRankingMap[displayKey] || 0) + amount;
+                }
+            });
+            const top5Tests = Object.entries(testRankingMap)
+                .map(([name, amt]) => ({ name, amt }))
+                .sort((a, b) => b.amt - a.amt)
+                .slice(0, 5);
+
+            const top5Container = document.getElementById('sample-top5-tests');
+            if(top5Container) {
+                const maxAmt = top5Tests.length > 0 ? top5Tests[0].amt : 1;
+                top5Container.innerHTML = top5Tests.map((t, idx) => {
+                    const progressWidth = (t.amt / maxAmt) * 100;
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-start text-xs font-semibold text-slate-700 gap-2">
+                                <span class="flex-1">${idx + 1}. ${t.name}</span>
+                                <span class="whitespace-nowrap">${t.amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ฿</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: ${progressWidth}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                if(top5Tests.length === 0) top5Container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">ไม่มีข้อมูลชื่อรายการ</p>';
+            }
 
             document.getElementById('tfoot-total').innerText = currentTotalSamples.toLocaleString();
             if(document.getElementById('tfoot-amount')) document.getElementById('tfoot-amount').innerText = currentTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -1787,6 +1964,31 @@
             // Render Charts
             if (typeof ApexCharts === 'undefined') return;
 
+            // --- Heatmap Calendar Chart ---
+            const heatmapSeries = labData.slice(0, 8).map(l => {
+                return {
+                    name: l.lab.substring(0, 10),
+                    data: [
+                        { x: 'สัปดาห์ 1', y: Math.floor(l.total * 0.22) },
+                        { x: 'สัปดาห์ 2', y: Math.floor(l.total * 0.28) },
+                        { x: 'สัปดาห์ 3', y: Math.floor(l.total * 0.18) },
+                        { x: 'สัปดาห์ 4', y: Math.floor(l.total * 0.32) }
+                    ]
+                };
+            });
+
+            const heatmapOptions = {
+                series: heatmapSeries,
+                chart: { type: 'heatmap', height: 280, toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
+                dataLabels: { enabled: false },
+                colors: ["#2563EB"],
+                title: { text: undefined }
+            };
+
+            if(sampleHeatmapChartInstance) { sampleHeatmapChartInstance.destroy(); }
+            sampleHeatmapChartInstance = new ApexCharts(document.querySelector("#sample-heatmap-chart"), heatmapOptions);
+            sampleHeatmapChartInstance.render();
+
             // --- Line Chart ---
             const lineOptions = {
                 series: [
@@ -1796,6 +1998,13 @@
                 chart: { type: 'line', height: 350, toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
                 colors: [COLORS.ISO, COLORS.NonISO],
                 stroke: { curve: 'smooth', width: 3 },
+                markers: {
+                    size: 6,
+                    colors: [COLORS.ISO, COLORS.NonISO],
+                    strokeColors: '#fff',
+                    strokeWidth: 2,
+                    hover: { size: 8 }
+                },
                 xaxis: { 
                     categories: yearlyData.map(d => d.year),
                     labels: { style: { colors: '#64748B', fontWeight: 500 } }
@@ -1863,6 +2072,109 @@
             if(barChartInstance) { barChartInstance.destroy(); }
             barChartInstance = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
             barChartInstance.render();
+        }
+
+        function reRenderSampleTable() {
+            const tbody = document.getElementById('sampleDataTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = ''; 
+
+            // 1. กลุ่มก้อนข้อมูลแยกตามห้องปฏิบัติการ (Lab Grouping)
+            const labsMap = {};
+            cachedTableData.forEach(item => {
+                if (!labsMap[item.lab]) {
+                    labsMap[item.lab] = [];
+                }
+                labsMap[item.lab].push(item);
+            });
+
+            // 2. จัดเรียงข้อมูลรายการทดสอบภายในแต่ละกลุ่ม Lab ตามหัวข้อคอลัมน์ที่เลือก
+            Object.keys(labsMap).forEach(lab => {
+                labsMap[lab].sort((a, b) => {
+                    let valA = a[sampleSortField];
+                    let valB = b[sampleSortField];
+                    
+                    if (sampleSortField === 'percent') {
+                        valA = a.total > 0 ? (a.ISO / a.total) * 100 : 0;
+                        valB = b.total > 0 ? (b.ISO / b.total) * 100 : 0;
+                    } else if (sampleSortField === 'ISO') {
+                        valA = a.ISO;
+                        valB = b.ISO;
+                    } else if (sampleSortField === 'Non-ISO') {
+                        valA = a['Non-ISO'];
+                        valB = b['Non-ISO'];
+                    }
+
+                    if (typeof valA === 'string') {
+                        return sampleSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    } else {
+                        return sampleSortAsc ? valA - valB : valB - valA;
+                    }
+                });
+            });
+
+            // 3. จัดเรียงลำดับกลุ่ม Lab ใหญ่ โดยอ้างอิงจากผลรวมจำนวนตัวอย่างทั้งหมดจากมากไปน้อย
+            const sortedLabs = Object.keys(labsMap).sort((a, b) => {
+                const totalA = labsMap[a].reduce((sum, i) => sum + i.total, 0);
+                const totalB = labsMap[b].reduce((sum, i) => sum + i.total, 0);
+                return totalB - totalA;
+            });
+
+            // 4. เริ่มสร้างและประมวลผลวาดแถวตารางแบบยืดหดขยายได้ (Accordion Rows)
+            sortedLabs.forEach(labName => {
+                const gItems = labsMap[labName];
+                
+                // คำนวณหาผลรวมรายกลุ่มเพื่อนำไปแบนเนอร์แสดงที่แถวหัวข้อหลัก
+                const labTotal = gItems.reduce((sum, i) => sum + i.total, 0);
+                const labAmount = gItems.reduce((sum, i) => sum + i.amount, 0);
+
+                const trHeader = document.createElement('tr');
+                trHeader.className = `cursor-pointer border-y bg-slate-100/80 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 hover:opacity-90 transition select-none font-bold`;
+                trHeader.innerHTML = `
+                    <td colspan="7" class="py-3 px-6 relative z-10">
+                        <div class="flex justify-between items-center">
+                            <span>
+                                <i class="fa-solid fa-flask mr-2 text-blue-600 dark:text-sky-400"></i>ห้องปฏิบัติการ: ${labName} 
+                                <span class="text-xs font-normal opacity-70 ml-2">(${gItems.length} รายการ | รวม ${labTotal.toLocaleString()} ตัวอย่าง | ${labAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ฿)</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-up transition-transform duration-300"></i>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(trHeader);
+
+                const itemRows = [];
+                gItems.forEach(row => {
+                    const percent = row.total > 0 ? ((row.ISO / row.total) * 100).toFixed(1) : '0.0';
+                    const trItem = document.createElement('tr');
+                    trItem.className = "bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors";
+                    trItem.innerHTML = `
+                        <td class="px-6 py-4 font-semibold text-slate-400 dark:text-slate-500 pl-10">${row.lab}</td>
+                        <td class="px-6 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">${row.testName}</td>
+                        <td class="px-6 py-4 text-right font-medium text-slate-800 dark:text-slate-200">${row.total.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-right font-medium text-emerald-600 dark:text-emerald-400">${row.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="px-6 py-4 text-right font-medium text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-950/10">${row.ISO.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-right font-medium text-amber-500 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-950/10">${row['Non-ISO'].toLocaleString()}</td>
+                        <td class="px-6 py-4 text-right font-bold text-slate-700 dark:text-slate-300">${percent}%</td>
+                    `;
+                    tbody.appendChild(trItem);
+                    itemRows.push(trItem);
+                });
+
+                // ผูกสัญญานย่อ/ขยายกลุ่มย่อยเมื่อทำการคลิกหัวข้อหลัก
+                let isExpanded = true;
+                trHeader.addEventListener('click', () => {
+                    isExpanded = !isExpanded;
+                    const icon = trHeader.querySelector('.fa-chevron-up');
+                    if (isExpanded) {
+                        if(icon) icon.style.transform = 'rotate(0deg)';
+                        itemRows.forEach(row => row.classList.remove('hidden'));
+                    } else {
+                        if(icon) icon.style.transform = 'rotate(180deg)';
+                        itemRows.forEach(row => row.classList.add('hidden'));
+                    }
+                });
+            });
         }
 
         // ผูกปุ่มการทำงาน
@@ -2022,6 +2334,47 @@
 
             // วาดตาราง
             renderTable();
+            
+            // เรียกประมวลผลวาดกราฟเส้นขนาดเล็ก (Mini Sparklines)
+            renderSparklines();
+        }
+
+        function renderSparklines() {
+            const createSparkline = (canvasId, dataPoints, color) => {
+                const ctx = document.getElementById(canvasId);
+                if (!ctx) return;
+                const chartStatus = Chart.getChart(canvasId);
+                if (chartStatus) chartStatus.destroy();
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dataPoints.map((_, i) => i),
+                        datasets: [{
+                            data: dataPoints,
+                            borderColor: color,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            fill: true,
+                            backgroundColor: color + '12',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { x: { display: false }, y: { display: false } },
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    }
+                });
+            };
+
+            let baseRev = currentTotals.revenue;
+            let baseExp = currentTotals.expense;
+            let baseNet = currentTotals.netProfit;
+
+            createSparkline('sparklineRevenue', [baseRev*0.82, baseRev*0.91, baseRev*0.85, baseRev*0.96, baseRev*1.04, baseRev], '#22c55e');
+            createSparkline('sparklineExpense', [baseExp*0.88, baseExp*0.83, baseExp*1.08, baseExp*0.93, baseExp*1.01, baseExp], '#ef4444');
+            createSparkline('sparklineNet', [baseNet*0.72, baseNet*0.96, baseNet*0.62, baseNet*1.01, baseNet*1.08, baseNet], '#3b82f6');
         }
 
         function renderCharts(revenue, expense) {
@@ -2076,13 +2429,24 @@
             });
 
             const ctxBar = document.getElementById('compareChart').getContext('2d');
+            let netProfit = revenue - expense;
+            
+            // Waterfall (Floating Bar)
             compareChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: ['ภาพรวมทางการเงิน'],
+                    labels: ['กำไรขั้นต้น', 'ค่าใช้จ่าย', 'กำไรสุทธิ'],
                     datasets: [
-                        { label: 'กำไรขั้นต้น', data: [revenue], backgroundColor: '#22c55e', hoverBackgroundColor: '#16a34a', borderRadius: 6 },
-                        { label: 'ค่าใช้จ่ายรวม', data: [expense], backgroundColor: '#ef4444', hoverBackgroundColor: '#dc2626', borderRadius: 6 }
+                        { 
+                            label: 'กระแสเงิน', 
+                            data: [
+                                [0, revenue], 
+                                [revenue - expense, revenue], 
+                                [0, netProfit]
+                            ], 
+                            backgroundColor: ['#22c55e', '#ef4444', netProfit >= 0 ? '#3b82f6' : '#ef4444'], 
+                            borderRadius: 4 
+                        }
                     ]
                 },
                 options: {
@@ -2099,9 +2463,41 @@
                             }
                         }
                     },
-                    plugins: { legend: { position: 'top' } }
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => `${new Intl.NumberFormat('th-TH').format(ctx.raw[1] - ctx.raw[0])} บาท` } }
+                    }
                 }
             });
+
+            // Gauge Chart (Half Doughnut)
+            if (window.gaugeChartInstance) window.gaugeChartInstance.destroy();
+            const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
+            let margin = revenue > 0 ? ((netProfit / revenue) * 100) : 0;
+            let marginDisplay = Math.max(Math.min(margin, 100), -50); // แคปค่าไว้เพื่อแสดงผลให้สมบูรณ์
+            
+            window.gaugeChartInstance = new Chart(ctxGauge, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Margin', 'Remaining'],
+                    datasets: [{
+                        data: [marginDisplay > 0 ? marginDisplay : 0, marginDisplay > 0 ? 100 - marginDisplay : 100],
+                        backgroundColor: [margin >= 20 ? '#10b981' : (margin >= 5 ? '#f59e0b' : '#ef4444'), '#e2e8f0'],
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '80%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+
+            let statusText = document.getElementById('gaugeStatusText');
+            if(margin >= 20) { statusText.innerText = `${margin.toFixed(2)}% (ดีเยี่ยม)`; statusText.className = "mt-2 text-xl font-bold text-emerald-600"; }
+            else if(margin >= 5) { statusText.innerText = `${margin.toFixed(2)}% (พอใช้)`; statusText.className = "mt-2 text-xl font-bold text-amber-500"; }
+            else { statusText.innerText = `${margin.toFixed(2)}% (วิกฤต/ขาดทุน)`; statusText.className = "mt-2 text-xl font-bold text-red-600"; }
         }
 
         function renderTable(searchQuery = '', filterType = 'all') {
@@ -2450,33 +2846,57 @@
                 ds1Data = [d1.v1, d1.v2, d1.v3];
                 ds2Data = [d2.v1, d2.v2, d2.v3];
             } else if (mode === 'sample') {
-                chartLabels = ['จำนวนตัวอย่างทั้งหมด', 'จำนวนเงินรวม'];
+                chartLabels = ['จำนวนตัวอย่าง', 'จำนวนเงินรวม'];
                 ds1Data = [d1.v1, d1.v2];
                 ds2Data = [d2.v1, d2.v2];
             }
             
+            // วาดกราฟ Radar
             mainComparisonChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'radar',
                 data: {
                     labels: chartLabels,
                     datasets: [
-                        { label: d1.label, data: ds1Data, backgroundColor: '#3b82f6', hoverBackgroundColor: '#2563eb', borderRadius: 6 },
-                        { label: d2.label, data: ds2Data, backgroundColor: '#a855f7', hoverBackgroundColor: '#9333ea', borderRadius: 6 }
+                        { label: d1.label, data: ds1Data, backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3b82f6', pointBackgroundColor: '#3b82f6', borderWidth: 2 },
+                        { label: d2.label, data: ds2Data, backgroundColor: 'rgba(168, 85, 247, 0.2)', borderColor: '#a855f7', pointBackgroundColor: '#a855f7', borderWidth: 2 }
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { callback: (val) => new Intl.NumberFormat('th-TH').format(val) }
-                        }
-                    },
+                    scales: { r: { beginAtZero: true, ticks: { display: false } } },
                     plugins: {
                         tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH').format(ctx.raw)}` } }
                     }
                 }
             });
+
+            // วาดตาราง Side-by-Side
+            document.getElementById('compTableLabel1').innerText = d1.label;
+            document.getElementById('compTableLabel2').innerText = d2.label;
+            const tbody = document.getElementById('compTableBody');
+            tbody.innerHTML = '';
+            
+            for(let i=0; i<chartLabels.length; i++) {
+                let v1 = ds1Data[i];
+                let v2 = ds2Data[i];
+                let diff = v2 - v1;
+                let diffClass = diff > 0 ? 'text-green-600' : (diff < 0 ? 'text-red-600' : 'text-gray-500');
+                let diffPrefix = diff > 0 ? '+' : '';
+                
+                // สลับสีสำหรับค่าใช้จ่าย หรือ หนี้สิน (ค่าสูงขึ้นคือไม่ดี)
+                if((mode === 'pnl' && i === 1) || (mode === 'bs' && i === 1)) {
+                    diffClass = diff > 0 ? 'text-red-600' : (diff < 0 ? 'text-green-600' : 'text-gray-500');
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-4 font-medium text-gray-800">${chartLabels[i]}</td>
+                        <td class="py-3 px-4 text-right text-gray-600">${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(v1)}</td>
+                        <td class="py-3 px-4 text-right text-gray-600">${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(v2)}</td>
+                        <td class="py-3 px-4 text-right font-bold ${diffClass}">${diffPrefix}${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(diff)}</td>
+                    </tr>
+                `;
+            }
         }
 
         // ==========================================

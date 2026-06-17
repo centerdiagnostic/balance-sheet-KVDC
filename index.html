@@ -742,9 +742,14 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold text-slate-800">จำนวนตัวอย่างจำแนกตามห้องปฏิบัติการ (Lab Performance)</h3>
-                    <p id="lab-subtitle" class="text-sm text-slate-500">ปริมาณงานทดสอบเรียงลำดับตามความหนาแน่น</p>
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">จำนวนตัวอย่างจำแนกตามห้องปฏิบัติการ (Lab Performance)</h3>
+                        <p id="lab-subtitle" class="text-sm text-slate-500">ปริมาณงานทดสอบเรียงลำดับตามความหนาแน่น</p>
+                    </div>
+                    <button id="btnToggleSampleChart" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-lg transition-colors border border-slate-200 shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i> <span id="toggleSampleChartText">สลับเรียงตาม: ยอดเงิน (บาท)</span>
+                    </button>
                 </div>
                 
                 <div class="w-full overflow-x-auto custom-scrollbar">
@@ -825,9 +830,11 @@
         
         // ตัวแปรควบคุมฟีเจอร์วิเคราะห์ขั้นสูงของแท็บสรุปตัวอย่าง
         let sampleHeatmapChartInstance = null;
-        let sampleSortField = 'total';
-        let sampleSortAsc = false;
+        let sampleSortField = 'lab';
+        let sampleSortAsc = true;
         let cachedTableData = [];
+        let sampleChartSortMode = 'total';
+        let globalLabDataForChart = [];
 
         // การอ้างอิง Element ใน DOM
         const els = {
@@ -1887,10 +1894,12 @@
                 else currentTotalNonISO += samples;
 
                 // สำหรับกราฟ (กลุ่มรวมแค่ Lab)
-                if (!labMap[lab]) labMap[lab] = { lab, ISO: 0, 'Non-ISO': 0, total: 0, amount: 0 };
+                if (!labMap[lab]) labMap[lab] = { lab, ISO: 0, 'Non-ISO': 0, total: 0, amount: 0, amountISO: 0, amountNonISO: 0 };
                 labMap[lab][isISO ? 'ISO' : 'Non-ISO'] += samples;
                 labMap[lab].total += samples;
                 labMap[lab].amount += amount;
+                if (isISO) labMap[lab].amountISO += amount;
+                else labMap[lab].amountNonISO += amount;
                 
                 // สำหรับตาราง (กลุ่มย่อยตาม Lab + Test Name)
                 const tableKey = lab + '||' + testName;
@@ -2074,46 +2083,91 @@
             donutChartInstance = new ApexCharts(document.querySelector("#donut-chart"), donutOptions);
             donutChartInstance.render();
 
-            // --- Bar Chart (Updated with Total DataLabels) ---
-            const barHeight = Math.max(350, labData.length * 45); 
-            const barOptions = {
-                series: [
-                    { name: 'ISO Certified', data: labData.map(d => d.ISO) },
-                    { name: 'Non-ISO', data: labData.map(d => d['Non-ISO']) }
-                ],
-                chart: { type: 'bar', height: barHeight, stacked: true, toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
-                colors: [COLORS.ISO, COLORS.NonISO],
-                plotOptions: { 
-                    bar: { 
-                        horizontal: true, 
-                        borderRadius: 3, 
-                        barHeight: '60%',
-                        dataLabels: {
-                            total: {
-                                enabled: true,
-                                offsetX: 5,
-                                style: {
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                    color: '#334155',
-                                    fontFamily: 'Prompt, sans-serif'
-                                },
-                                formatter: function (val) {
-                                    return Number(val).toLocaleString();
+            // --- Bar Chart (Updated with Toggle Functionality) ---
+            globalLabDataForChart = Object.values(labMap);
+            
+            window.drawSampleBarChart = function() {
+                let chartData = [...globalLabDataForChart];
+                const btnText = document.getElementById('toggleSampleChartText');
+                
+                if (sampleChartSortMode === 'total') {
+                    chartData.sort((a, b) => b.total - a.total);
+                    document.getElementById('lab-subtitle').innerText = 'ปริมาณงานทดสอบเรียงลำดับตามความหนาแน่น (จำนวนตัวอย่าง)';
+                    if(btnText) btnText.innerText = 'สลับเรียงตาม: ยอดเงิน (บาท)';
+                } else {
+                    chartData.sort((a, b) => b.amount - a.amount);
+                    document.getElementById('lab-subtitle').innerText = 'ปริมาณงานทดสอบเรียงลำดับตามยอดเงินรวม (บาท)';
+                    if(btnText) btnText.innerText = 'สลับเรียงตาม: จำนวนตัวอย่าง';
+                }
+
+                const barHeight = Math.max(350, chartData.length * 45); 
+                const barOptions = {
+                    series: [
+                        { name: 'ISO Certified', data: chartData.map(d => sampleChartSortMode === 'total' ? d.ISO : d.amountISO) },
+                        { name: 'Non-ISO', data: chartData.map(d => sampleChartSortMode === 'total' ? d['Non-ISO'] : d.amountNonISO) }
+                    ],
+                    chart: { type: 'bar', height: barHeight, stacked: true, toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
+                    colors: [COLORS.ISO, COLORS.NonISO],
+                    plotOptions: { 
+                        bar: { 
+                            horizontal: true, 
+                            borderRadius: 3, 
+                            barHeight: '60%',
+                            dataLabels: {
+                                total: {
+                                    enabled: true,
+                                    offsetX: 5,
+                                    style: {
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        color: '#334155',
+                                        fontFamily: 'Prompt, sans-serif'
+                                    },
+                                    formatter: function (val) {
+                                        return sampleChartSortMode === 'total' 
+                                            ? Number(val).toLocaleString() 
+                                            : Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                                    }
                                 }
                             }
+                        } 
+                    },
+                    dataLabels: { enabled: false },
+                    xaxis: { 
+                        categories: chartData.map(d => d.lab),
+                        labels: {
+                            formatter: function (val) {
+                                return sampleChartSortMode === 'total' ? val : Number(val).toLocaleString();
+                            }
                         }
-                    } 
-                },
-                dataLabels: { enabled: false },
-                xaxis: { categories: labData.map(d => d.lab) },
-                legend: { position: 'bottom' },
-                tooltip: { y: { formatter: (val) => val.toLocaleString() + " ตัวอย่าง" } }
+                    },
+                    legend: { position: 'bottom' },
+                    tooltip: { 
+                        y: { 
+                            formatter: (val) => sampleChartSortMode === 'total' 
+                                ? val.toLocaleString() + " ตัวอย่าง" 
+                                : val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ฿" 
+                        } 
+                    }
+                };
+
+                if(barChartInstance) { barChartInstance.destroy(); }
+                barChartInstance = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
+                barChartInstance.render();
             };
 
-            if(barChartInstance) { barChartInstance.destroy(); }
-            barChartInstance = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
-            barChartInstance.render();
+            // Initial Draw
+            window.drawSampleBarChart();
+            
+            // Attach Event to button (Prevent multiple bindings)
+            const toggleBtn = document.getElementById('btnToggleSampleChart');
+            if (toggleBtn && !toggleBtn.dataset.bound) {
+                toggleBtn.dataset.bound = "true";
+                toggleBtn.addEventListener('click', () => {
+                    sampleChartSortMode = sampleChartSortMode === 'total' ? 'amount' : 'total';
+                    window.drawSampleBarChart();
+                });
+            }
         }
 
         function reRenderSampleTable() {
@@ -2155,12 +2209,8 @@
                 });
             });
 
-            // 3. จัดเรียงลำดับกลุ่ม Lab ใหญ่ โดยอ้างอิงจากผลรวมจำนวนตัวอย่างทั้งหมดจากมากไปน้อย
-            const sortedLabs = Object.keys(labsMap).sort((a, b) => {
-                const totalA = labsMap[a].reduce((sum, i) => sum + i.total, 0);
-                const totalB = labsMap[b].reduce((sum, i) => sum + i.total, 0);
-                return totalB - totalA;
-            });
+            // 3. จัดเรียงลำดับกลุ่ม Lab ใหญ่ ตามตัวอักษรของชื่อห้องปฏิบัติการ (ก-ฮ)
+            const sortedLabs = Object.keys(labsMap).sort((a, b) => a.localeCompare(b, 'th'));
 
             // 4. เริ่มสร้างและประมวลผลวาดแถวตารางแบบยืดหดขยายได้ (Accordion Rows)
             sortedLabs.forEach(labName => {

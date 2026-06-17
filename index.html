@@ -2068,6 +2068,47 @@
             lineChartInstance = new ApexCharts(document.querySelector("#line-chart"), lineOptions);
             lineChartInstance.render();
 
+            // [ส่วนแก้ไขเพิ่มเติม] ดึงข้อมูลปีย้อนหลังและปีถัดไปเพื่อแสดงเทรนด์ (Trend Line) ข้ามปีให้สมบูรณ์
+            if (data.year && data.year !== 'ไม่ระบุ') {
+                const baseYear = parseInt(data.year);
+                if (!isNaN(baseYear)) {
+                    // กำหนดช่วงปีที่ต้องการตรวจสอบ (ย้อนหลัง 3 ปี และเดินหน้า 1 ปี)
+                    const yearsToCheck = [baseYear - 3, baseYear - 2, baseYear - 1, baseYear, baseYear + 1];
+                    
+                    (async () => {
+                        let multiYearData = [];
+                        for (let y of yearsToCheck) {
+                            try {
+                                const yData = await fetchSampleDataAgg(y.toString(), 'all');
+                                if (yData && yData.totalSamples > 0) {
+                                    multiYearData.push({
+                                        year: y.toString(),
+                                        ISO: yData.totalISO,
+                                        'Non-ISO': yData.totalNonISO
+                                    });
+                                }
+                            } catch (e) {
+                                console.error("Error fetching trend data for year", y, e);
+                            }
+                        }
+                        
+                        // ถ้าระบบพบข้อมูลปีอื่นๆ ให้ทำการอัปเดตกราฟเส้นเชื่อมให้เป็น Trend อัตโนมัติ
+                        if (multiYearData.length > 0) {
+                            lineChartInstance.updateSeries([
+                                { name: 'ISO Certified', data: multiYearData.map(d => d.ISO) },
+                                { name: 'Non-ISO', data: multiYearData.map(d => d['Non-ISO']) }
+                            ]);
+                            lineChartInstance.updateOptions({
+                                xaxis: { 
+                                    categories: multiYearData.map(d => d.year),
+                                    labels: { style: { colors: '#64748B', fontWeight: 500 } }
+                                }
+                            });
+                        }
+                    })();
+                }
+            }
+
             // --- Donut Chart ---
             const donutOptions = {
                 series: [currentTotalISO, currentTotalNonISO],

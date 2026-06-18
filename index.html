@@ -123,7 +123,7 @@
             </button>
             <button id="navBtnSample" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-slate-700 transition-all duration-300 text-left group">
                 <i class="fa-solid fa-flask w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
-                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">จำนวนตัวอย่าง</span>
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">จำนวนการตรวจ</span>
             </button>
         </div>
     </aside>
@@ -138,7 +138,7 @@
                     <i class="fa-solid fa-file-arrow-up text-4xl"></i>
                 </div>
                 <h2 class="text-xl font-semibold">อัปโหลดรายงาน (PDF หรือ Excel)</h2>
-                <p class="text-gray-500 text-sm max-w-md">อัปโหลดไฟล์ PDF สำหรับงบการเงิน หรือไฟล์ Excel/CSV สำหรับข้อมูลจำนวนตัวอย่าง</p>
+                <p class="text-gray-500 text-sm max-w-md">อัปโหลดไฟล์ PDF สำหรับงบการเงิน หรือไฟล์ Excel/CSV สำหรับข้อมูลจำนวนการตรวจ</p>
                 <div class="flex gap-4">
                     <button id="btnGoToDashboard" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium shadow-sm">
                         <i class="fa-solid fa-chart-pie mr-2"></i> เข้าสู่หน้าแดชบอร์ด
@@ -676,9 +676,9 @@
                         <i data-lucide="circle-dollar-sign" class="w-20 h-20 text-emerald-600"></i>
                     </div>
                     <p class="text-sm font-semibold text-emerald-600 mb-1 z-10">จำนวนเงินรวม (บาท)</p>
-                    <div class="flex flex-wrap items-baseline gap-y-1 mb-4 z-10 w-full">
-                        <h3 id="kpi-amount" class="text-2xl 2xl:text-3xl font-bold text-slate-900 tracking-tight" title="จำนวนเงินรวม">0</h3>
-                        <span id="badge-amount" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2 shrink-0"></span>
+                    <div class="flex flex-wrap items-baseline gap-2 mb-4 z-10 w-full">
+                        <h3 id="kpi-amount" class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight break-all" title="จำนวนเงินรวม">0</h3>
+                        <span id="badge-amount" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"></span>
                     </div>
                     <div class="mt-auto flex items-center text-xs text-emerald-700 font-medium bg-emerald-100/60 w-fit px-2.5 py-1 rounded-md z-10 border border-emerald-200 shadow-sm">
                         รายได้รวมทั้งหมด
@@ -730,7 +730,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-0">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
                     <div class="mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">เปรียบเทียบปริมาณจำนวนตัวอย่าง (Trend)</h3>
+                        <h3 class="text-lg font-bold text-slate-800">เปรียบเทียบปริมาณจำนวนการตรวจ (Trend)</h3>
                         <p class="text-sm text-slate-500">แนวโน้มจำแนกตามปี/กลุ่มข้อมูล</p>
                     </div>
                     <div id="line-chart" class="w-full h-[350px]"></div>
@@ -783,7 +783,7 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">จำนวนตัวอย่างจำแนกตามห้องปฏิบัติการ (Lab Performance)</h3>
+                        <h3 class="text-lg font-bold text-slate-800">จำนวนการตรวจจำแนกตามห้องปฏิบัติการ (Lab Performance)</h3>
                         <p id="lab-subtitle" class="text-sm text-slate-500">ปริมาณงานทดสอบเรียงลำดับตามความหนาแน่น</p>
                     </div>
                     <button id="btnToggleSampleChart" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-lg transition-colors border border-slate-200 shadow-sm flex items-center gap-2">
@@ -799,7 +799,7 @@
 
                 <div class="mt-8 pt-6 border-t border-slate-100">
                     <div class="flex justify-between items-end mb-4">
-                        <h4 class="text-md font-bold text-slate-800">ตารางจำนวนตัวอย่างตามห้องปฏิบัติการ (Interactive Sort)</h4>
+                        <h4 class="text-md font-bold text-slate-800">ตารางจำนวนการตรวจตามห้องปฏิบัติการ (Interactive Sort)</h4>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-slate-200 custom-scrollbar max-h-[400px]">
                         <table class="w-full text-sm text-left text-slate-600">
@@ -2010,14 +2010,20 @@
                     if (!startTimestamp) startTimestamp = ts;
                     const progress = Math.min((ts - startTimestamp) / dur, 1);
                     const currentVal = Math.floor(progress * (end - start) + start);
-                    obj.innerText = isFloat 
+                    const formattedVal = isFloat 
                         ? currentVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
                         : currentVal.toLocaleString();
+                    obj.innerText = formattedVal;
+                    obj.title = formattedVal; // อัปเดต Title สำหรับแสดงตอน Hover
                         
                     if (progress < 1) window.requestAnimationFrame(step);
-                    else obj.innerText = isFloat 
-                        ? end.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
-                        : end.toLocaleString();
+                    else {
+                        const finalVal = isFloat 
+                            ? end.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                            : end.toLocaleString();
+                        obj.innerText = finalVal;
+                        obj.title = finalVal; // อัปเดต Title ค่าสุดท้าย
+                    }
                 };
                 window.requestAnimationFrame(step);
             };
@@ -2259,6 +2265,11 @@
                         } 
                     },
                     dataLabels: { enabled: false },
+                    grid: {
+                        padding: {
+                            right: 120
+                        }
+                    },
                     xaxis: { 
                         categories: chartData.map(d => d.lab),
                         labels: {
@@ -3321,93 +3332,88 @@
         async function initApp() {
             showLoading('กำลังโหลดข้อมูลล่าสุด...');
             
-            // 5.1 ดึงวันที่ปัจจุบันจากระบบ
             const dateObj = new Date();
-            let targetMonthIdx = dateObj.getMonth() - 1; // ลบย้อนหลังไป 1 เดือน
-            let targetThaiYear = dateObj.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+            let targetMonthIdx = dateObj.getMonth() - 1; 
+            let targetThaiYear = dateObj.getFullYear() + 543; 
 
-            // หากปัจจุบันคือเดือนมกราคม (Index 0) พอย้อนหลัง 1 เดือนจะได้ Index -1 ให้ปัดเป็นธันวาคม และลดปี พ.ศ. ลง 1 ปี
             if (targetMonthIdx < 0) {
-                targetMonthIdx = 11; // 11 คือเดือนธันวาคม
+                targetMonthIdx = 11; 
                 targetThaiYear = targetThaiYear - 1;
             }
 
             const monthNames = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
             const targetThaiMonth = monthNames[targetMonthIdx];
 
-            // 5.2 ตั้งค่าเดือนและปีที่คำนวณได้ให้กับ Input Elements ของงบกำไรขาดทุน
             if (document.getElementById('fetchMonth')) document.getElementById('fetchMonth').value = targetThaiMonth;
             if (document.getElementById('fetchYear')) document.getElementById('fetchYear').value = targetThaiYear;
             if (document.getElementById('monthSelect')) document.getElementById('monthSelect').value = targetThaiMonth;
             if (document.getElementById('yearInput')) document.getElementById('yearInput').value = targetThaiYear;
-
-            // 5.3 ตั้งค่าเดือนและปีที่คำนวณได้ให้กับ Input Elements ของงบดุลและตัวอย่าง (แท็บ 2 และ 3)
             if (document.getElementById('fetchBSMonth')) document.getElementById('fetchBSMonth').value = targetThaiMonth;
             if (document.getElementById('fetchBSYear')) document.getElementById('fetchBSYear').value = targetThaiYear;
             if (document.getElementById('fetchSampleMonth')) document.getElementById('fetchSampleMonth').value = targetThaiMonth;
             if (document.getElementById('fetchSampleYear')) document.getElementById('fetchSampleYear').value = targetThaiYear;
 
-            // 5.4 ดึงข้อมูลงบกำไรขาดทุนย้อนหลังล่าสุดมาแสดงผล
-            const docRef = doc(db, `financial_reports_${targetThaiYear}`, targetThaiMonth);
-            
+            const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
+            const fiscalYear = isLateYear ? targetThaiYear + 1 : targetThaiYear;
+            const docId = `${targetThaiMonth} ${targetThaiYear}`;
+
+            // 1. ดึงข้อมูลงบกำไรขาดทุน (พร้อมเปรียบเทียบเดือนก่อนหน้า) แบบ Background
             try {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    extractedData = data.items;
-                    currentTotals = {
-                        revenue: data.totalRevenue,
-                        expense: data.totalExpense,
-                        netProfit: data.netProfit
-                    };
+                let prevFY = targetThaiYear;
+                let prevMonth = targetMonthIdx === 0 ? 'ธันวาคม' : monthNames[targetMonthIdx - 1];
+                let prevCalYear = targetMonthIdx === 0 ? targetThaiYear - 1 : targetThaiYear;
+                if (targetThaiMonth === 'ตุลาคม') prevFY = targetThaiYear - 1;
+                
+                try {
+                    const prevSnap = await getDoc(doc(db, `financial_reports_${prevFY}`, `${prevMonth} ${prevCalYear}`));
+                    if (prevSnap.exists()) {
+                        const d = prevSnap.data();
+                        previousTotals = { opRevenue: d.opRevenue || 0, cogs: d.cogs || 0, grossProfit: d.totalRevenue || 0, expense: d.totalExpense || 0, netProfit: d.netProfit || 0 };
+                    } else { previousTotals = null; }
+                } catch(e) { previousTotals = null; }
+
+                const pnlSnap = await getDoc(doc(db, `financial_reports_${fiscalYear}`, docId));
+                if (pnlSnap.exists()) {
+                    const data = pnlSnap.data();
+                    extractedData = data.items || [];
+                    currentTotals = { opRevenue: data.opRevenue || 0, cogs: data.cogs || 0, grossProfit: data.totalRevenue || 0, expense: data.totalExpense || 0, netProfit: data.netProfit || 0 };
                     renderDashboard(data);
                 }
-            } catch (error) {
-                console.error("Init PnL Error:", error);
-            }
+            } catch(e) { console.log(e); }
 
-            // 5.5 ดึงข้อมูลงบดุลล่าสุดมาเตรียมพร้อมในหน่วยความจำ (แก้ไขชื่อคีย์ตัวแปรให้ตรงกับระบบคำนวณย้อนหลัง)
-            const isLateYearBS = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
-            const fiscalYearBS = isLateYearBS ? targetThaiYear + 1 : targetThaiYear;
-            const bsDocRef = doc(db, `balance_sheet_${fiscalYearBS}`, `${targetThaiMonth} ${targetThaiYear}`);
+            // 2. ดึงข้อมูลงบดุล แบบ Background
             try {
-                const bsDocSnap = await getDoc(bsDocRef);
-                if (bsDocSnap.exists()) {
-                    const bsData = bsDocSnap.data();
-                    bsExtractedData = {
-                        totalAssets: bsData.totalAssets,
-                        totalLiabilities: bsData.totalLiabilities,
-                        totalEquity: bsData.totalEquity,
-                        netProfit: bsData.netProfit,
-                        retainedEarnings: bsData.retainedEarnings,
-                        items: bsData.items || []
-                    };
+                const bsSnap = await getDoc(doc(db, `balance_sheet_${fiscalYear}`, docId));
+                if (bsSnap.exists()) {
+                    const bsData = bsSnap.data();
+                    bsExtractedData = { totalAssets: bsData.totalAssets, totalLiabilities: bsData.totalLiabilities, totalEquity: bsData.totalEquity, netProfit: bsData.netProfit, retainedEarnings: bsData.retainedEarnings, items: bsData.items || [] };
                     renderBSDashboard(bsData);
                 }
-            } catch (error) {
-                console.error("Init BS Error:", error);
-            }
+            } catch(e) { console.log(e); }
 
-            // 5.6 ดึงข้อมูลจำนวนตัวอย่างล่าสุด
-            const isLateYearSmp = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
-            const fiscalYearSmp = isLateYearSmp ? targetThaiYear + 1 : targetThaiYear;
-            const smpDocRef = doc(db, `sample_reports_${fiscalYearSmp}`, `${targetThaiMonth} ${targetThaiYear}`);
+            // 3. ดึงข้อมูลจำนวนตัวอย่าง แบบ Background
             try {
-                const smpDocSnap = await getDoc(smpDocRef);
-                if (smpDocSnap.exists()) {
-                    const smpData = smpDocSnap.data();
-                    sampleExtractedData = {
-                        totalSamples: smpData.totalSamples,
-                        totalAmount: smpData.totalAmount,
-                        items: smpData.items || []
-                    };
+                const smpData = await fetchSampleDataAgg(targetThaiYear.toString(), targetThaiMonth);
+                if (smpData && smpData.items && smpData.items.length > 0) {
+                    smpData.month = targetThaiMonth;
+                    smpData.year = targetThaiYear.toString();
+                    smpData.fileId = 'FETCHED';
+                    sampleExtractedData = { totalSamples: smpData.totalSamples, totalAmount: smpData.totalAmount, items: smpData.items };
                     renderSampleDashboard(smpData);
-                }
-            } catch (error) {
-                console.error("Init Sample Error:", error);
-            }
 
-            // เปิดหน้าแดชบอร์ดงบกำไรขาดทุนเป็นหลักตอนเริ่มต้น
+                    let prevYearSmp = targetThaiYear.toString();
+                    let prevMonthSmp = targetMonthIdx === 0 ? 'ธันวาคม' : monthNames[targetMonthIdx - 1];
+                    if (targetMonthIdx === 0) prevYearSmp = (targetThaiYear - 1).toString();
+                    const prevSmp = await fetchSampleDataAgg(prevYearSmp, prevMonthSmp);
+
+                    updateSampleBadge('badge-total', prevSmp ? prevSmp.totalSamples : 0, smpData.totalSamples);
+                    updateSampleBadge('badge-amount', prevSmp ? prevSmp.totalAmount : 0, smpData.totalAmount);
+                    updateSampleBadge('badge-iso', prevSmp ? prevSmp.totalISO : 0, smpData.totalISO);
+                    updateSampleBadge('badge-noniso', prevSmp ? prevSmp.totalNonISO : 0, smpData.totalNonISO);
+                }
+            } catch(e) { console.log(e); }
+
+            // เปิดหน้า PnL เป็นหน้าแรกสุดเสมอ
             if(els.navBtnPnL) els.navBtnPnL.click();
             else showSection('dashboardSection');
         }

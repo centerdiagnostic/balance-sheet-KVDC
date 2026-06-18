@@ -2399,6 +2399,9 @@
         async function fetchSampleDataAgg(year, month) {
             let data = { totalSamples: 0, totalAmount: 0, items: [], totalISO: 0, totalNonISO: 0 };
             try {
+                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(month);
+                const fiscalYear = (isLateYear && month !== 'all') ? parseInt(year) + 1 : parseInt(year);
+
                 if (month === 'all') {
                     const snap = await getDocs(collection(db, `sample_reports_${year}`));
                     if (snap.empty) return null;
@@ -2409,7 +2412,8 @@
                         data.items = data.items.concat(d.items || []);
                     });
                 } else {
-                    const snap = await getDoc(doc(db, `sample_reports_${year}`, month));
+                    const docId = `${month} ${year}`;
+                    const snap = await getDoc(doc(db, `sample_reports_${fiscalYear}`, docId));
                     if (snap.exists()) {
                         let d = snap.data();
                         data.totalSamples = d.totalSamples || 0;
@@ -3129,7 +3133,9 @@
             if (mode === 'bs') {
                 // งบดุล (Balance Sheet) ดึงข้อมูลเฉพาะเดือนสุดท้ายของช่วงที่เลือก (Snapshot)
                 let lastMonth = monthsToFetch[monthsToFetch.length - 1];
-                const docSnap = await getDoc(doc(db, `${colPrefix}${year}`, lastMonth));
+                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(lastMonth);
+                const fiscalYear = isLateYear ? parseInt(year) + 1 : parseInt(year);
+                const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${lastMonth} ${year}`));
                 if (docSnap.exists()) {
                     const d = docSnap.data();
                     v1 = d.totalAssets || 0; v2 = d.totalLiabilities || 0; v3 = d.totalEquity || 0;
@@ -3137,7 +3143,9 @@
             } else {
                 // กำไรขาดทุน และ จำนวนตัวอย่าง ให้บวกสะสมทุกเดือนที่เลือก
                 for(let m of monthsToFetch) {
-                    const docSnap = await getDoc(doc(db, `${colPrefix}${year}`, m));
+                    const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(m);
+                    const fiscalYear = isLateYear ? parseInt(year) + 1 : parseInt(year);
+                    const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${m} ${year}`));
                     if (docSnap.exists()) {
                         const d = docSnap.data();
                         if (mode === 'pnl') {
@@ -3381,7 +3389,9 @@
             }
 
             // 5.6 ดึงข้อมูลจำนวนตัวอย่างล่าสุด
-            const smpDocRef = doc(db, `sample_reports_${targetThaiYear}`, targetThaiMonth);
+            const isLateYearSmp = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
+            const fiscalYearSmp = isLateYearSmp ? targetThaiYear + 1 : targetThaiYear;
+            const smpDocRef = doc(db, `sample_reports_${fiscalYearSmp}`, `${targetThaiMonth} ${targetThaiYear}`);
             try {
                 const smpDocSnap = await getDoc(smpDocRef);
                 if (smpDocSnap.exists()) {

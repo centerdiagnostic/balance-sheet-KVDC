@@ -1629,38 +1629,49 @@
                 if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
 
                 showLoading(`กำลังดึงข้อมูลงบดุล${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
-                const collectionName = `balance_sheet_${fetchYear}`;
+                
+                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(fetchMonth);
+                const fiscalYear = isLateYear && fetchMonth !== 'all' ? parseInt(fetchYear) + 1 : parseInt(fetchYear);
+                const collectionName = `balance_sheet_${fiscalYear}`;
 
                 try {
                     if (fetchMonth === 'all') {
-                        const querySnapshot = await getDocs(collection(db, collectionName));
+                        const querySnapshot = await getDocs(collection(db, `balance_sheet_${fetchYear}`));
                         if (!querySnapshot.empty) {
                             const monthOrder = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
                             let latestDoc = null;
                             let latestIdx = -1;
                             querySnapshot.forEach(doc => {
-                                let idx = monthOrder.indexOf(doc.id);
+                                let monthName = doc.id.split(' ')[0];
+                                let idx = monthOrder.indexOf(monthName);
                                 if (idx > latestIdx) { latestIdx = idx; latestDoc = doc.data(); }
                             });
-                            latestDoc.month = `รวมทั้งปี (ยอดสิ้นสุด ${monthOrder[latestIdx]})`;
-                            latestDoc.year = fetchYear;
-                            bsExtractedData = {
-                                totalAssets: latestDoc.totalAssets,
-                                totalLiabilities: latestDoc.totalLiabilities,
-                                totalEquity: latestDoc.totalEquity,
-                                netProfit: latestDoc.netProfit,
-                                retainedEarnings: latestDoc.retainedEarnings,
-                                items: latestDoc.items || []
-                            };
-                            showToast(`ดึงข้อมูลงบดุลรวมทั้งปี ${fetchYear} สำเร็จ`, 'success');
-                            renderBSDashboard(latestDoc);
-                            showSection('balanceSheetSection');
+                            
+                            if (latestDoc) {
+                                latestDoc.month = `รวมทั้งปี (ยอดสิ้นสุด ${monthOrder[latestIdx]})`;
+                                latestDoc.year = fetchYear;
+                                bsExtractedData = {
+                                    totalAssets: latestDoc.totalAssets,
+                                    totalLiabilities: latestDoc.totalLiabilities,
+                                    totalEquity: latestDoc.totalEquity,
+                                    netProfit: latestDoc.netProfit,
+                                    retainedEarnings: latestDoc.retainedEarnings,
+                                    items: latestDoc.items || []
+                                };
+                                showToast(`ดึงข้อมูลงบดุลรวมทั้งปี ${fetchYear} สำเร็จ`, 'success');
+                                renderBSDashboard(latestDoc);
+                                showSection('balanceSheetSection');
+                            } else {
+                                showToast(`ยังไม่มีข้อมูลงบดุลของปี ${fetchYear} ในระบบ`, 'error');
+                                showSection('balanceSheetSection');
+                            }
                         } else {
                             showToast(`ยังไม่มีข้อมูลงบดุลของปี ${fetchYear} ในระบบ`, 'error');
                             showSection('balanceSheetSection');
                         }
                     } else {
-                        const docRef = doc(db, collectionName, fetchMonth);
+                        const docId = `${fetchMonth} ${fetchYear}`;
+                        const docRef = doc(db, collectionName, docId);
                         const docSnap = await getDoc(docRef);
                         if (docSnap.exists()) {
                             const data = docSnap.data();
@@ -3348,7 +3359,9 @@
             }
 
             // 5.5 ดึงข้อมูลงบดุลล่าสุดมาเตรียมพร้อมในหน่วยความจำ (แก้ไขชื่อคีย์ตัวแปรให้ตรงกับระบบคำนวณย้อนหลัง)
-            const bsDocRef = doc(db, `balance_sheet_${targetThaiYear}`, targetThaiMonth);
+            const isLateYearBS = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
+            const fiscalYearBS = isLateYearBS ? targetThaiYear + 1 : targetThaiYear;
+            const bsDocRef = doc(db, `balance_sheet_${fiscalYearBS}`, `${targetThaiMonth} ${targetThaiYear}`);
             try {
                 const bsDocSnap = await getDoc(bsDocRef);
                 if (bsDocSnap.exists()) {

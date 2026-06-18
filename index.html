@@ -1478,41 +1478,62 @@
                     }
                 });
 
+                // ดึงยอดรวมที่สกัดมาได้จากรายการย่อยตารางเป็นหลัก เพื่อให้รวมเงินบริจาคและอื่นๆ ครบถ้วน
+                let sumRevenue = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
+                let sumCogs = extractedData.filter(item => item.category === 'cogs').reduce((sum, item) => sum + Math.abs(item.value), 0);
+                let sumExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
+
                 let tempOpRevenue = extractNextMoney('รวมรายได้จากการด.เนินงาน') || extractNextMoney('รวมรายได้จากการด');
+                
+                let tempOtherRevenue = extractNextMoney('รวมรายได้อ') || 0;
+
+if (tempOtherRevenue === 0) {
+
+    const donationRegex = /(บริจาค|บรจาค|วัคซีน|วคซน|ครุภัณฑ์|ครภณฑ)[^0-9\-]*([\d,]+\.\d{2})/gi;
+
+    let match;
+
+    while ((match = donationRegex.exec(fullTextStr)) !== null) {
+
+        const amount = parseFloat(match[2].replace(/,/g, ''));
+
+        if (amount > 100000) {
+            tempOtherRevenue += amount;
+        }
+    }
+}
+
+                // นำรายได้จากการดำเนินงานมารวมกับรายได้อื่นๆ (เช่น บริจาค)
+                let totalActualRevenue = tempOpRevenue + tempOtherRevenue;
+
+console.log('รายได้จากการดำเนินงาน =', tempOpRevenue);
+console.log('รายได้อื่น =', tempOtherRevenue);
+console.log('รายได้รวมจริง =', totalActualRevenue);
+
+                // ตรวจสอบว่าผลรวมที่สกัดได้จากตาราง (sumRevenue) หรือ ผลรวมที่คำนวณใหม่ (totalActualRevenue) ค่าไหนมากกว่ากัน
+                if (totalActualRevenue > sumRevenue && totalActualRevenue > tempOpRevenue) {
+                     tempOpRevenue = totalActualRevenue;
+                } else if (sumRevenue > tempOpRevenue) {
+                     tempOpRevenue = sumRevenue;
+                }
+
                 let tempCogs = extractNextMoney('รวมต้นทุนขาย');
+                if (sumCogs > tempCogs) tempCogs = sumCogs;
 
-                let tempGrossProfit = 0, tempExpense = 0, tempNetProfit = 0;
-                let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
-                if (gpItem) tempGrossProfit = Math.abs(gpItem.value);
-                else tempGrossProfit = extractNextMoney('ไรขั้นต้น');
+                // แก้ไขปัญหาการใช้ Regular Expression ผิดรูปแบบ (SyntaxError) ที่ทำให้ไฟล์อัปโหลดไม่ได้
+                let tempExpenseStr = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย') || (extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน') + extractNextMoney('รวมค่าใช้จ่ายอื่น'));
+                if (sumExpense > tempExpenseStr) tempExpenseStr = sumExpense;
 
-                if (tempGrossProfit === 0 && tempOpRevenue > 0) {
-                    tempGrossProfit = tempOpRevenue - tempCogs;
-                }
-                
-                let expenseItem = extractedData.find(item => item.name.includes('รวมค่าใช้จ่าย') && item.name.includes('*****'));
-                if (expenseItem) tempExpense = Math.abs(expenseItem.value);
-                else tempExpense = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย');
-                
-                if (tempExpense === 0 || isNaN(tempExpense)) {
-                    tempExpense = extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน') + extractNextMoney('รวมค่าใช้จ่ายอื่น');
-                }
-
-                let netProfitItem = extractedData.find(item => item.name.includes('ไร-ขาดทุน') || item.name.includes('ไรสุทธิ'));
-                if (netProfitItem) tempNetProfit = netProfitItem.value;
-                else tempNetProfit = extractNextMoney('ไร\\s*\\-\\s*ขาดทุน') || extractNextMoney('ไรสุทธิ');
-
-                if (tempGrossProfit === 0) tempGrossProfit = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
-                if (tempExpense === 0) tempExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
-                if (tempNetProfit === 0) tempNetProfit = tempGrossProfit - tempExpense;
+                let tempGrossProfit = tempOpRevenue - tempCogs;
+                let tempNetProfit = tempGrossProfit - tempExpenseStr;
 
                 currentTotals = { 
-                    opRevenue: Math.abs(tempOpRevenue), 
-                    cogs: Math.abs(tempCogs),
-                    grossProfit: Math.abs(tempGrossProfit), 
-                    expense: Math.abs(tempExpense), 
-                    netProfit: tempNetProfit 
-                };
+    opRevenue: Math.abs(tempOpRevenue), 
+    cogs: Math.abs(tempCogs),
+    grossProfit: Math.abs(tempGrossProfit), 
+    expense: Math.abs(tempExpenseStr), 
+    netProfit: tempNetProfit 
+};
             }
         }
 

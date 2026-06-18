@@ -245,41 +245,80 @@
             </div>
 
             <!-- การ์ดสรุปผล (Summary Cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-green-500 flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400">กำไรขั้นต้น</p>
-                            <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2" id="sumRevenue">0.00</h3>
-                        </div>
-                        <div class="bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                    </div>
-                    <div class="h-10 w-full mt-2"><canvas id="sparklineRevenue"></canvas></div>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-red-500 flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400">ค่าใช้จ่ายรวม</p>
-                            <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2" id="sumExpense">0.00</h3>
-                        </div>
-                        <div class="bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 p-3 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
-                    </div>
-                    <div class="h-10 w-full mt-2"><canvas id="sparklineExpense"></canvas></div>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-indigo-500 flex flex-col justify-between" id="netProfitCard">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-slate-400" id="netProfitLabel">กำไรสุทธิ</p>
-                            <div class="flex items-end gap-2 mt-2">
-                                <h3 class="text-2xl font-bold text-gray-800 dark:text-slate-100" id="sumNet">0.00</h3>
-                                <span id="netMarginBadge" class="text-xs font-medium px-2 py-1 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-300 mb-1">0.00%</span>
+            <div class="flex flex-col gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-blue-500 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-slate-400">รายได้รวม</p>
+                                <div class="flex items-center mt-1.5 flex-wrap gap-y-1">
+                                    <h3 class="text-3xl font-bold text-gray-800 dark:text-slate-100" id="sumOpRev">0.00</h3>
+                                    <span id="pctOpRev"></span>
+                                </div>
                             </div>
+                            <div class="bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 p-3 rounded-lg text-xl"><i class="fa-solid fa-sack-dollar"></i></div>
                         </div>
-                        <div class="bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-3 rounded-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="h-10 w-full mt-2"><canvas id="sparklineOpRev"></canvas></div>
                     </div>
-                    <div class="h-10 w-full mt-2"><canvas id="sparklineNet"></canvas></div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-orange-500 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-slate-400">ต้นทุนขาย</p>
+                                <div class="flex items-center mt-1.5 flex-wrap gap-y-1">
+                                    <h3 class="text-3xl font-bold text-gray-800 dark:text-slate-100" id="sumCogs">0.00</h3>
+                                    <span id="pctCogs"></span>
+                                </div>
+                            </div>
+                            <div class="bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 p-3 rounded-lg text-xl"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        </div>
+                        <div class="h-10 w-full mt-2"><canvas id="sparklineCogs"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border-l-4 border-green-500 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">กำไรขั้นต้น</p>
+                                <div class="flex items-center mt-1 flex-wrap gap-y-1">
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-slate-100" id="sumGrossProfit">0.00</h3>
+                                    <span id="pctGrossProfit"></span>
+                                </div>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        </div>
+                        <div class="h-8 w-full mt-1"><canvas id="sparklineGrossProfit"></canvas></div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border-l-4 border-red-500 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">ค่าใช้จ่ายรวม</p>
+                                <div class="flex items-center mt-1 flex-wrap gap-y-1">
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-slate-100" id="sumExpense">0.00</h3>
+                                    <span id="pctExpense"></span>
+                                </div>
+                            </div>
+                            <div class="bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 p-2 rounded-lg"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                        </div>
+                        <div class="h-8 w-full mt-1"><canvas id="sparklineExpense"></canvas></div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border-l-4 border-indigo-500 flex flex-col justify-between" id="netProfitCard">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 dark:text-slate-400" id="netProfitLabel">กำไรสุทธิ</p>
+                                <div class="flex items-center gap-1 mt-1 flex-wrap">
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-slate-100" id="sumNet">0.00</h3>
+                                    <span id="pctNet"></span>
+                                    <span id="netMarginBadge" class="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-300 ml-1">0.0%</span>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-2 rounded-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+                        </div>
+                        <div class="h-8 w-full mt-1"><canvas id="sparklineNet"></canvas></div>
+                    </div>
                 </div>
             </div>
 
@@ -538,7 +577,7 @@
                     <div class="relative h-72 w-full flex justify-center"><canvas id="assetChart"></canvas></div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สมการบัญชี (Assets = Liab. + Equity)</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สมการบัญชี (Assets = Liabilities + Equity)</h3>
                     <div class="relative h-72 w-full flex justify-center"><canvas id="equationChart"></canvas></div>
                 </div>
             </div>
@@ -819,7 +858,8 @@
 
         // State & Variables
         let extractedData = [];
-        let currentTotals = { revenue: 0, expense: 0, netProfit: 0 };
+        let currentTotals = { opRevenue: 0, cogs: 0, grossProfit: 0, expense: 0, netProfit: 0 };
+        let previousTotals = null; // เก็บข้อมูลเดือน/ปีก่อนหน้าเพื่อเทียบ %
         let extractedType = 'pnl'; 
         let bsExtractedData = { totalAssets: 0, totalLiabilities: 0, totalEquity: 0, netProfit: 0, retainedEarnings: 0, items: [] };
         let expenseChartInstance = null;
@@ -1086,6 +1126,11 @@
             if (!text) return "";
             let cleaned = text.replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
             
+            // 0. จัดการคำเพี้ยนสระอำและสระอื่นๆ ทั่วไป
+            cleaned = cleaned.replace(/รำยได้/g, "รายได้").replace(/ค่ำเสื่อม/g, "ค่าเสื่อม").replace(/ค่ำใช้จ่ำย/g, "ค่าใช้จ่าย");
+            cleaned = cleaned.replace(/ค่ำ/g, "ค่า").replace(/จ่ำย/g, "จ่าย").replace(/จำก/g, "จาก").replace(/ท ำ/g, "ทำ").replace(/ด ำ/g, "ดำ").replace(/น ำ/g, "นำ");
+            cleaned = cleaned.replace(/ต้นทน/g, "ต้นทุน").replace(/ต ้นทุน/g, "ต้นทุน").replace(/รำยรับ/g, "รายรับ");
+
             // 1. ท่าไม้ตายขั้นสุดยอด: คลุมถุงชนวลี (Phrase Wildcard) ไม่สนใจสระตรงกลางที่มองไม่เห็น
             if (cleaned.includes("อวัสดุวิทยาศาสตร์")) {
                 cleaned = cleaned.replace(/ซ.*อวัสดุวิทยาศาสตร์/, "ซื้อวัสดุวิทยาศาสตร์");
@@ -1102,8 +1147,19 @@
             cleaned = cleaned.replace(/ซีÊอ/g, "ซื้อ").replace(/ซีEอ/g, "ซื้อ");
             cleaned = cleaned.replace(/ค่าเสีÊอม/g, "ค่าเสื่อม").replace(/ค่าเสีEอม/g, "ค่าเสื่อม");
             cleaned = cleaned.replace(/ลูกหนีÊ/g, "ลูกหนี้").replace(/ลูกหนีE/g, "ลูกหนี้");
-
-            // 3. พจนานุกรมดักแก้คำเพี้ยนยอดฮิตจาก PDF.js 
+            cleaned = cleaned.replace(/เลีÊยง/g, "เลี้ยง").replace(/เลีEยง/g, "เลี้ยง");
+            cleaned = cleaned.replace(/อื่Êน/g, "อื่น").replace(/อื่Eน/g, "อื่น").replace(/อืÊน/g, "อื่น").replace(/อืEน/g, "อื่น");
+            cleaned = cleaned.replace(/เพิÊม/g, "เพิ่ม").replace(/เพิEม/g, "เพิ่ม");
+            cleaned = cleaned.replace(/สีÊง/g, "สิ่ง").replace(/สีEง/g, "สิ่ง");
+            cleaned = cleaned.replace(/หนีÊ/g, "หนี้").replace(/หนีE/g, "หนี้");
+            cleaned = cleaned.replace(/สูญÊ/g, "สูญ").replace(/สูญE/g, "สูญ");
+            
+            // --- เพิ่มคำที่เจอใหม่จากภาพล่าสุด ---
+            cleaned = cleaned.replace(/ทีÊ/g, "ที่").replace(/ทีE/g, "ที่");
+            cleaned = cleaned.replace(/เกีÊยว/g, "เกี่ยว").replace(/เกีEยว/g, "เกี่ยว");
+            
+            // ดักจับและลบขยะที่เกิดจากฟอนต์ตัวเลขปี พ.ศ. (เช่น ร่ริฐรั้)
+            cleaned = cleaned.replace(/ร่ริฐรั้/g, "2565").replace(/ร่ริฐร์/g, "2564").replace(/ร่ริฐรฐ/g, "2566").replace(/ปี ร่ริฐรั้ - ร่ริฐ/g, "ปี 2565 - 2566"); 
             const correctionMap = {
                 "หนสน": "หนี้สิน",
                 "หนี้สน": "หนี้สิน",
@@ -1422,16 +1478,16 @@
                     }
                 });
 
-                let tempRevenue = 0, tempExpense = 0, tempNetProfit = 0;
-                let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
-                if (gpItem) tempRevenue = Math.abs(gpItem.value);
-                else tempRevenue = extractNextMoney('ไรขั้นต้น');
+                let tempOpRevenue = extractNextMoney('รวมรายได้จากการด.เนินงาน') || extractNextMoney('รวมรายได้จากการด');
+                let tempCogs = extractNextMoney('รวมต้นทุนขาย');
 
-                if (tempRevenue === 0 || isNaN(tempRevenue)) {
-                    let totalOpRev = extractNextMoney('\\*{3,}\\s*รวมรายได้จากการด');
-                    let totalOtherRev = extractNextMoney('\\*{3,}\\s*รวมรายได้อื');
-                    let cogs = extractNextMoney('\\*{3,}\\s*รวมต้นทุนขาย');
-                    tempRevenue = (totalOpRev + totalOtherRev) - cogs;
+                let tempGrossProfit = 0, tempExpense = 0, tempNetProfit = 0;
+                let gpItem = extractedData.find(item => item.name.includes('ไรขั้นต้น'));
+                if (gpItem) tempGrossProfit = Math.abs(gpItem.value);
+                else tempGrossProfit = extractNextMoney('ไรขั้นต้น');
+
+                if (tempGrossProfit === 0 && tempOpRevenue > 0) {
+                    tempGrossProfit = tempOpRevenue - tempCogs;
                 }
                 
                 let expenseItem = extractedData.find(item => item.name.includes('รวมค่าใช้จ่าย') && item.name.includes('*****'));
@@ -1446,11 +1502,17 @@
                 if (netProfitItem) tempNetProfit = netProfitItem.value;
                 else tempNetProfit = extractNextMoney('ไร\\s*\\-\\s*ขาดทุน') || extractNextMoney('ไรสุทธิ');
 
-                if (tempRevenue === 0) tempRevenue = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
+                if (tempGrossProfit === 0) tempGrossProfit = extractedData.filter(item => item.category === 'revenue').reduce((sum, item) => sum + Math.abs(item.value), 0);
                 if (tempExpense === 0) tempExpense = extractedData.filter(item => item.category === 'expense').reduce((sum, item) => sum + Math.abs(item.value), 0);
-                if (tempNetProfit === 0) tempNetProfit = tempRevenue - tempExpense;
+                if (tempNetProfit === 0) tempNetProfit = tempGrossProfit - tempExpense;
 
-                currentTotals = { revenue: Math.abs(tempRevenue), expense: Math.abs(tempExpense), netProfit: tempNetProfit };
+                currentTotals = { 
+                    opRevenue: Math.abs(tempOpRevenue), 
+                    cogs: Math.abs(tempCogs),
+                    grossProfit: Math.abs(tempGrossProfit), 
+                    expense: Math.abs(tempExpense), 
+                    netProfit: tempNetProfit 
+                };
             }
         }
 
@@ -1466,28 +1528,36 @@
 
         els.btnSaveToFirebase.addEventListener('click', async () => {
             const month = document.getElementById('monthSelect').value;
-            const year = document.getElementById('yearInput').value;
+            const yearStr = document.getElementById('yearInput').value;
 
-            if(!year || year.length !== 4) {
+            if(!yearStr || yearStr.length !== 4) {
                 showToast('กรุณาระบุปี พ.ศ. ให้ถูกต้อง (4 หลัก)', 'error');
                 return;
             }
 
+            const year = parseInt(yearStr, 10);
+            // คำนวณปีงบประมาณ: ตุลาคม - ธันวาคม ให้ปัดปีขึ้น
+            const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(month);
+            const fiscalYear = isLateYear ? year + 1 : year;
+            
+            // กำหนด Document ID ตามรูปแบบที่ต้องการ: เดือน ปีพ.ศ.
+            const docId = `${month} ${year}`;
             const fileId = Math.floor(10000 + Math.random() * 90000).toString();
             
-            // แยกคอลเล็กชันตามประเภทเอกสาร
-            let collectionName = `financial_reports_${year}`;
-            if (extractedType === 'balance_sheet') collectionName = `balance_sheet_${year}`;
-            else if (extractedType === 'sample') collectionName = `sample_reports_${year}`;
+            // แยกคอลเล็กชันตามประเภทเอกสารโดยใช้ปีงบประมาณ
+            let collectionName = `financial_reports_${fiscalYear}`;
+            if (extractedType === 'balance_sheet') collectionName = `balance_sheet_${fiscalYear}`;
+            else if (extractedType === 'sample') collectionName = `sample_reports_${fiscalYear}`;
             
-            const docRef = doc(db, collectionName, month);
+            const docRef = doc(db, collectionName, docId);
 
             let documentData = {};
             if (extractedType === 'sample') {
                 documentData = {
                     fileId: fileId,
                     month: month,
-                    year: year,
+                    year: yearStr,
+                    fiscalYear: fiscalYear.toString(),
                     reportType: 'sample',
                     totalSamples: sampleExtractedData.totalSamples,
                     totalAmount: sampleExtractedData.totalAmount,
@@ -1498,7 +1568,8 @@
                 documentData = {
                     fileId: fileId,
                     month: month,
-                    year: year,
+                    year: yearStr,
+                    fiscalYear: fiscalYear.toString(),
                     reportType: 'balance_sheet',
                     totalAssets: bsExtractedData.totalAssets,
                     totalLiabilities: bsExtractedData.totalLiabilities,
@@ -1512,9 +1583,12 @@
                 documentData = {
                     fileId: fileId,
                     month: month,
-                    year: year,
+                    year: yearStr,
+                    fiscalYear: fiscalYear.toString(),
                     reportType: 'pnl',
-                    totalRevenue: currentTotals.revenue,
+                    opRevenue: currentTotals.opRevenue,
+                    cogs: currentTotals.cogs,
+                    totalRevenue: currentTotals.grossProfit, // ใช้ Gross Profit เป็นตัวแทน Revenue เดิม
                     totalExpense: currentTotals.expense,
                     netProfit: currentTotals.netProfit,
                     items: extractedData,
@@ -2450,13 +2524,68 @@
             const collectionName = `financial_reports_${fetchYear}`;
 
             try {
+                // --- ส่วนที่เพิ่ม: คำนวณและดึงข้อมูลเดือน/ปีก่อนหน้า เพื่อมาเทียบ % ---
+                let prevFY = fetchYear;
+                let prevMonth = fetchMonth;
+                const monthsArr = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                
+                if (fetchMonth === 'all') {
+                    prevFY = fetchYear - 1; // ถ้ารวมทั้งปี ให้ดึงปีงบประมาณก่อนหน้า
+                } else {
+                    const idx = monthsArr.indexOf(fetchMonth);
+                    prevMonth = idx === 0 ? 'ธันวาคม' : monthsArr[idx - 1]; // ถอยหลัง 1 เดือน
+                    // ถ้าเดือนปัจจุบันคือตุลาคม (เริ่มปีงบใหม่) เดือนก่อนหน้าคือกันยายนของปีงบเก่า
+                    if (fetchMonth === 'ตุลาคม') prevFY = fetchYear - 1;
+                }
+
+                previousTotals = null; // รีเซ็ตค่าก่อนเริ่มดึงใหม่
+                const prevCollectionName = `financial_reports_${prevFY}`;
+                
+                try {
+                    if (prevMonth === 'all') {
+                        const prevSnap = await getDocs(collection(db, prevCollectionName));
+                        if (!prevSnap.empty) {
+                            let pt = { opRevenue: 0, cogs: 0, grossProfit: 0, expense: 0, netProfit: 0 };
+                            prevSnap.forEach(doc => {
+                                const d = doc.data();
+                                pt.opRevenue += d.opRevenue || 0;
+                                pt.cogs += d.cogs || 0;
+                                pt.grossProfit += d.totalRevenue || 0;
+                                pt.expense += d.totalExpense || 0;
+                                pt.netProfit += d.netProfit || 0;
+                            });
+                            previousTotals = pt;
+                        }
+                    } else {
+                        const isLateYearPrev = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(prevMonth);
+                        const prevCalYear = isLateYearPrev ? prevFY - 1 : prevFY;
+                        const prevDocId = `${prevMonth} ${prevCalYear}`;
+                        const prevDocRef = doc(db, prevCollectionName, prevDocId);
+                        const prevSnap = await getDoc(prevDocRef);
+                        if (prevSnap.exists()) {
+                            const d = prevSnap.data();
+                            previousTotals = {
+                                opRevenue: d.opRevenue || 0,
+                                cogs: d.cogs || 0,
+                                grossProfit: d.totalRevenue || 0,
+                                expense: d.totalExpense || 0,
+                                netProfit: d.netProfit || 0
+                            };
+                        }
+                    }
+                } catch(e) { console.warn("ไม่พบข้อมูลช่วงเวลาก่อนหน้า", e); }
+                // --- สิ้นสุดการดึงข้อมูลก่อนหน้า ---
+
+                // ดึงข้อมูลช่วงเวลาปัจจุบัน
                 if (fetchMonth === 'all') {
                     const querySnapshot = await getDocs(collection(db, collectionName));
                     if (!querySnapshot.empty) {
-                        let aggData = { month: 'รวมทั้งปี', year: fetchYear, fileId: 'AGGREGATED', totalRevenue: 0, totalExpense: 0, netProfit: 0, items: [] };
+                        let aggData = { month: 'รวมทั้งปี', year: fetchYear, fileId: 'AGGREGATED', opRevenue: 0, cogs: 0, totalRevenue: 0, totalExpense: 0, netProfit: 0, items: [] };
                         let itemsMap = {};
                         querySnapshot.forEach(doc => {
                             const d = doc.data();
+                            aggData.opRevenue += d.opRevenue || 0;
+                            aggData.cogs += d.cogs || 0;
                             aggData.totalRevenue += d.totalRevenue || 0;
                             aggData.totalExpense += d.totalExpense || 0;
                             aggData.netProfit += d.netProfit || 0;
@@ -2468,38 +2597,43 @@
                         });
                         aggData.items = Object.values(itemsMap);
                         extractedData = aggData.items;
-                        currentTotals = { revenue: aggData.totalRevenue, expense: aggData.totalExpense, netProfit: aggData.netProfit };
-                        showToast(`ดึงข้อมูลรวมทั้งปี ${fetchYear} สำเร็จ`, 'success');
+                        currentTotals = { opRevenue: aggData.opRevenue, cogs: aggData.cogs, grossProfit: aggData.totalRevenue, expense: aggData.totalExpense, netProfit: aggData.netProfit };
+                        showToast(`ดึงข้อมูลรวมปีงบประมาณ ${fetchYear} สำเร็จ`, 'success');
                         renderDashboard(aggData);
                         showSection('dashboardSection');
                     } else {
-                        showToast(`ยังไม่มีข้อมูลของปี ${fetchYear} ในระบบ`, 'error');
+                        showToast(`ยังไม่มีข้อมูลของปีงบประมาณ ${fetchYear} ในระบบ`, 'error');
                         showSection('dashboardSection');
                     }
                 } else {
-                    const docRef = doc(db, collectionName, fetchMonth);
+                    const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(fetchMonth);
+                    const calendarYear = isLateYear ? parseInt(fetchYear) - 1 : parseInt(fetchYear);
+                    const docId = `${fetchMonth} ${calendarYear}`;
+                    const docRef = doc(db, collectionName, docId);
                     const docSnap = await getDoc(docRef);
 
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         extractedData = data.items;
                         currentTotals = {
-                            revenue: data.totalRevenue,
-                            expense: data.totalExpense,
-                            netProfit: data.netProfit
+                            opRevenue: data.opRevenue || 0,
+                            cogs: data.cogs || 0,
+                            grossProfit: data.totalRevenue || 0,
+                            expense: data.totalExpense || 0,
+                            netProfit: data.netProfit || 0
                         };
 
-                        showToast(`ดึงข้อมูลเดือน ${fetchMonth} สำเร็จ`, 'success');
+                        showToast(`ดึงข้อมูลเดือน ${fetchMonth} ปี ${calendarYear} สำเร็จ`, 'success');
                         renderDashboard(data);
                         showSection('dashboardSection');
                     } else {
-                        showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ปี ${fetchYear} ในระบบ`, 'error');
+                        showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ในปีงบประมาณ ${fetchYear} ในระบบ`, 'error');
                         showSection('dashboardSection');
                     }
                 }
             } catch (error) {
-                console.error("Firebase Fetch Error:", error);
-                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error');
+                console.error("Error fetching data: ", error);
+                showToast('เกิดข้อผิดพลาดในการดึงข้อมูล', 'error');
                 showSection('dashboardSection');
             }
         });
@@ -2528,47 +2662,67 @@
         // ==========================================
 
         function renderDashboard(data) {
-            // อัปเดตข้อความ Header
             document.getElementById('docInfoDisplay').innerText = `ไฟล์ของเดือน: ${data.month} ${data.year} (รหัสอ้างอิงไฟล์: ${data.fileId})`;
 
-            // อัปเดตตัวเลขใน Summary Cards ด้วย Animation
-            animateValue('sumRevenue', 0, data.totalRevenue, 1000);
-            animateValue('sumExpense', 0, data.totalExpense, 1000);
-            animateValue('sumNet', 0, Math.abs(data.netProfit), 1000);
+            // อัปเดตตัวเลขใน Summary Cards ด้วย Animation ครบ 5 กล่อง
+            animateValue('sumOpRev', 0, data.opRevenue || currentTotals.opRevenue, 1000);
+            animateValue('sumCogs', 0, data.cogs || currentTotals.cogs, 1000);
+            animateValue('sumGrossProfit', 0, data.totalRevenue || currentTotals.grossProfit, 1000);
+            animateValue('sumExpense', 0, data.totalExpense || currentTotals.expense, 1000);
+            animateValue('sumNet', 0, Math.abs(data.netProfit || currentTotals.netProfit), 1000);
+
+            // ฟังก์ชันช่วยคำนวณและสร้าง HTML เปอร์เซ็นต์เปรียบเทียบ
+            const getPctHtml = (current, prev, isExpense = false) => {
+                if (prev === null || prev === undefined || prev === 0) return '<span class="text-[11px] font-medium text-gray-400 ml-2">ไม่มีข้อมูลเทียบ</span>';
+                const pct = ((current - prev) / Math.abs(prev)) * 100;
+                const formattedPct = Math.abs(pct).toFixed(1) + '%';
+                // ถ้าเป็นรายได้/กำไร: บวก=ดี(เขียว), ลบ=แย่(แดง) | ถ้าเป็นค่าใช้จ่าย/ต้นทุน: บวก=แย่(แดง), ลบ=ดี(เขียว)
+                let isGood = isExpense ? pct <= 0 : pct >= 0;
+                let icon = pct >= 0 ? '<i class="fa-solid fa-caret-up"></i>' : '<i class="fa-solid fa-caret-down"></i>';
+                let colorClass = isGood ? 'text-green-700 bg-green-100/80 dark:bg-green-900/40 dark:text-green-400' : 'text-red-700 bg-red-100/80 dark:bg-red-900/40 dark:text-red-400';
+                return `<span class="text-[11px] font-bold px-1.5 py-0.5 rounded-md ${colorClass} ml-2">${icon} ${formattedPct}</span>`;
+            };
+
+            // ใส่เปอร์เซ็นต์ใน DOM
+            if (previousTotals) {
+                document.getElementById('pctOpRev').innerHTML = getPctHtml(data.opRevenue || currentTotals.opRevenue, previousTotals.opRevenue, false);
+                document.getElementById('pctCogs').innerHTML = getPctHtml(data.cogs || currentTotals.cogs, previousTotals.cogs, true);
+                document.getElementById('pctGrossProfit').innerHTML = getPctHtml(data.totalRevenue || currentTotals.grossProfit, previousTotals.grossProfit, false);
+                document.getElementById('pctExpense').innerHTML = getPctHtml(data.totalExpense || currentTotals.expense, previousTotals.expense, true);
+                document.getElementById('pctNet').innerHTML = getPctHtml(data.netProfit || currentTotals.netProfit, previousTotals.netProfit, false);
+            } else {
+                ['pctOpRev', 'pctCogs', 'pctGrossProfit', 'pctExpense', 'pctNet'].forEach(id => {
+                    document.getElementById(id).innerHTML = '<span class="text-[11px] font-medium text-gray-400 ml-2">ไม่มีข้อมูลเทียบ</span>';
+                });
+            }
 
             // จัดการสีกำไร/ขาดทุน และคำนวณ Net Profit Margin %
             const netCard = document.getElementById('netProfitCard');
             const netLabel = document.getElementById('netProfitLabel');
             const marginBadge = document.getElementById('netMarginBadge');
             
-            let marginPct = 0;
-            if (data.totalRevenue > 0) {
-                marginPct = (data.netProfit / data.totalRevenue) * 100;
-            }
+            let revenueBase = (data.opRevenue && data.opRevenue > 0) ? data.opRevenue : (data.totalRevenue || currentTotals.grossProfit);
+            let marginPct = revenueBase > 0 ? ((data.netProfit || currentTotals.netProfit) / revenueBase) * 100 : 0;
             
             marginBadge.innerText = `Margin: ${marginPct.toFixed(2)}%`;
 
-            if (data.netProfit < 0) {
+            let nProfit = data.netProfit !== undefined ? data.netProfit : currentTotals.netProfit;
+            if (nProfit < 0) {
                 netCard.classList.replace('border-indigo-500', 'border-red-500');
                 netCard.classList.replace('border-green-500', 'border-red-500'); 
                 netLabel.innerText = "ขาดทุนสุทธิ";
                 netLabel.classList.replace('text-gray-500', 'text-red-500');
-                marginBadge.className = 'text-xs font-medium px-2 py-1 rounded-md bg-red-100 text-red-600 mb-1';
+                marginBadge.className = 'text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 ml-1';
             } else {
                 netCard.classList.replace('border-red-500', 'border-green-500');
                 netCard.classList.replace('border-indigo-500', 'border-green-500');
                 netLabel.innerText = "กำไรสุทธิ";
                 netLabel.classList.replace('text-red-500', 'text-gray-500');
-                marginBadge.className = 'text-xs font-medium px-2 py-1 rounded-md bg-green-100 text-green-700 mb-1';
+                marginBadge.className = 'text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-green-100 text-green-700 ml-1';
             }
 
-            // วาดกราฟ
-            renderCharts(data.totalRevenue, data.totalExpense);
-
-            // วาดตาราง
+            renderCharts();
             renderTable();
-            
-            // เรียกประมวลผลวาดกราฟเส้นขนาดเล็ก (Mini Sparklines)
             renderSparklines();
         }
 
@@ -2601,16 +2755,20 @@
                 });
             };
 
-            let baseRev = currentTotals.revenue;
+            let baseOpRev = currentTotals.opRevenue;
+            let baseCogs = currentTotals.cogs;
+            let baseGp = currentTotals.grossProfit;
             let baseExp = currentTotals.expense;
             let baseNet = currentTotals.netProfit;
 
-            createSparkline('sparklineRevenue', [baseRev*0.82, baseRev*0.91, baseRev*0.85, baseRev*0.96, baseRev*1.04, baseRev], '#22c55e');
+            createSparkline('sparklineOpRev', [baseOpRev*0.82, baseOpRev*0.91, baseOpRev*0.85, baseOpRev*0.96, baseOpRev*1.04, baseOpRev], '#3b82f6');
+            createSparkline('sparklineCogs', [baseCogs*0.88, baseCogs*0.83, baseCogs*1.08, baseCogs*0.93, baseCogs*1.01, baseCogs], '#f97316');
+            createSparkline('sparklineGrossProfit', [baseGp*0.82, baseGp*0.91, baseGp*0.85, baseGp*0.96, baseGp*1.04, baseGp], '#22c55e');
             createSparkline('sparklineExpense', [baseExp*0.88, baseExp*0.83, baseExp*1.08, baseExp*0.93, baseExp*1.01, baseExp], '#ef4444');
-            createSparkline('sparklineNet', [baseNet*0.72, baseNet*0.96, baseNet*0.62, baseNet*1.01, baseNet*1.08, baseNet], '#3b82f6');
+            createSparkline('sparklineNet', [baseNet*0.72, baseNet*0.96, baseNet*0.62, baseNet*1.01, baseNet*1.08, baseNet], '#6366f1');
         }
 
-        function renderCharts(revenue, expense) {
+        function renderCharts() {
             Chart.defaults.font.family = "'Prompt', sans-serif";
             
             let expensesList = extractedData
@@ -2662,22 +2820,28 @@
             });
 
             const ctxBar = document.getElementById('compareChart').getContext('2d');
-            let netProfit = revenue - expense;
+            let opRev = currentTotals.opRevenue;
+            let cogs = currentTotals.cogs;
+            let grossProfit = currentTotals.grossProfit;
+            let expense = currentTotals.expense;
+            let netProfit = currentTotals.netProfit;
             
-            // Waterfall (Floating Bar)
+            // Waterfall (Floating Bar - 5 แท่ง)
             compareChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: ['กำไรขั้นต้น', 'ค่าใช้จ่าย', 'กำไรสุทธิ'],
+                    labels: ['รายได้รวม', 'ต้นทุนขาย', 'กำไรขั้นต้น', 'ค่าใช้จ่าย', 'กำไรสุทธิ'],
                     datasets: [
                         { 
                             label: 'กระแสเงิน', 
                             data: [
-                                [0, revenue], 
-                                [revenue - expense, revenue], 
+                                [0, opRev], 
+                                [opRev - cogs, opRev], 
+                                [0, grossProfit],
+                                [grossProfit - expense, grossProfit],
                                 [0, netProfit]
                             ], 
-                            backgroundColor: ['#22c55e', '#ef4444', netProfit >= 0 ? '#3b82f6' : '#ef4444'], 
+                            backgroundColor: ['#3b82f6', '#f97316', '#22c55e', '#ef4444', netProfit >= 0 ? '#6366f1' : '#ef4444'], 
                             borderRadius: 4 
                         }
                     ]
@@ -2703,11 +2867,12 @@
                 }
             });
 
-            // Gauge Chart (Half Doughnut)
+            // Gauge Chart
             if (window.gaugeChartInstance) window.gaugeChartInstance.destroy();
             const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
-            let margin = revenue > 0 ? ((netProfit / revenue) * 100) : 0;
-            let marginDisplay = Math.max(Math.min(margin, 100), -50); // แคปค่าไว้เพื่อแสดงผลให้สมบูรณ์
+            let revenueBase = opRev > 0 ? opRev : grossProfit;
+            let margin = revenueBase > 0 ? ((netProfit / revenueBase) * 100) : 0;
+            let marginDisplay = Math.max(Math.min(margin, 100), -50); 
             
             window.gaugeChartInstance = new Chart(ctxGauge, {
                 type: 'doughnut',
@@ -2737,11 +2902,10 @@
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = ''; 
 
-            // กำหนดกลุ่มหมวดหมู่สำหรับงบกำไรขาดทุน
+            // กำหนดกลุ่มหมวดหมู่สำหรับงบกำไรขาดทุน (เหลือแค่ 2 หมวด)
             const groups = [
                 { id: 'revenue', title: '1. หมวดรายได้', color: 'text-green-800 bg-green-100/50 border-green-200', barColor: 'bg-green-200', badgeHTML: '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">รายได้</span>' },
-                { id: 'expense', title: '2. หมวดค่าใช้จ่าย', color: 'text-red-800 bg-red-100/50 border-red-200', barColor: 'bg-red-200', badgeHTML: '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">ค่าใช้จ่าย</span>' },
-                { id: 'summary', title: '3. หมวดสรุป/อื่นๆ', color: 'text-gray-800 bg-gray-100/50 border-gray-200', barColor: 'bg-gray-200', badgeHTML: '<span class="px-2 py-1 bg-gray-200 text-gray-700 rounded-md text-xs font-medium">สรุป/อื่นๆ</span>' }
+                { id: 'expense', title: '2. หมวดค่าใช้จ่าย', color: 'text-red-800 bg-red-100/50 border-red-200', barColor: 'bg-red-200', badgeHTML: '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">ค่าใช้จ่าย</span>' }
             ];
 
             let hasData = false;

@@ -479,8 +479,8 @@
                                     <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right">ผลต่าง (+/-)</th>
                                 </tr>
                             </thead>
-                            <tbody id="compTableBody" class="divide-y divide-gray-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
-                                </tbody>
+                            <tbody id="bsDataTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -604,7 +604,7 @@
                             </tr>
                         </thead>
                         <tbody id="bsDataTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -768,7 +768,7 @@
                         <p class="text-sm text-slate-500">รายการทดสอบที่สร้างมูลค่าเงินรวมสูงสุดในไฟล์</p>
                     </div>
                     <div id="sample-top5-tests" class="space-y-4 flex-grow overflow-y-auto no-scrollbar max-h-[320px]">
-                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -815,7 +815,7 @@
                                 </tr>
                             </thead>
                             <tbody id="sampleDataTableBody">
-                                </tbody>
+                            </tbody>
                             <tfoot class="bg-slate-50 border-t border-slate-200 font-bold text-slate-900 sticky bottom-0 z-10">
                                 <tr>
                                     <td colspan="2" class="px-6 py-4 text-right">รวมทั้งหมด (Total)</td>
@@ -1487,28 +1487,25 @@
                 
                 let tempOtherRevenue = extractNextMoney('รวมรายได้อ') || 0;
 
-if (tempOtherRevenue === 0) {
+                if (tempOtherRevenue === 0) {
+                    const donationRegex = /(บริจาค|บรจาค|วัคซีน|วคซน|ครุภัณฑ์|ครภณฑ)[^0-9\-]*([\d,]+\.\d{2})/gi;
+                    let match;
 
-    const donationRegex = /(บริจาค|บรจาค|วัคซีน|วคซน|ครุภัณฑ์|ครภณฑ)[^0-9\-]*([\d,]+\.\d{2})/gi;
+                    while ((match = donationRegex.exec(fullTextStr)) !== null) {
+                        const amount = parseFloat(match[2].replace(/,/g, ''));
 
-    let match;
-
-    while ((match = donationRegex.exec(fullTextStr)) !== null) {
-
-        const amount = parseFloat(match[2].replace(/,/g, ''));
-
-        if (amount > 100000) {
-            tempOtherRevenue += amount;
-        }
-    }
-}
+                        if (amount > 100000) {
+                            tempOtherRevenue += amount;
+                        }
+                    }
+                }
 
                 // นำรายได้จากการดำเนินงานมารวมกับรายได้อื่นๆ (เช่น บริจาค)
                 let totalActualRevenue = tempOpRevenue + tempOtherRevenue;
 
-console.log('รายได้จากการดำเนินงาน =', tempOpRevenue);
-console.log('รายได้อื่น =', tempOtherRevenue);
-console.log('รายได้รวมจริง =', totalActualRevenue);
+                console.log('รายได้จากการดำเนินงาน =', tempOpRevenue);
+                console.log('รายได้อื่น =', tempOtherRevenue);
+                console.log('รายได้รวมจริง =', totalActualRevenue);
 
                 // ตรวจสอบว่าผลรวมที่สกัดได้จากตาราง (sumRevenue) หรือ ผลรวมที่คำนวณใหม่ (totalActualRevenue) ค่าไหนมากกว่ากัน
                 if (totalActualRevenue > sumRevenue && totalActualRevenue > tempOpRevenue) {
@@ -1520,20 +1517,29 @@ console.log('รายได้รวมจริง =', totalActualRevenue);
                 let tempCogs = extractNextMoney('รวมต้นทุนขาย');
                 if (sumCogs > tempCogs) tempCogs = sumCogs;
 
-                // แก้ไขปัญหาการใช้ Regular Expression ผิดรูปแบบ (SyntaxError) ที่ทำให้ไฟล์อัปโหลดไม่ได้
-                let tempExpenseStr = extractNextMoney('\\*{5}\\s*รวมค่าใช้จ่าย') || (extractNextMoney('รวมค่าใช้จ่ายในการด.เนินงาน') + extractNextMoney('รวมค่าใช้จ่ายอื่น'));
-                if (sumExpense > tempExpenseStr) tempExpenseStr = sumExpense;
+                // แก้ปัญหาขั้นเด็ดขาด: ฟังก์ชันดึงข้อมูลเดิมหยุดทำงานเมื่อเจอคำว่า "รวมค่าใช้จ่าย" ในบรรทัด "รวมค่าใช้จ่ายในการดำเนินงาน"
+                // เปลี่ยนมาใช้การสแกนหาคำว่า "รวมค่าใช้จ่าย" ทั้งหมดในหน้า และดึงตัวเลขของ "บรรทัดสุดท้าย" มาใช้ ซึ่งคือยอดสุทธิเสมอ
+                let tempExpenseStr = 0;
+                const finalExpenseRegex = /รวมค่าใช้จ่าย[^0-9]*([\d,]+\.\d{2})/g;
+                let matchExp;
+                while ((matchExp = finalExpenseRegex.exec(fullTextStr)) !== null) {
+                    tempExpenseStr = parseFloat(matchExp[1].replace(/,/g, ''));
+                }
+
+                if (!tempExpenseStr) {
+                    tempExpenseStr = 0;
+                }
 
                 let tempGrossProfit = tempOpRevenue - tempCogs;
                 let tempNetProfit = tempGrossProfit - tempExpenseStr;
 
                 currentTotals = { 
-    opRevenue: Math.abs(tempOpRevenue), 
-    cogs: Math.abs(tempCogs),
-    grossProfit: Math.abs(tempGrossProfit), 
-    expense: Math.abs(tempExpenseStr), 
-    netProfit: tempNetProfit 
-};
+                    opRevenue: Math.abs(tempOpRevenue), 
+                    cogs: Math.abs(tempCogs),
+                    grossProfit: Math.abs(tempGrossProfit), 
+                    expense: Math.abs(tempExpenseStr), 
+                    netProfit: tempNetProfit 
+                };
             }
         }
 

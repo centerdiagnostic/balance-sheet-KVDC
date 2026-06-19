@@ -587,13 +587,17 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนสินทรัพย์ (Top 5)</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนสินทรัพย์</h3>
                     <div class="relative h-72 w-full flex justify-center"><canvas id="assetChart"></canvas></div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สมการบัญชี (Assets = Liabilities + Equity)</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนหนี้สินและทุน</h3>
+                    <div class="relative h-72 w-full flex justify-center"><canvas id="liabEquityChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">สมการบัญชี (Assets = Liab. + Equity)</h3>
                     <div class="relative h-72 w-full flex justify-center"><canvas id="equationChart"></canvas></div>
                 </div>
             </div>
@@ -1170,7 +1174,20 @@
             // 2. ท่าไม้ตายเสริม: ดัก Replace ตรงๆ
             cleaned = cleaned.replace(/ซีÊอ/g, "ซื้อ").replace(/ซีEอ/g, "ซื้อ");
             cleaned = cleaned.replace(/ค่าเสีÊอม/g, "ค่าเสื่อม").replace(/ค่าเสีEอม/g, "ค่าเสื่อม");
+            // ดักจับคำเพี้ยนหมวดสินทรัพย์และลูกหนี้เพิ่มเติม
+            cleaned = cleaned.replace(/ลูกหนี-Ê/g, "ลูกหนี้-").replace(/ลูกหนี-E/g, "ลูกหนี้-");
             cleaned = cleaned.replace(/ลูกหนีÊ/g, "ลูกหนี้").replace(/ลูกหนีE/g, "ลูกหนี้");
+            cleaned = cleaned.replace(/เงนฝาก/g, "เงินฝาก").replace(/หวหั น/g, "หัวหิน");
+            cleaned = cleaned.replace(/เวชภ ณฑั/g, "เวชภัณฑ์").replace(/สานํ ักงาน/g, "สำนักงาน");
+            cleaned = cleaned.replace(/บานงานคร ้ ัว/g, "บ้านงานครัว").replace(/ครุภณฑั/g, "ครุภัณฑ์");
+            cleaned = cleaned.replace(/ไฟฟ ้ าและวิทย/g, "ไฟฟ้าและวิทยุ").replace(/คอมพ วเตอร/g, "คอมพิวเตอร์");
+            
+            // ดักจับคำเพี้ยนหมวดหนี้สินและทุน
+            cleaned = cleaned.replace(/เจ้าหนีการค Ê ้า/g, "เจ้าหนี้การค้า").replace(/เจ้าหนี - Ê/g, "เจ้าหนี้ - ").replace(/เจ้าหนี-Ê/g, "เจ้าหนี้-");
+            cleaned = cleaned.replace(/ค่านาประปาค ํÊ ้างจ่าย/g, "ค่าน้ำประปาค้างจ่าย").replace(/เงนสิ ารองจ ํ ่าย/g, "เงินสำรองจ่าย");
+            cleaned = cleaned.replace(/หุนสาม ้ ัญ/g, "หุ้นสามัญ").replace(/กาไร ํ/g, "กำไร").replace(/ขาดทน/g, "ขาดทุน");
+            cleaned = cleaned.replace(/รบล ์ ่วงหน้า/g, "รับล่วงหน้า");
+
             cleaned = cleaned.replace(/เลีÊยง/g, "เลี้ยง").replace(/เลีEยง/g, "เลี้ยง");
             cleaned = cleaned.replace(/อื่Êน/g, "อื่น").replace(/อื่Eน/g, "อื่น").replace(/อืÊน/g, "อื่น").replace(/อืEน/g, "อื่น");
             // เพิ่มการดักจับสระอิเพี้ยนเป็นตัว É (เพÉิม)
@@ -1833,19 +1850,59 @@
                 });
             }
 
-            // 4. วาด Dynamic Asset Doughnut Chart
+            // 4. วาด Asset Doughnut Chart (ปรับกลุ่มตามผู้ใช้ต้องการ 4 กลุ่มหลัก)
             let items = data.items || [];
-            let assetItems = items.filter(i => i.category === 'asset' && i.value > 0).sort((a, b) => b.value - a.value);
-            let topAssets = assetItems.slice(0, 4);
-            let otherAssetsVal = assetItems.slice(4).reduce((sum, item) => sum + item.value, 0);
-            
-            let chartLabels = topAssets.map(i => i.name.length > 25 ? i.name.substring(0, 25) + '...' : i.name);
-            let chartData = topAssets.map(i => i.value);
-            
-            if(otherAssetsVal > 0) {
-                chartLabels.push('สินทรัพย์อื่นๆ');
-                chartData.push(otherAssetsVal);
-            }
+
+            let assetBuckets = {
+                cash: 0,
+                receivable: 0,
+                material: 0,
+                equipment: 0,
+                others: 0
+            };
+
+            items.forEach(item => {
+                if (item.category === 'asset') {
+                    let name = item.name;
+                    let val = item.value;
+
+                    // กรองเฉพาะค่าที่เป็นบวก เพื่อไม่เอาค่าเสื่อมราคาสะสมมาหักลบในกราฟสัดส่วนสินทรัพย์
+                    if (val > 0 && !name.includes('ค่าเสื่อม')) {
+                        // ดักจับและจัดกลุ่มด้วยคีย์เวิร์ดกว้างๆ
+                        if (name.includes('เงินฝาก') || name.includes('เงนฝาก')) {
+                            assetBuckets.cash += val;
+                        } else if (name.includes('ลูกหนี้') || name.includes('ลูกหนี') || name.includes('ลูกหน')) {
+                            assetBuckets.receivable += val;
+                        } else if (name.includes('วัสดุ')) {
+                            assetBuckets.material += val;
+                        } else if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ')) {
+                            assetBuckets.equipment += val;
+                        } else {
+                            assetBuckets.others += val; // รายการอื่นๆ เช่น จ่ายล่วงหน้า
+                        }
+                    }
+                }
+            });
+
+            let chartLabels = [];
+            let chartData = [];
+            let chartBgColors = [];
+
+            const predefinedAssets = [
+                { label: 'เงินฝากคณะฯ', value: assetBuckets.cash, color: '#3b82f6' },      // สีฟ้า
+                { label: 'ลูกหนี้รวม', value: assetBuckets.receivable, color: '#f59e0b' },// สีส้ม
+                { label: 'วัสดุ', value: assetBuckets.material, color: '#10b981' },       // สีเขียว
+                { label: 'ครุภัณฑ์', value: assetBuckets.equipment, color: '#8b5cf6' }    // สีม่วง
+                // เอา "สินทรัพย์อื่นๆ" ออกจากการแสดงผลบนกราฟตามที่ต้องการ
+            ];
+
+            predefinedAssets.forEach(cat => {
+                if (cat.value > 0) {
+                    chartLabels.push(cat.label);
+                    chartData.push(cat.value);
+                    chartBgColors.push(cat.color);
+                }
+            });
 
             Chart.defaults.font.family = "'Prompt', sans-serif";
             if (assetChartInstance) assetChartInstance.destroy();
@@ -1856,15 +1913,81 @@
                     labels: chartLabels.length > 0 ? chartLabels : ['ไม่มีข้อมูลสินทรัพย์'],
                     datasets: [{
                         data: chartData.length > 0 ? chartData : [1],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#64748b'],
+                        backgroundColor: chartLabels.length > 0 ? chartBgColors : ['#e2e8f0'],
                         hoverOffset: 15
                     }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
-                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH').format(ctx.raw) + ' บาท' } }
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }, // ปรับเป็น bottom ให้เข้ากับ 3 คอลัมน์
+                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(ctx.raw) + ' บาท' } }
+                    }
+                }
+            });
+
+            // 4.5. วาด Liability & Equity Doughnut Chart (สัดส่วนหนี้สินและทุน)
+            let leBuckets = { tradePayable: 0, accruedExpense: 0, unearnedRev: 0, commonStock: 0, retainedEarn: 0, netProfit: 0 };
+            
+            // นำยอดกำไรสุทธิและกำไรสะสมจากตัวแปร data ที่ดึงไว้ด้านบนมาใช้ด้วย เพื่อป้องกันการดึง Regex ใน items พลาด
+            leBuckets.retainedEarn = Math.abs(data.retainedEarnings || 0);
+            leBuckets.netProfit = Math.abs(data.netProfit || 0);
+
+            items.forEach(item => {
+                let name = item.name;
+                let val = Math.abs(item.value); // ใช้ค่า Absolute ป้องกันกราฟ Error ตอนติดลบ
+
+                if (item.category === 'liability' || item.category === 'equity' || name.includes('กำไร') || name.includes('ขาดทุน')) {
+                    if (name.includes('เจ้าหนี้')) {
+                        leBuckets.tradePayable += val;
+                    } else if (name.includes('ค้างจ่าย')) {
+                        leBuckets.accruedExpense += val;
+                    } else if (name.includes('รับล่วงหน้า')) {
+                        leBuckets.unearnedRev += val;
+                    } else if (name.includes('หุ้นสามัญ')) {
+                        leBuckets.commonStock += val;
+                    } 
+                }
+            });
+
+            let leLabels = [];
+            let leData = [];
+            let leBgColors = [];
+
+            const predefinedLE = [
+                { label: 'เจ้าหนี้การค้า (รวม)', value: leBuckets.tradePayable, color: '#ef4444' }, // แดง
+                { label: 'ค่าใช้จ่ายค้างจ่าย', value: leBuckets.accruedExpense, color: '#f97316' }, // ส้ม
+                { label: 'รายได้รับล่วงหน้า', value: leBuckets.unearnedRev, color: '#f59e0b' }, // เหลือง
+                { label: 'ทุน-หุ้นสามัญ', value: leBuckets.commonStock, color: '#3b82f6' }, // ฟ้า
+                { label: 'กำไร(ขาดทุน)สะสม', value: leBuckets.retainedEarn, color: '#8b5cf6' }, // ม่วง
+                { label: 'กำไร(ขาดทุน)สุทธิ', value: leBuckets.netProfit, color: '#10b981' } // เขียว
+            ];
+
+            predefinedLE.forEach(cat => {
+                if (cat.value > 0) {
+                    leLabels.push(cat.label);
+                    leData.push(cat.value);
+                    leBgColors.push(cat.color);
+                }
+            });
+
+            if (window.liabEquityChartInstance) window.liabEquityChartInstance.destroy();
+            const ctxLE = document.getElementById('liabEquityChart').getContext('2d');
+            window.liabEquityChartInstance = new Chart(ctxLE, {
+                type: 'doughnut',
+                data: {
+                    labels: leLabels.length > 0 ? leLabels : ['ไม่มีข้อมูลหนี้สิน/ทุน'],
+                    datasets: [{
+                        data: leData.length > 0 ? leData : [1],
+                        backgroundColor: leLabels.length > 0 ? leBgColors : ['#e2e8f0'],
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(ctx.raw) + ' บาท' } }
                     }
                 }
             });

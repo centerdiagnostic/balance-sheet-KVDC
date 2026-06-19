@@ -487,7 +487,7 @@
                                     <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right">ผลต่าง (+/-)</th>
                                 </tr>
                             </thead>
-                            <tbody id="bsDataTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            <tbody id="bsDetailTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
                             </tbody>
                         </table>
                     </div>
@@ -2023,87 +2023,145 @@
             renderBSTable();
         }
 
-        // ฟังก์ชันวาดตารางงบดุล พร้อมระบบค้นหา, เรียงลำดับ และ Data Bars
-        function renderBSTable() {
-            const tbody = document.getElementById('bsDataTableBody');
+        // ฟังก์ชันวาดตารางงบดุลแบบปกติ (แสดงรายการทั้งหมดเรียงตามยอดเงิน ป้องกันการ Error 100%)
+        // ฟังก์ชันวาดตารางงบดุลแบบปกติ (แก้ไขปัญหา ID ไม่ตรงกัน)
+        function renderBSTable(dataParam) {
+            // แก้ไข ID ให้ตรงกับ HTML คือ bsDataTableBody
+            const tbody = document.getElementById('bsDataTableBody'); 
+
+            if (!tbody) return;
+
             tbody.innerHTML = '';
-            
-            const searchQuery = els.bsSearchInput ? els.bsSearchInput.value.toLowerCase() : '';
-            const sortDesc = currentBSSortDesc;
-            
-            const groups = [
-                { id: 'asset', title: '1. หมวดสินทรัพย์', color: 'text-blue-800 bg-blue-100/50 border-blue-200', barColor: 'bg-blue-200' },
-                { id: 'liability', title: '2. หมวดหนี้สิน', color: 'text-red-800 bg-red-100/50 border-red-200', barColor: 'bg-red-200' },
-                { id: 'equity', title: '3. หมวดส่วนของผู้ถือหุ้น', color: 'text-purple-800 bg-purple-100/50 border-purple-200', barColor: 'bg-purple-200' }
-            ];
 
-            let hasData = false;
-            
-            groups.forEach(g => {
-                // กรองข้อมูลตามหมวดหมู่และคำค้นหา
-                let gItems = bsExtractedData.items.filter(i => i.category === g.id && i.name.toLowerCase().includes(searchQuery));
-                
-                if (gItems.length > 0) {
-                    hasData = true;
-                    
-                    // เรียงลำดับข้อมูลโดยคิดจากมูลค่าสัมบูรณ์ (Absolute Value)
-                    gItems.sort((a, b) => sortDesc ? Math.abs(b.value) - Math.abs(a.value) : Math.abs(a.value) - Math.abs(b.value));
-                    
-                    // หาค่าสูงสุดในหมวดนี้สำหรับทำ Data Bar (ความกว้าง %)
-                    const maxVal = Math.max(...gItems.map(i => Math.abs(i.value)));
+            let sourceData = dataParam || bsExtractedData;
 
-                    // สร้างแถว Header (Accordion)
-                    const trHeader = document.createElement('tr');
-                    trHeader.className = `cursor-pointer border-y ${g.color} hover:opacity-90 transition select-none`;
-                    trHeader.innerHTML = `
-                        <td colspan="2" class="py-3 px-6 font-bold relative z-10">
-                            <div class="flex justify-between items-center">
-                                <span>${g.title} <span class="text-xs font-normal opacity-70 ml-2">(${gItems.length} รายการ)</span></span>
-                                <i class="fa-solid fa-chevron-up transition-transform duration-300"></i>
-                            </div>
+            if (!sourceData || !sourceData.items || sourceData.items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="2" class="py-6 text-center text-gray-500">
+                            ไม่มีข้อมูล
                         </td>
-                    `;
-                    tbody.appendChild(trHeader);
+                    </tr>
+                `;
+                return;
+            }
 
-                    // สร้างแถวรายการย่อย
-                    const itemRows = [];
-                    gItems.forEach(item => {
-                        const trItem = document.createElement('tr');
-                        trItem.className = "hover:bg-gray-50 transition relative group";
-                        
-                        // คำนวณความกว้างของ Data Bar
-                        let barWidth = maxVal > 0 ? (Math.abs(item.value) / maxVal) * 100 : 0;
-                        
-                        trItem.innerHTML = `
-                            <td class="py-2 px-6 border-b border-gray-100 pl-10 relative z-10">
-                                <div class="absolute inset-y-0 left-0 ${g.barColor} opacity-30 z-[-1] transition-all duration-500 rounded-r-md" style="width: ${barWidth}%;"></div>
-                                <i class="fa-solid fa-angle-right text-gray-300 text-xs mr-2 group-hover:text-gray-500 transition-colors"></i> ${item.name}
-                            </td>
-                            <td class="py-2 px-6 border-b border-gray-100 text-right font-medium text-gray-800 relative z-10">
-                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value)}
-                            </td>
-                        `;
-                        tbody.appendChild(trItem);
-                        itemRows.push(trItem);
-                    });
+            let items = [...sourceData.items];
 
-                    // Event Toggle (ย่อ/ขยาย)
-                    let isExpanded = true;
-                    trHeader.addEventListener('click', () => {
-                        isExpanded = !isExpanded;
-                        const icon = trHeader.querySelector('i');
-                        if (isExpanded) {
-                            icon.style.transform = 'rotate(0deg)';
-                            itemRows.forEach(row => row.classList.remove('hidden'));
-                        } else {
-                            icon.style.transform = 'rotate(180deg)';
-                            itemRows.forEach(row => row.classList.add('hidden'));
-                        }
-                    });
+            const searchText = document.getElementById('bsSearchInput')?.value?.toLowerCase()?.trim() || '';
+
+            items = items.filter(item =>
+                item.name && item.name.toLowerCase().includes(searchText)
+            );
+
+            // แยกกำไรสุทธิและกำไรสะสมมาแสดงในหมวดทุน
+            let hasNetProfit = items.some(i => i.name.includes('สุทธิ'));
+            if (!hasNetProfit && sourceData.netProfit) {
+                items.push({name: 'กำไร (ขาดทุน) สุทธิ', value: sourceData.netProfit, category: 'equity'});
+            }
+            let hasRetained = items.some(i => i.name.includes('สะสม'));
+            if (!hasRetained && sourceData.retainedEarnings) {
+                items.push({name: 'กำไร (ขาดทุน) สะสม', value: sourceData.retainedEarnings, category: 'equity'});
+            }
+
+            const groups = {
+                asset: {
+                    title: '1. สินทรัพย์',
+                    colorClass: 'bg-blue-100/60 text-blue-800',
+                    items: []
+                },
+                liability: {
+                    title: '2. หนี้สิน',
+                    colorClass: 'bg-red-100/60 text-red-800',
+                    items: []
+                },
+                equity: {
+                    title: '3. ส่วนผู้ถือหุ้น (และกำไร)',
+                    colorClass: 'bg-purple-100/60 text-purple-800',
+                    items: []
+                },
+                other: {
+                    title: '4. อื่น ๆ',
+                    colorClass: 'bg-gray-100 text-gray-800',
+                    items: []
+                }
+            };
+
+            items.forEach(item => {
+                if (item.category === 'asset') {
+                    groups.asset.items.push(item);
+                }
+                else if (item.category === 'liability') {
+                    groups.liability.items.push(item);
+                }
+                else if (item.category === 'equity') {
+                    groups.equity.items.push(item);
+                }
+                else {
+                    groups.other.items.push(item);
                 }
             });
 
-            if (!hasData) {
+            Object.entries(groups).forEach(([key, group]) => {
+
+                if (group.items.length === 0) return;
+
+                const total = group.items.reduce(
+                    (sum, item) => sum + (item.value || 0),
+                    0
+                );
+
+                const headerRow = document.createElement('tr');
+                headerRow.className = `cursor-pointer ${group.colorClass} hover:brightness-95 transition select-none`;
+                headerRow.innerHTML = `
+                    <td colspan="2" class="py-3 px-6 font-bold border-y border-white/40">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <i class="fa-solid fa-chevron-up mr-2 transition-transform duration-300 toggle-icon"></i>
+                                ${group.title} <span class="text-xs font-normal opacity-70 ml-2">(${group.items.length} รายการ)</span>
+                            </div>
+                            <div class="bg-white/50 px-2 py-0.5 rounded shadow-sm">
+                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(total)}
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(headerRow);
+
+                // เรียงลำดับจากมากไปน้อย
+                group.items.sort((a, b) => Math.abs(b.value || 0) - Math.abs(a.value || 0));
+
+                group.items.forEach(item => {
+                    const detailRow = document.createElement('tr');
+                    detailRow.className = `group-${key} bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors`;
+                    detailRow.innerHTML = `
+                        <td class="py-3 px-10 text-gray-700">
+                            <i class="fa-solid fa-angle-right text-gray-300 text-xs mr-2"></i> ${item.name}
+                        </td>
+                        <td class="py-3 px-6 text-right font-medium ${item.value < 0 ? 'text-red-600' : 'text-gray-800'}">
+                            ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value || 0)}
+                        </td>
+                    `;
+                    tbody.appendChild(detailRow);
+                });
+
+                // ระบบย่อ-ขยาย (Toggle)
+                let isExpanded = true;
+                headerRow.addEventListener('click', () => {
+                    isExpanded = !isExpanded;
+                    const rows = tbody.querySelectorAll(`.group-${key}`);
+                    const icon = headerRow.querySelector('.toggle-icon');
+                    
+                    icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+                    
+                    rows.forEach(row => {
+                        row.style.display = isExpanded ? '' : 'none';
+                    });
+                });
+            });
+            
+            if (tbody.innerHTML === '') {
                 tbody.innerHTML = `<tr><td colspan="2" class="py-6 text-center text-gray-500">ไม่พบข้อมูลที่ค้นหา</td></tr>`;
             }
         }

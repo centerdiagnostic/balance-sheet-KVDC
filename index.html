@@ -212,21 +212,29 @@
 
                 <!-- ระบบดึงข้อมูลจาก Firebase -->
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
-                    <select id="fetchMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="all">รวมทั้งปี</option>
-                        <option value="มกราคม">มกราคม</option>
-                        <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-                        <option value="มีนาคม">มีนาคม</option>
-                        <option value="เมษายน">เมษายน</option>
-                        <option value="พฤษภาคม">พฤษภาคม</option>
-                        <option value="มิถุนายน">มิถุนายน</option>
-                        <option value="กรกฎาคม">กรกฎาคม</option>
-                        <option value="สิงหาคม">สิงหาคม</option>
-                        <option value="กันยายน">กันยายน</option>
-                        <option value="ตุลาคม">ตุลาคม</option>
-                        <option value="พฤศจิกายน">พฤศจิกายน</option>
-                        <option value="ธันวาคม">ธันวาคม</option>
-                    </select>
+                    <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/50">
+                        <button id="btnPrevMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                            <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
+                        </button>
+                        <select id="fetchMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                            <option value="all">รวมทั้งปี</option>
+                            <option value="มกราคม">มกราคม</option>
+                            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                            <option value="มีนาคม">มีนาคม</option>
+                            <option value="เมษายน">เมษายน</option>
+                            <option value="พฤษภาคม">พฤษภาคม</option>
+                            <option value="มิถุนายน">มิถุนายน</option>
+                            <option value="กรกฎาคม">กรกฎาคม</option>
+                            <option value="สิงหาคม">สิงหาคม</option>
+                            <option value="กันยายน">กันยายน</option>
+                            <option value="ตุลาคม">ตุลาคม</option>
+                            <option value="พฤศจิกายน">พฤศจิกายน</option>
+                            <option value="ธันวาคม">ธันวาคม</option>
+                        </select>
+                        <button id="btnNextMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                            <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
+                        </button>
+                    </div>
                     <input type="number" id="fetchYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
@@ -497,21 +505,29 @@
                 </div>
 
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
-                    <select id="fetchBSMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="all">รวมทั้งปี</option>
-                        <option value="มกราคม">มกราคม</option>
-                        <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-                        <option value="มีนาคม">มีนาคม</option>
-                        <option value="เมษายน">เมษายน</option>
-                        <option value="พฤษภาคม">พฤษภาคม</option>
-                        <option value="มิถุนายน">มิถุนายน</option>
-                        <option value="กรกฎาคม">กรกฎาคม</option>
-                        <option value="สิงหาคม">สิงหาคม</option>
-                        <option value="กันยายน">กันยายน</option>
-                        <option value="ตุลาคม">ตุลาคม</option>
-                        <option value="พฤศจิกายน">พฤศจิกายน</option>
-                        <option value="ธันวาคม">ธันวาคม</option>
-                    </select>
+                    <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-emerald-500/50">
+                        <button id="btnPrevMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                            <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
+                        </button>
+                        <select id="fetchBSMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                            <option value="all">รวมทั้งปี</option>
+                            <option value="มกราคม">มกราคม</option>
+                            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                            <option value="มีนาคม">มีนาคม</option>
+                            <option value="เมษายน">เมษายน</option>
+                            <option value="พฤษภาคม">พฤษภาคม</option>
+                            <option value="มิถุนายน">มิถุนายน</option>
+                            <option value="กรกฎาคม">กรกฎาคม</option>
+                            <option value="สิงหาคม">สิงหาคม</option>
+                            <option value="กันยายน">กันยายน</option>
+                            <option value="ตุลาคม">ตุลาคม</option>
+                            <option value="พฤศจิกายน">พฤศจิกายน</option>
+                            <option value="ธันวาคม">ธันวาคม</option>
+                        </select>
+                        <button id="btnNextMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                            <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
+                        </button>
+                    </div>
                     <input type="number" id="fetchBSYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchBSData" class="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
@@ -624,21 +640,29 @@
                 </div>
 
                 <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
-                    <select id="fetchSampleMonth" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="all">รวมทั้งปี</option>
-                        <option value="มกราคม">มกราคม</option>
-                        <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-                        <option value="มีนาคม">มีนาคม</option>
-                        <option value="เมษายน">เมษายน</option>
-                        <option value="พฤษภาคม">พฤษภาคม</option>
-                        <option value="มิถุนายน">มิถุนายน</option>
-                        <option value="กรกฎาคม">กรกฎาคม</option>
-                        <option value="สิงหาคม">สิงหาคม</option>
-                        <option value="กันยายน">กันยายน</option>
-                        <option value="ตุลาคม">ตุลาคม</option>
-                        <option value="พฤศจิกายน">พฤศจิกายน</option>
-                        <option value="ธันวาคม">ธันวาคม</option>
-                    </select>
+                    <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/50">
+                        <button id="btnPrevMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                            <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
+                        </button>
+                        <select id="fetchSampleMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                            <option value="all">รวมทั้งปี</option>
+                            <option value="มกราคม">มกราคม</option>
+                            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                            <option value="มีนาคม">มีนาคม</option>
+                            <option value="เมษายน">เมษายน</option>
+                            <option value="พฤษภาคม">พฤษภาคม</option>
+                            <option value="มิถุนายน">มิถุนายน</option>
+                            <option value="กรกฎาคม">กรกฎาคม</option>
+                            <option value="สิงหาคม">สิงหาคม</option>
+                            <option value="กันยายน">กันยายน</option>
+                            <option value="ตุลาคม">ตุลาคม</option>
+                            <option value="พฤศจิกายน">พฤศจิกายน</option>
+                            <option value="ธันวาคม">ธันวาคม</option>
+                        </select>
+                        <button id="btnNextMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                            <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
+                        </button>
+                    </div>
                     <input type="number" id="fetchSampleYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
                     <button id="btnFetchSampleData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
@@ -1149,7 +1173,8 @@
             cleaned = cleaned.replace(/ลูกหนีÊ/g, "ลูกหนี้").replace(/ลูกหนีE/g, "ลูกหนี้");
             cleaned = cleaned.replace(/เลีÊยง/g, "เลี้ยง").replace(/เลีEยง/g, "เลี้ยง");
             cleaned = cleaned.replace(/อื่Êน/g, "อื่น").replace(/อื่Eน/g, "อื่น").replace(/อืÊน/g, "อื่น").replace(/อืEน/g, "อื่น");
-            cleaned = cleaned.replace(/เพิÊม/g, "เพิ่ม").replace(/เพิEม/g, "เพิ่ม");
+            // เพิ่มการดักจับสระอิเพี้ยนเป็นตัว É (เพÉิม)
+            cleaned = cleaned.replace(/เพิÊม/g, "เพิ่ม").replace(/เพิEม/g, "เพิ่ม").replace(/เพÉิม/g, "เพิ่ม");
             cleaned = cleaned.replace(/สีÊง/g, "สิ่ง").replace(/สีEง/g, "สิ่ง");
             cleaned = cleaned.replace(/หนีÊ/g, "หนี้").replace(/หนีE/g, "หนี้");
             cleaned = cleaned.replace(/สูญÊ/g, "สูญ").replace(/สูญE/g, "สูญ");
@@ -1346,7 +1371,7 @@
             const fullTextStr = allTextLines.join(' ');
 
             function extractNextMoney(keywordPattern) {
-                const regex = new RegExp(keywordPattern + '[^\\d\\-]*([\\(]?\\-?\\d+[\\,\\.\\d]*\\.\\d{2}[\\)]?)');
+                const regex = new RegExp(keywordPattern + '[^\\d\\-]*([\\(]?\\-?\\d+[\\,\\.\\d]*[.,]\\d{2}[\\)]?)');
                 const match = fullTextStr.match(regex);
                 if (match && match[1]) {
                     let rawNum = match[1];
@@ -1362,7 +1387,7 @@
                 extractedType = 'balance_sheet';
 
                 let itemsList = [];
-                const financeRegex = /^(.*?)\s+([\(]?\-?\d{1,3}(?:[,.]\d{3})*\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+                const financeRegex = /^(.*?)\s+([\(]?\-?[0-9]{1,3}(?:[,.][0-9]{3})*[.,][0-9]{2}[\)]?)(?:\s+.*)?$/;
                 allTextLines.forEach(line => {
                     const match = line.match(financeRegex);
                     if (match) {
@@ -1452,7 +1477,8 @@
                 };
             } else {
                 extractedType = 'pnl';
-                const financeRegex = /^(.*?)\s+([\(]?\-?[:,\d\.]+\.\d{2}[\)]?)(?:\s+[\d\.\-\(\)]+)?$/;
+                // อัปเกรด Regex ให้รองรับทศนิยมที่เป็นลูกน้ำ (,00) และยอมให้มีข้อความอื่นๆ ต่อท้าย เพื่อดึงตัวเลขครบทุกบรรทัดไม่ให้ตกหล่น
+                const financeRegex = /^(.*?)\s+([\(]?\-?[0-9]{1,3}(?:[,.][0-9]{3})*[.,][0-9]{2}[\)]?)(?:\s+.*)?$/;
                 const summaryKeywords = ['รวม', 'กำไร', 'ขาดทุน', 'ยอดยกมา', 'ยอดยกไป', 'สุทธิ'];
 
                 allTextLines.forEach(line => {
@@ -1468,7 +1494,8 @@
                         if (isNegative) value = -value;
                         let isSummary = summaryKeywords.some(kw => name.includes(kw));
                         let category = 'other'; 
-                        if (name.includes('ค่า') || name.includes('ต้นทุน') || name.includes('เงินเดือน') || name.includes('โบนัส') || name.includes('วัสดุ') || name.includes('สวัสดิการ') || name.includes('ภาษี') || name.includes('โอนเงิน') || name.includes('หนี้')) {
+                        // เพิ่มคำว่า เงินเพิ่ม, ประกันสังคม, กองทุน, ตอบแทน, รักษาพยาบาล เพื่อให้จัดหมวดหมู่ลง ค่าใช้จ่าย (expense) ตั้งแต่แรก
+                        if (name.includes('ค่า') || name.includes('ต้นทุน') || name.includes('เงินเดือน') || name.includes('โบนัส') || name.includes('วัสดุ') || name.includes('สวัสดิการ') || name.includes('ภาษี') || name.includes('โอนเงิน') || name.includes('หนี้') || name.includes('เงินเพิ่ม') || name.includes('ประกันสังคม') || name.includes('กองทุน') || name.includes('ตอบแทน') || name.includes('รักษาพยาบาล')) {
                             category = 'expense';
                         } else if (name.includes('รายได้') || name.includes('ดอกเบี้ยรับ') || name.includes('ยอดขาย')) {
                             category = 'revenue';
@@ -2560,6 +2587,49 @@
         }
 
         // ==========================================
+        // ระบบควบคุมปุ่มเปลี่ยนเดือน (Prev/Next Month)
+        // ==========================================
+        function handleMonthChange(selectId, yearId, direction, fetchBtnId) {
+            const selectEl = document.getElementById(selectId);
+            const yearEl = document.getElementById(yearId);
+            if (!selectEl || !yearEl) return;
+
+            const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            let currentVal = selectEl.value;
+            let currentYear = parseInt(yearEl.value) || new Date().getFullYear() + 543;
+
+            if (currentVal === 'all') {
+                selectEl.value = direction === -1 ? 'ธันวาคม' : 'มกราคม';
+            } else {
+                let currentIndex = months.indexOf(currentVal);
+                let newIndex = currentIndex + direction;
+
+                if (newIndex < 0) {
+                    newIndex = 11; // ถอยกลับไปธันวาคมปีที่แล้ว
+                    yearEl.value = currentYear - 1;
+                } else if (newIndex > 11) {
+                    newIndex = 0; // ข้ามไปมกราคมปีหน้า
+                    yearEl.value = currentYear + 1;
+                }
+                selectEl.value = months[newIndex];
+            }
+
+            // กดปุ่มดึงข้อมูลอัตโนมัติเมื่อเปลี่ยนเดือน
+            const fetchBtn = document.getElementById(fetchBtnId);
+            if (fetchBtn) fetchBtn.click();
+        }
+
+        // ผูก Event ให้ปุ่มเปลี่ยนเดือน (ใช้ Event Delegation เพื่อความแม่นยำ)
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#btnPrevMonth_pnl')) handleMonthChange('fetchMonth', 'fetchYear', -1, 'btnFetchData');
+            if (e.target.closest('#btnNextMonth_pnl')) handleMonthChange('fetchMonth', 'fetchYear', 1, 'btnFetchData');
+            if (e.target.closest('#btnPrevMonth_bs')) handleMonthChange('fetchBSMonth', 'fetchBSYear', -1, 'btnFetchBSData');
+            if (e.target.closest('#btnNextMonth_bs')) handleMonthChange('fetchBSMonth', 'fetchBSYear', 1, 'btnFetchBSData');
+            if (e.target.closest('#btnPrevMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', -1, 'btnFetchSampleData');
+            if (e.target.closest('#btnNextMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', 1, 'btnFetchSampleData');
+        });
+
+        // ==========================================
         // 3. ระบบดึงข้อมูลบน Dashboard (Fetch Flow)
         // ==========================================
 
@@ -2574,21 +2644,31 @@
 
             showLoading(`กำลังตรวจสอบและดึงข้อมูล${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
 
-            const collectionName = `financial_reports_${fetchYear}`;
+            // คำนวณปีงบประมาณให้ถูกต้องเหมือนตอนบันทึก
+            const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(fetchMonth);
+            const fiscalYear = isLateYear && fetchMonth !== 'all' ? parseInt(fetchYear) + 1 : parseInt(fetchYear);
+            const collectionName = `financial_reports_${fiscalYear}`;
 
             try {
                 // --- ส่วนที่เพิ่ม: คำนวณและดึงข้อมูลเดือน/ปีก่อนหน้า เพื่อมาเทียบ % ---
-                let prevFY = fetchYear;
+                let prevFY = fiscalYear;
                 let prevMonth = fetchMonth;
                 const monthsArr = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-                
+                let prevCalYear = parseInt(fetchYear);
+
                 if (fetchMonth === 'all') {
-                    prevFY = fetchYear - 1; // ถ้ารวมทั้งปี ให้ดึงปีงบประมาณก่อนหน้า
+                    prevFY = fiscalYear - 1; // ถ้ารวมทั้งปี ให้ดึงปีงบประมาณก่อนหน้า
                 } else {
                     const idx = monthsArr.indexOf(fetchMonth);
                     prevMonth = idx === 0 ? 'ธันวาคม' : monthsArr[idx - 1]; // ถอยหลัง 1 เดือน
-                    // ถ้าเดือนปัจจุบันคือตุลาคม (เริ่มปีงบใหม่) เดือนก่อนหน้าคือกันยายนของปีงบเก่า
-                    if (fetchMonth === 'ตุลาคม') prevFY = fetchYear - 1;
+                    
+                    if (idx === 0) {
+                        prevCalYear = prevCalYear - 1; // ถ้าปัจจุบันมกรา ถอยเป็นธันวาปีที่แล้ว
+                    }
+                    
+                    // หา fiscal year ของเดือนก่อนหน้า
+                    const isLateYearPrev = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(prevMonth);
+                    prevFY = isLateYearPrev ? prevCalYear + 1 : prevCalYear;
                 }
 
                 previousTotals = null; // รีเซ็ตค่าก่อนเริ่มดึงใหม่
@@ -2610,8 +2690,7 @@
                             previousTotals = pt;
                         }
                     } else {
-                        const isLateYearPrev = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(prevMonth);
-                        const prevCalYear = isLateYearPrev ? prevFY - 1 : prevFY;
+                        // ไม่ต้องลบปีปฏิทิน ใช้ prevCalYear ที่คำนวณไว้ได้เลย
                         const prevDocId = `${prevMonth} ${prevCalYear}`;
                         const prevDocRef = doc(db, prevCollectionName, prevDocId);
                         const prevSnap = await getDoc(prevDocRef);
@@ -2651,17 +2730,16 @@
                         aggData.items = Object.values(itemsMap);
                         extractedData = aggData.items;
                         currentTotals = { opRevenue: aggData.opRevenue, cogs: aggData.cogs, grossProfit: aggData.totalRevenue, expense: aggData.totalExpense, netProfit: aggData.netProfit };
-                        showToast(`ดึงข้อมูลรวมปีงบประมาณ ${fetchYear} สำเร็จ`, 'success');
+                        showToast(`ดึงข้อมูลรวมปีงบประมาณ ${fiscalYear} สำเร็จ`, 'success');
                         renderDashboard(aggData);
                         showSection('dashboardSection');
                     } else {
-                        showToast(`ยังไม่มีข้อมูลของปีงบประมาณ ${fetchYear} ในระบบ`, 'error');
+                        showToast(`ยังไม่มีข้อมูลของปีงบประมาณ ${fiscalYear} ในระบบ`, 'error');
                         showSection('dashboardSection');
                     }
                 } else {
-                    const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(fetchMonth);
-                    const calendarYear = isLateYear ? parseInt(fetchYear) - 1 : parseInt(fetchYear);
-                    const docId = `${fetchMonth} ${calendarYear}`;
+                    // ใช้ Doc ID จากปีปฏิทินเพียวๆ ตามที่เซฟไว้ ไม่ต้องไปลบปีออกแล้ว
+                    const docId = `${fetchMonth} ${fetchYear}`;
                     const docRef = doc(db, collectionName, docId);
                     const docSnap = await getDoc(docRef);
 
@@ -2676,11 +2754,11 @@
                             netProfit: data.netProfit || 0
                         };
 
-                        showToast(`ดึงข้อมูลเดือน ${fetchMonth} ปี ${calendarYear} สำเร็จ`, 'success');
+                        showToast(`ดึงข้อมูลเดือน ${fetchMonth} ปี ${fetchYear} สำเร็จ`, 'success');
                         renderDashboard(data);
                         showSection('dashboardSection');
                     } else {
-                        showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ในปีงบประมาณ ${fetchYear} ในระบบ`, 'error');
+                        showToast(`ยังไม่มีข้อมูลของเดือน ${fetchMonth} ในปีงบประมาณ ${fiscalYear} ในระบบ`, 'error');
                         showSection('dashboardSection');
                     }
                 }
@@ -2717,12 +2795,36 @@
         function renderDashboard(data) {
             document.getElementById('docInfoDisplay').innerText = `ไฟล์ของเดือน: ${data.month} ${data.year} (รหัสอ้างอิงไฟล์: ${data.fileId})`;
 
+            // 1. คำนวณรายได้รวมใหม่จากรายการย่อย (items) โดยตรง เพื่อป้องกันปัญหายอดดึงผิดพลาดจากตอนอัปโหลด
+            let calcOpRev = 0;
+            if (data.items && data.items.length > 0) {
+                calcOpRev = data.items.filter(i => i.category === 'revenue').reduce((sum, i) => sum + Math.abs(i.value), 0);
+            }
+            let displayOpRev = calcOpRev > 0 ? calcOpRev : (data.opRevenue || currentTotals.opRevenue);
+            
+            // 2. คำนวณค่าตัวแปรอื่นๆ ใหม่ให้สอดคล้องกันตามสมการบัญชี (รายได้ - ต้นทุน = กำไรขั้นต้น -> กำไรขั้นต้น - ค่าใช้จ่าย = กำไรสุทธิ)
+            let displayCogs = data.cogs || currentTotals.cogs;
+            let displayGrossProfit = displayOpRev - displayCogs;
+            
+            let rawExpense = data.totalExpense || currentTotals.expense;
+            // คำนวณค่าใช้จ่ายรวม = ค่าใช้จ่ายรวมเดิม + ต้นทุนขาย
+            let displayExpense = rawExpense + displayCogs;
+            
+            let displayNetProfit = displayGrossProfit - rawExpense;
+
+            // 3. อัปเดตตัวแปรระบบ currentTotals ให้เป็นค่าใหม่ที่ถูกต้อง 100% เพื่อให้กราฟดึงไปใช้ได้ตรงกัน
+            currentTotals.opRevenue = displayOpRev;
+            currentTotals.cogs = displayCogs;
+            currentTotals.grossProfit = displayGrossProfit;
+            currentTotals.expense = rawExpense; // กราฟ Waterfall ฐานข้อมูลเก่ายังแยกต้นทุนกับค่าใช้จ่าย
+            currentTotals.netProfit = displayNetProfit;
+
             // อัปเดตตัวเลขใน Summary Cards ด้วย Animation ครบ 5 กล่อง
-            animateValue('sumOpRev', 0, data.opRevenue || currentTotals.opRevenue, 1000);
-            animateValue('sumCogs', 0, data.cogs || currentTotals.cogs, 1000);
-            animateValue('sumGrossProfit', 0, data.totalRevenue || currentTotals.grossProfit, 1000);
-            animateValue('sumExpense', 0, data.totalExpense || currentTotals.expense, 1000);
-            animateValue('sumNet', 0, Math.abs(data.netProfit || currentTotals.netProfit), 1000);
+            animateValue('sumOpRev', 0, displayOpRev, 1000);
+            animateValue('sumCogs', 0, displayCogs, 1000);
+            animateValue('sumGrossProfit', 0, displayGrossProfit, 1000);
+            animateValue('sumExpense', 0, displayExpense, 1000); // แสดงผลรวมค่าใช้จ่าย+ต้นทุน
+            animateValue('sumNet', 0, Math.abs(displayNetProfit), 1000);
 
             // ฟังก์ชันช่วยคำนวณและสร้าง HTML เปอร์เซ็นต์เปรียบเทียบ
             const getPctHtml = (current, prev, isExpense = false) => {
@@ -2738,11 +2840,14 @@
 
             // ใส่เปอร์เซ็นต์ใน DOM
             if (previousTotals) {
-                document.getElementById('pctOpRev').innerHTML = getPctHtml(data.opRevenue || currentTotals.opRevenue, previousTotals.opRevenue, false);
-                document.getElementById('pctCogs').innerHTML = getPctHtml(data.cogs || currentTotals.cogs, previousTotals.cogs, true);
-                document.getElementById('pctGrossProfit').innerHTML = getPctHtml(data.totalRevenue || currentTotals.grossProfit, previousTotals.grossProfit, false);
-                document.getElementById('pctExpense').innerHTML = getPctHtml(data.totalExpense || currentTotals.expense, previousTotals.expense, true);
-                document.getElementById('pctNet').innerHTML = getPctHtml(data.netProfit || currentTotals.netProfit, previousTotals.netProfit, false);
+                let prevDisplayExpense = previousTotals.expense + previousTotals.cogs; // คำนวณเดือนก่อนหน้าให้บวกต้นทุนขายด้วย
+
+                // ดึงค่า % เปรียบเทียบ โดยใช้ค่าใหม่ที่ถูก Recalculate แล้วทั้งหมด
+                document.getElementById('pctOpRev').innerHTML = getPctHtml(displayOpRev, previousTotals.opRevenue, false);
+                document.getElementById('pctCogs').innerHTML = getPctHtml(displayCogs, previousTotals.cogs, true);
+                document.getElementById('pctGrossProfit').innerHTML = getPctHtml(displayGrossProfit, previousTotals.grossProfit, false);
+                document.getElementById('pctExpense').innerHTML = getPctHtml(displayExpense, prevDisplayExpense, true); 
+                document.getElementById('pctNet').innerHTML = getPctHtml(displayNetProfit, previousTotals.netProfit, false);
             } else {
                 ['pctOpRev', 'pctCogs', 'pctGrossProfit', 'pctExpense', 'pctNet'].forEach(id => {
                     document.getElementById(id).innerHTML = '<span class="text-[11px] font-medium text-gray-400 ml-2">ไม่มีข้อมูลเทียบ</span>';
@@ -2754,12 +2859,12 @@
             const netLabel = document.getElementById('netProfitLabel');
             const marginBadge = document.getElementById('netMarginBadge');
             
-            let revenueBase = (data.opRevenue && data.opRevenue > 0) ? data.opRevenue : (data.totalRevenue || currentTotals.grossProfit);
-            let marginPct = revenueBase > 0 ? ((data.netProfit || currentTotals.netProfit) / revenueBase) * 100 : 0;
+            let revenueBase = displayOpRev > 0 ? displayOpRev : displayGrossProfit;
+            let marginPct = revenueBase > 0 ? (displayNetProfit / revenueBase) * 100 : 0;
             
             marginBadge.innerText = `Margin: ${marginPct.toFixed(2)}%`;
 
-            let nProfit = data.netProfit !== undefined ? data.netProfit : currentTotals.netProfit;
+            let nProfit = displayNetProfit;
             if (nProfit < 0) {
                 netCard.classList.replace('border-indigo-500', 'border-red-500');
                 netCard.classList.replace('border-green-500', 'border-red-500'); 
@@ -2811,7 +2916,7 @@
             let baseOpRev = currentTotals.opRevenue;
             let baseCogs = currentTotals.cogs;
             let baseGp = currentTotals.grossProfit;
-            let baseExp = currentTotals.expense;
+            let baseExp = currentTotals.expense + currentTotals.cogs; // อัปเดตให้กราฟเส้นเล็กใช้ยอดรวม
             let baseNet = currentTotals.netProfit;
 
             createSparkline('sparklineOpRev', [baseOpRev*0.82, baseOpRev*0.91, baseOpRev*0.85, baseOpRev*0.96, baseOpRev*1.04, baseOpRev], '#3b82f6');
@@ -2824,28 +2929,88 @@
         function renderCharts() {
             Chart.defaults.font.family = "'Prompt', sans-serif";
             
-            let expensesList = extractedData
-                .filter(item => item.category === 'expense')
-                .map(item => ({ name: item.name, value: Math.abs(item.value) }))
-                .sort((a, b) => b.value - a.value);
+            // 1. เตรียมกล่อง (Buckets) สำหรับ 6 หมวดหมู่หลักแบบตายตัว
+            let buckets = {
+                materials: 0,   // 1. ค่าวัสดุยอดใช้ไป
+                wages: 0,       // 2. หมวดหมู่ค่าจ้าง
+                utilities: 0,   // 3. ค่าสาธารณูปโภค
+                supplies: 0,    // 4. ค่าใช้สอย
+                depreciation: 0,// 5. ค่าเสื่อมครุภัณฑ์
+                others: 0       // 6. รายจ่ายอื่นๆ(ค่าส่วนแบ่ง มก.)
+            };
 
+            // ดึงค่าวัสดุยอดใช้ไปจาก ต้นทุนขาย (COGS) เสมอ
+            buckets.materials = currentTotals.cogs > 0 ? currentTotals.cogs : 0;
+
+            // 2. จัดกลุ่มและรวมยอดค่าใช้จ่ายที่เหลือเข้าหมวดหมู่
+            extractedData.forEach(item => {
+                // ดักจับรายการที่เป็น "ต้นงวด", "ปลายงวด", "รวม" หรือยอดขยะอื่นๆ ที่หลุดมาอยู่ในหมวด other เพื่อป้องกันไม่ให้ถูกนำมาบวก
+                const isExclude = ['ต้นงวด', 'ปลายงวด', 'รวม', 'ยอดยกมา', 'ยอดยกไป', 'สินค้าสำเร็จรูป', 'กำไร', 'ขาดทุน'].some(kw => item.name.includes(kw));
+
+                if ((item.category === 'expense' || item.category === 'other') && !item.name.includes('วัสดุวิทยาศาสตร์') && !isExclude) {
+                    let val = Math.abs(item.value);
+                    let name = item.name;
+
+                    // หมวดที่ 2: หมวดหมู่ค่าจ้าง
+                    const employeeKeywords = [
+                        'พนักงาน', 'ค่าจ้างชั่วคราว', 'ตอบแทน', 'เงินเพิ่ม', 'วิชาชีพ',
+                        'ประกันสังคม', 'ประกนสังคม', 'สังคม', 'ค่าครองชีพ', 'กองทุน', 
+                        'กสจ', 'สวัสดิการ', 'เงินเดือน', 'โบนัส'
+                    ];
+                    // ต้องไม่รวมค่ารักษาพยาบาลบุคคลในครอบครัว (เพราะต้องไปอยู่ค่าใช้สอย)
+                    const isEmployeeExpense = employeeKeywords.some(kw => name.includes(kw)) && !name.includes('ครอบคร') && !name.includes('รักษาพยาบาล');
+
+                    if (isEmployeeExpense) {
+                        buckets.wages += val;
+                    } 
+                    else {
+                        // หมวดที่ 3: ค่าสาธารณูปโภค
+                        if (name.includes('ไฟฟ') || name.includes('ประปา') || name.includes('โทรศ') || name.includes('โทรสาร') || name.includes('สาธารณูปโภค') || name.includes('ไปรษณ') || name.includes('อากร')) {
+                            buckets.utilities += val;
+                        }
+                        // หมวดที่ 5: ค่าเสื่อมครุภัณฑ์
+                        else if (name.includes('เสื่อม')) {
+                            buckets.depreciation += val;
+                        }
+                        // หมวดที่ 6: รายจ่ายอื่นๆ (ค่าส่วนแบ่ง มก.)
+                        else if (name.includes('ส่วนแบ่ง') || name.includes('ส่วนแบ')) {
+                            buckets.others += val;
+                        }
+                        // หมวดที่ 4: ค่าใช้สอย (เพิ่มคำว่า ระลึก และ เกษียณ เพื่อดักจับรายการที่ตกหล่น)
+                        else if (name.includes('โครงการ') || name.includes('น้ำด') || name.includes('เลือดแกะ') || name.includes('lims') || name.includes('Lims') || name.includes('บำรุงรักษา') || name.includes('โอนเงิน') || name.includes('ซ่อมแซม') || name.includes('รักษาพยาบาล') || name.includes('ครอบคร') || name.includes('ห้องพัก') || name.includes('ใช้สอย') || name.includes('จ้างเหมา') || name.includes('สอบเทียบ') || name.includes('ติดตั้ง') || name.includes('กำจัด') || name.includes('พัฒาระบบ') || name.includes('พัฒนาระบบ') || name.includes('ระลึก') || name.includes('เกษียณ')) {
+                            buckets.supplies += val;
+                        }
+                        // นำ else สุดท้ายที่กวาดรายการขยะทิ้งไป เพื่อให้หมวดอื่นๆ แสดงแค่ "ส่วนแบ่ง มก." เท่านั้น
+                    }
+                }
+            });
+
+            // 3. จัดเรียงข้อมูลเพื่อนำไปวาดกราฟตามลำดับที่ผู้ใช้ต้องการเป๊ะๆ 1-6
             let chartLabels = [];
             let chartData = [];
-            
-            if (expensesList.length > 0) {
-                const top5 = expensesList.slice(0, 5);
-                const others = expensesList.slice(5).reduce((sum, item) => sum + item.value, 0);
+            let chartBgColors = [];
 
-                chartLabels = top5.map(item => item.name);
-                chartData = top5.map(item => item.value);
+            const predefinedCategories = [
+                { label: 'ค่าวัสดุยอดใช้ไป', value: buckets.materials, color: '#ef4444' }, // สีแดง
+                { label: 'หมวดหมู่ค่าจ้าง', value: buckets.wages, color: '#f97316' },     // สีส้ม
+                { label: 'ค่าสาธารณูปโภค', value: buckets.utilities, color: '#06b6d4' }, // สีฟ้า
+                { label: 'ค่าใช้สอย', value: buckets.supplies, color: '#84cc16' },       // สีเขียว
+                { label: 'ค่าเสื่อมครุภัณฑ์', value: buckets.depreciation, color: '#f59e0b' },// สีเหลือง
+                { label: 'รายจ่ายอื่นๆ(ค่าส่วนแบ่ง มก.)', value: buckets.others, color: '#94a3b8' } // สีเทา
+            ];
 
-                if (others > 0) {
-                    chartLabels.push('ค่าใช้จ่ายอื่นๆ');
-                    chartData.push(others);
+            predefinedCategories.forEach(cat => {
+                if (cat.value > 0) {
+                    chartLabels.push(cat.label);
+                    chartData.push(cat.value);
+                    chartBgColors.push(cat.color);
                 }
-            } else {
-                chartLabels = ['ไม่มีข้อมูลค่าใช้จ่าย'];
+            });
+
+            if (chartLabels.length === 0) {
+                chartLabels = ['ไม่มีข้อมูล'];
                 chartData = [1];
+                chartBgColors = ['#e2e8f0'];
             }
 
             if (expenseChartInstance) expenseChartInstance.destroy();
@@ -2858,7 +3023,7 @@
                     labels: chartLabels,
                     datasets: [{
                         data: chartData,
-                        backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4', '#94a3b8'],
+                        backgroundColor: chartBgColors, // นำสีที่กำหนดให้ผูกกับหมวดนั้นๆ มาแสดงผลแบบอัตโนมัติ
                         hoverOffset: 15,
                         borderWidth: 1
                     }]
@@ -2879,7 +3044,7 @@
             let expense = currentTotals.expense;
             let netProfit = currentTotals.netProfit;
             
-            // Waterfall (Floating Bar - 5 แท่ง)
+            // เปลี่ยน Waterfall ให้เริ่มจาก 0 ทุกแท่งตามที่ต้องการ (Standard Bar)
             compareChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
@@ -2889,12 +3054,13 @@
                             label: 'กระแสเงิน', 
                             data: [
                                 [0, opRev], 
-                                [opRev - cogs, opRev], 
+                                [0, cogs], // ปรับให้แท่งต้นทุนขายเริ่มจาก 0
                                 [0, grossProfit],
-                                [grossProfit - expense, grossProfit],
+                                [0, expense], // ปรับให้แท่งค่าใช้จ่ายเริ่มจาก 0 ด้วยเพื่อความสอดคล้องกัน
                                 [0, netProfit]
                             ], 
-                            backgroundColor: ['#3b82f6', '#f97316', '#22c55e', '#ef4444', netProfit >= 0 ? '#6366f1' : '#ef4444'], 
+                            // เปลี่ยนสีค่าใช้จ่ายเป็นสีม่วง (#8b5cf6) เพื่อไม่ให้ซ้ำกับสีแดงเวลาขาดทุน
+                            backgroundColor: ['#3b82f6', '#f97316', '#d1d5db', '#8b5cf6', netProfit >= 0 ? '#22c55e' : '#ef4444'], 
                             borderRadius: 4 
                         }
                     ]

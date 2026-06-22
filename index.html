@@ -125,6 +125,10 @@
                 <i class="fa-solid fa-flask w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
                 <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">จำนวนการตรวจ</span>
             </button>
+            <button id="navBtnHoliday" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-slate-700 transition-all duration-300 text-left group">
+                <i class="fa-solid fa-calendar-day w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">ตัวอย่างวันหยุด</span>
+            </button>
         </div>
     </aside>
 
@@ -869,6 +873,168 @@
                 </div>
             </div>
         </section>
+
+        <section id="holidaySection" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-6 h-6 text-indigo-600"></i>
+                        Laboratory Analytics (Holiday Samples)
+                    </h2>
+                    <p class="text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md" id="holidayDocInfoDisplay">
+                        ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-indigo-500/50">
+                        <button id="btnPrevMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                            <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
+                        </button>
+                        <select id="fetchHolidayMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                            <option value="all">รวมทั้งปี</option>
+                            <option value="มกราคม">มกราคม</option>
+                            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                            <option value="มีนาคม">มีนาคม</option>
+                            <option value="เมษายน">เมษายน</option>
+                            <option value="พฤษภาคม">พฤษภาคม</option>
+                            <option value="มิถุนายน">มิถุนายน</option>
+                            <option value="กรกฎาคม">กรกฎาคม</option>
+                            <option value="สิงหาคม">สิงหาคม</option>
+                            <option value="กันยายน">กันยายน</option>
+                            <option value="ตุลาคม">ตุลาคม</option>
+                            <option value="พฤศจิกายน">พฤศจิกายน</option>
+                            <option value="ธันวาคม">ธันวาคม</option>
+                        </select>
+                        <button id="btnNextMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                            <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
+                        </button>
+                    </div>
+                    <input type="number" id="fetchHolidayYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchHolidayData" class="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnResetHolidayDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                        <i class="fa-solid fa-file-excel mr-1"></i> อัปโหลดไฟล์ใหม่
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <i data-lucide="beaker" class="w-20 h-20 text-slate-800"></i>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-500 mb-1 z-10">จำนวนตัวอย่างวันหยุดทั้งหมด</p>
+                    <div class="flex items-baseline mb-4 z-10">
+                        <h3 id="holiday-kpi-total" class="text-4xl font-bold text-slate-900 tracking-tight">0</h3>
+                        <span id="holiday-badge-total" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2"></span>
+                    </div>
+                    <div id="holiday-label-total" class="mt-auto flex items-center text-xs text-slate-500 font-medium bg-slate-50 w-fit px-2.5 py-1 rounded-md z-10">
+                        ยอดรวมในไฟล์
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-white to-emerald-50/80 rounded-xl p-5 shadow-sm border border-emerald-200 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
+                    <div class="absolute top-1/2 -translate-y-1/2 -right-2 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <i data-lucide="circle-dollar-sign" class="w-20 h-20 text-emerald-600"></i>
+                    </div>
+                    <div class="flex justify-between items-center mb-1 z-10 w-full">
+                        <p class="text-sm font-semibold text-emerald-600">จำนวนเงินรวมวันหยุด (บาท)</p>
+                        <button id="btnToggleHolidayKpiMoney" class="text-emerald-600 hover:text-emerald-800 transition focus:outline-none" title="ซ่อน/แสดงจำนวนเงิน">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap items-baseline gap-2 mb-4 z-10 w-full">
+                        <h3 id="holiday-kpi-amount" class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight break-all" title="จำนวนเงินรวม" data-val="0">******</h3>
+                        <span id="holiday-badge-amount" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"></span>
+                    </div>
+                    <div class="mt-auto flex items-center text-xs text-emerald-700 font-medium bg-emerald-100/60 w-fit px-2.5 py-1 rounded-md z-10 border border-emerald-200 shadow-sm">
+                        รายได้รวมวันหยุดทั้งหมด
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-0">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">แนวโน้มปริมาณตัวอย่างวันหยุด (Trend)</h3>
+                        <p class="text-sm text-slate-500">เปรียบเทียบปริมาณรวมแต่ละช่วงเดือน</p>
+                    </div>
+                    <div id="holiday-line-chart" class="w-full h-[350px]"></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                    <div class="mb-2 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">5 อันดับรายการทำเงินวันหยุด (Top 5 Tests)</h3>
+                            <p class="text-sm text-slate-500">รายการทดสอบวันหยุดสร้างมูลค่าสูงสุด</p>
+                        </div>
+                        <button id="btnToggleHolidayTop5Money" class="text-slate-400 hover:text-slate-600 transition p-2 focus:outline-none" title="ซ่อน/แสดงจำนวนเงิน">
+                            <i class="fa-solid fa-eye-slash text-lg"></i>
+                        </button>
+                    </div>
+                    <div id="holiday-top5-tests" class="space-y-4 flex-grow overflow-y-auto no-scrollbar max-h-[320px]">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
+                    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">จำนวนการตรวจวันหยุดแยกตามห้องปฏิบัติการ (Lab Performance)</h3>
+                            <p id="holiday-lab-subtitle" class="text-sm text-slate-500">ปริมาณงานแยกตามรายแลป</p>
+                        </div>
+                        <button id="btnToggleHolidayChart" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium rounded-lg transition-colors border border-slate-200 shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i> <span id="toggleHolidayChartText">สลับเรียงตาม: ยอดเงิน (บาท)</span>
+                        </button>
+                    </div>
+                    
+                    <div class="w-full overflow-x-auto custom-scrollbar">
+                        <div style="min-width: 600px;">
+                            <div id="holiday-bar-chart" class="w-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">สัดส่วนงานตามห้องปฏิบัติการ</h3>
+                    <p class="text-sm text-slate-500 mb-4" id="holiday-donut-subtitle">แสดงสัดส่วนปริมาณงานแต่ละแลป</p>
+                    <div class="relative flex-grow flex items-center justify-center">
+                        <div id="holiday-donut-chart" class="w-full h-[320px]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-6">
+                <h4 class="text-md font-bold text-slate-800 mb-4">ตารางรายละเอียดตัวอย่างวันหยุดแยกตามห้องปฏิบัติการ</h4>
+                <div class="overflow-x-auto rounded-lg border border-slate-200 custom-scrollbar max-h-[500px]">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200 sticky top-0 z-10 select-none">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap">ห้องปฏิบัติการ (Lab)</th>
+                                <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap">ชื่อรายการ (Test Name)</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap">จำนวนทั้งหมด</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right text-emerald-600 whitespace-nowrap">จำนวนเงินรวม (฿)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holidayDataTableBody">
+                        </tbody>
+                        <tfoot class="bg-slate-50 border-t border-slate-200 font-bold text-slate-900 sticky bottom-0 z-10">
+                            <tr>
+                                <td colspan="2" class="px-6 py-4 text-right">รวมทั้งหมด (Total)</td>
+                                <td id="holiday-tfoot-total" class="px-6 py-4 text-right">0</td>
+                                <td id="holiday-tfoot-amount" class="px-6 py-4 text-right text-emerald-700">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- สคริปต์หลัก (กำหนดเป็น type="module" เพื่อรองรับ Firebase SDK) -->
@@ -914,6 +1080,17 @@
         let sampleChartSortMode = 'total';
         let globalLabDataForChart = [];
 
+        // ตัวแปรควบคุมแท็บตัวอย่างวันหยุด
+        let activeTab = 'pnl';
+        let holidayExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
+        let holidayLineChartInstance = null;
+        let holidayBarChartInstance = null;
+        let holidayDonutChartInstance = null;
+        let holidayChartSortMode = 'total';
+        let globalHolidayLabDataForChart = [];
+        let isHolidayKpiMoneyVisible = false;
+        let isHolidayTop5MoneyVisible = false;
+
         // การอ้างอิง Element ใน DOM
         const els = {
             fileInput: document.getElementById('fileInput'),
@@ -948,7 +1125,11 @@
             sampleSection: document.getElementById('sampleSection'),
             btnFetchSampleData: document.getElementById('btnFetchSampleData'),
             btnResetSampleDashboard: document.getElementById('btnResetSampleDashboard'),
-            sampleLabFilter: document.getElementById('sampleLabFilter')
+            sampleLabFilter: document.getElementById('sampleLabFilter'),
+            navBtnHoliday: document.getElementById('navBtnHoliday'),
+            holidaySection: document.getElementById('holidaySection'),
+            btnFetchHolidayData: document.getElementById('btnFetchHolidayData'),
+            btnResetHolidayDashboard: document.getElementById('btnResetHolidayDashboard')
         };
 
         let currentBSSortDesc = true;
@@ -965,7 +1146,7 @@
 
         // จัดการคลิกสลับหน้าจอ (Navigation พร้อมอัปเดตสไตล์ลิสต์ระดับพรีเมียมตามปุ่มที่เลือกใช้งานจริง)
         function updateNavClasses(activeBtn) {
-            [els.navBtnPnL, els.navBtnBS, els.navBtnSample].forEach(btn => {
+            [els.navBtnPnL, els.navBtnBS, els.navBtnSample, els.navBtnHoliday].forEach(btn => {
                 if(btn) btn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-emerald-500/30 transition-all duration-300 text-left group";
             });
             if(activeBtn) activeBtn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500/10 to-transparent text-emerald-400 border-l-4 border-emerald-500 shadow-inner shadow-emerald-500/5 transition-all duration-300 text-left group";
@@ -980,6 +1161,7 @@
             if(els.compareSection) els.compareSection.classList.add('hidden');
             if(els.balanceSheetSection) els.balanceSheetSection.classList.add('hidden');
             if(els.sampleSection) els.sampleSection.classList.add('hidden');
+            if(els.holidaySection) els.holidaySection.classList.add('hidden');
             
             if(sectionId) document.getElementById(sectionId).classList.remove('hidden');
 
@@ -991,9 +1173,10 @@
             }
         }
 
-        if(els.navBtnPnL) els.navBtnPnL.addEventListener('click', () => { updateNavClasses(els.navBtnPnL); showSection('dashboardSection'); });
-        if(els.navBtnBS) els.navBtnBS.addEventListener('click', () => { updateNavClasses(els.navBtnBS); showSection('balanceSheetSection'); });
-        if(els.navBtnSample) els.navBtnSample.addEventListener('click', () => { updateNavClasses(els.navBtnSample); showSection('sampleSection'); });
+        if(els.navBtnPnL) els.navBtnPnL.addEventListener('click', () => { activeTab = 'pnl'; updateNavClasses(els.navBtnPnL); showSection('dashboardSection'); });
+        if(els.navBtnBS) els.navBtnBS.addEventListener('click', () => { activeTab = 'bs'; updateNavClasses(els.navBtnBS); showSection('balanceSheetSection'); });
+        if(els.navBtnSample) els.navBtnSample.addEventListener('click', () => { activeTab = 'sample'; updateNavClasses(els.navBtnSample); showSection('sampleSection'); });
+        if(els.navBtnHoliday) els.navBtnHoliday.addEventListener('click', () => { activeTab = 'holiday'; updateNavClasses(els.navBtnHoliday); showSection('holidaySection'); });
 
         if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => showSection('dashboardSection'));
 
@@ -1124,8 +1307,13 @@
                         await extractDataFromPDF(arrayBuffer);
                     }
                     
-                    showToast('สกัดข้อมูลสำเร็จ กรุณาระบุเดือนเพื่อบันทึก', 'success');
-                    showSection('saveFormSection');
+                    // หากอยู่ในแท็บ "ตัวอย่างวันหยุด" ให้ข้ามการระบุเดือน แล้วประมวลผลเซฟลง Firebase อัตโนมัติทันที
+                    if (activeTab === 'holiday') {
+                        els.btnSaveToFirebase.click();
+                    } else {
+                        showToast('สกัดข้อมูลสำเร็จ กรุณาระบุเดือนเพื่อบันทึก', 'success');
+                        showSection('saveFormSection');
+                    }
                 } catch (error) {
                     console.error("Extraction Error: ", error);
                     showToast('เกิดข้อผิดพลาดในการอ่านไฟล์ โปรดลองไฟล์อื่นครับ', 'error');
@@ -1245,6 +1433,66 @@
 
         // ฟังก์ชันสกัดข้อมูลจากไฟล์ Excel (อัปเกรดการสแกนหาหัวตารางอัตโนมัติ)
         async function extractDataFromExcel(arrayBuffer) {
+            if (activeTab === 'holiday') {
+                extractedType = 'holiday';
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                let allItemsList = [];
+                
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+                    let dateIdx = -1, testNameIdx = -1, priceIdx = -1;
+                    let startIndex = 1;
+                    
+                    for (let i = 0; i < Math.min(15, rows.length); i++) {
+                        if (!rows[i]) continue;
+                        let rowStr = rows[i].map(c => String(c).toLowerCase().trim());
+                        if (rowStr.some(s => s.includes('date') || s.includes('วันที่') || s.includes('test') || s.includes('price') || s.includes('ราคา'))) {
+                            dateIdx = rowStr.findIndex(s => s.includes('date') || s.includes('วันที่') || s === 'วัน');
+                            testNameIdx = rowStr.findIndex(s => s.includes('test') || s.includes('รายการ') || s.includes('ชื่อ'));
+                            priceIdx = rowStr.findIndex(s => s.includes('price') || s.includes('ราคา') || s.includes('เงิน'));
+                            startIndex = i + 1;
+                            break;
+                        }
+                    }
+                    if (dateIdx === -1) dateIdx = 1;
+                    if (testNameIdx === -1) testNameIdx = 3;
+                    if (priceIdx === -1) priceIdx = 4;
+                    
+                    let lastValidDateStr = ''; // ตัวแปรจำวันที่ล่าสุด เพื่อใช้กับบรรทัดที่ถูกเว้นว่างไว้ (Merged Cells)
+
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row || row.length === 0) continue;
+                        
+                        let rawDate = String(row[dateIdx] !== undefined ? row[dateIdx] : '').trim();
+                        let testName = testNameIdx >= 0 ? String(row[testNameIdx] || '').trim() : '-';
+                        let rawPrice = priceIdx >= 0 ? String(row[priceIdx] || '0') : '0';
+                        
+                        // ตรวจสอบว่าเป็นบรรทัดหัวตารางหรือไม่ ถ้าใช่ให้ข้าม
+                        if (rawDate.toLowerCase().includes('date') || rawDate.includes('วันที่')) continue;
+
+                        // จำวันที่ล่าสุดหากมีข้อมูล หรือนำวันที่ล่าสุดมาใช้หากช่องถูกเว้นว่าง
+                        if (rawDate !== '') {
+                            lastValidDateStr = rawDate;
+                        } else {
+                            rawDate = lastValidDateStr;
+                        }
+
+                        if (!rawDate) continue; // หากดึงจาก Carry-over มาแล้วยังไม่มีให้ข้าม
+
+                        let price = parseFloat(rawPrice.replace(/[^0-9.-]+/g, '')) || 0;
+                        if (testName === '' && price === 0) continue;
+                        if (testName.includes('รวม') || testName.includes('ตัวอย่าง')) continue;
+                        
+                        allItemsList.push({ dateStr: rawDate, lab: sheetName.trim(), testName: testName || '-', price: price });
+                    }
+                });
+                holidayExtractedData = { items: allItemsList };
+                return;
+            }
+
             extractedType = 'sample';
             const data = new Uint8Array(arrayBuffer);
             const workbook = XLSX.read(data, { type: 'array' });
@@ -1314,6 +1562,29 @@
 
         // ฟังก์ชันสกัดข้อมูลจากไฟล์ CSV (อัปเกรดการสแกนหาหัวตารางอัตโนมัติ)
         async function extractDataFromCSV(csvText) {
+            if (activeTab === 'holiday') {
+                extractedType = 'holiday';
+                const lines = csvText.split(/\r?\n/);
+                const rows = lines.map(line => {
+                    let cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    return cols.map(c => c.replace(/^"|"$/g, '').trim());
+                });
+                let allItemsList = [];
+                let dateIdx = 1, testNameIdx = 3, priceIdx = 4;
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || row.length <= dateIdx) continue;
+                    let rawDate = String(row[dateIdx] || '').trim();
+                    let testName = String(row[testNameIdx] || '').trim();
+                    let rawPrice = String(row[priceIdx] || '0');
+                    if (!rawDate || rawDate === '') continue;
+                    let price = parseFloat(rawPrice.replace(/[^0-9.-]+/g, '')) || 0;
+                    allItemsList.push({ dateStr: rawDate, lab: 'CSV_LAB', testName: testName || '-', price: price });
+                }
+                holidayExtractedData = { items: allItemsList };
+                return;
+            }
+
             extractedType = 'sample';
             const lines = csvText.split(/\r?\n/);
             const rows = lines.map(line => {
@@ -1609,7 +1880,106 @@
             showSection('uploadSection');
         });
 
+        function parseThaiMonthYearFromStr(dateStr) {
+            if (!dateStr) return null;
+            let str = String(dateStr).trim();
+            
+            // กรณีเป็นตัวเลข Serial Date ของ Excel (ครอบคลุมรหัสวันที่ตั้งแต่ปี 1927 ขึ้นไป)
+            if (!isNaN(str) && str !== '') {
+                let days = parseFloat(str);
+                if (days > 10000) {
+                    const excelEpoch = new Date(1899, 11, 30);
+                    const JSDate = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
+                    let mIdx = JSDate.getMonth();
+                    let y = JSDate.getFullYear();
+                    
+                    // แปลงปีให้เป็น พ.ศ. ที่ถูกต้อง ไม่ว่า Excel จะตีความมาเป็นปี ค.ศ. แบบใด
+                    let finalYear;
+                    if (y >= 1900 && y <= 1999) {
+                        finalYear = 2500 + (y % 100); // ตัวอย่าง: 1967 -> 2567
+                    } else if (y >= 2000 && y <= 2100) {
+                        finalYear = y + 543; // ตัวอย่าง: 2024 -> 2567
+                    } else {
+                        finalYear = y; // เป็น พ.ศ. อยู่แล้ว
+                    }
+                    
+                    const monthsArr = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                    return { month: monthsArr[mIdx], year: finalYear.toString() };
+                }
+            }
+
+            // กรณีเป็นข้อความ (Text Format) เช่น "1/1/67", "01/03/2569"
+            let parts = str.split(/[\/\-]/);
+            if (parts.length >= 3) {
+                let m = parseInt(parts[1], 10);
+                if (m > 12) m = parseInt(parts[0], 10); // ดักจับเผื่อเป็นระบบ MM/DD/YY
+                
+                let yStr = parts[2].trim().substring(0, 4);
+                let yInt = parseInt(yStr, 10);
+                
+                if (yInt < 100) {
+                    yStr = (2500 + yInt).toString(); // 67 -> 2567
+                } else if (yInt >= 2000 && yInt < 2500) {
+                    yStr = (yInt + 543).toString(); // 2024 -> 2567
+                } else {
+                    yStr = yInt.toString(); // 2567 อยู่แล้ว
+                }
+                
+                const monthsArr = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+                if (m >= 1 && m <= 12) return { month: monthsArr[m - 1], year: yStr };
+            }
+            return null;
+        }
+
         els.btnSaveToFirebase.addEventListener('click', async () => {
+            if (extractedType === 'holiday') {
+                showLoading('กำลังแยกคุมข้อมูลรายเดือนและอัปเดตลงระบบ Firebase...');
+                try {
+                    const groups = {};
+                    holidayExtractedData.items.forEach(item => {
+                        let parsed = parseThaiMonthYearFromStr(item.dateStr);
+                        let m = parsed ? parsed.month : 'ไม่ระบุ';
+                        let y = parsed ? parsed.year : 'ไม่ระบุ';
+                        let key = `${m} ${y}`;
+                        if (!groups[key]) groups[key] = { month: m, year: y, items: [] };
+                        groups[key].items.push({ Lab: item.lab, testName: item.testName, amount: item.price, samples: 1 });
+                    });
+                    
+                    const keys = Object.keys(groups);
+                    for (let key of keys) {
+                        const g = groups[key];
+                        if (g.month === 'ไม่ระบุ' || g.year === 'ไม่ระบุ') continue;
+                        let totalSamples = g.items.length;
+                        let totalAmount = g.items.reduce((sum, i) => sum + i.amount, 0);
+                        let yearInt = parseInt(g.year, 10);
+                        let isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(g.month);
+                        let fYear = isLateYear ? yearInt + 1 : yearInt;
+                        let fileId = Math.floor(10000 + Math.random() * 90000).toString();
+                        
+                        await setDoc(doc(db, `holiday_reports_${fYear}`, key), {
+                            fileId: fileId, month: g.month, year: g.year, fiscalYear: fYear.toString(),
+                            reportType: 'holiday', totalSamples: totalSamples, totalAmount: totalAmount, items: g.items, timestamp: new Date().toISOString()
+                        });
+                    }
+                    showToast('บันทึกยอดสะสมตัวอย่างวันหยุดเรียบร้อยแล้ว', 'success');
+                    if (keys.length > 0) {
+                        const lastKey = keys[keys.length - 1];
+                        const lastGroup = groups[lastKey];
+                        renderHolidayDashboard({
+                            month: lastGroup.month, year: lastGroup.year, fileId: 'CUMULATIVE',
+                            totalSamples: lastGroup.items.length, totalAmount: lastGroup.items.reduce((sum, i) => sum + i.amount, 0), items: lastGroup.items
+                        });
+                    }
+                    showSection('holidaySection');
+                    if(els.navBtnHoliday) els.navBtnHoliday.click();
+                } catch (error) {
+                    console.error(error);
+                    showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูลวันหยุด', 'error');
+                    showSection('saveFormSection');
+                }
+                return;
+            }
+
             const month = document.getElementById('monthSelect').value;
             const yearStr = document.getElementById('yearInput').value;
 
@@ -1830,9 +2200,13 @@
             
             if (currentIdx >= 0) {
                 let prevMonth = currentIdx > 0 ? monthNames[currentIdx - 1] : 'ธันวาคม';
-                let prevYear = currentIdx > 0 ? data.year : (parseInt(data.year) - 1).toString();
+                let prevCalYear = currentIdx > 0 ? parseInt(data.year) : parseInt(data.year) - 1;
+                
+                const isLateYearPrev = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(prevMonth);
+                const prevFiscalYear = isLateYearPrev ? prevCalYear + 1 : prevCalYear;
+                const prevDocId = `${prevMonth} ${prevCalYear}`;
 
-                getDoc(doc(db, `balance_sheet_${prevYear}`, prevMonth)).then(snap => {
+                getDoc(doc(db, `balance_sheet_${prevFiscalYear}`, prevDocId)).then(snap => {
                     const updateVar = (id, oldVal, newVal, invertGood = false) => {
                         const el = document.getElementById(id);
                         if(oldVal === 0) { el.innerHTML = `<span class="text-gray-400">N/A</span>`; return; }
@@ -2869,6 +3243,274 @@
         }
         if(els.btnResetSampleDashboard) els.btnResetSampleDashboard.addEventListener('click', () => showSection('uploadSection'));
 
+        // ระบบสรุปและวาดแดชบอร์ดวันหยุด
+        function renderHolidayDashboard(data) {
+            document.getElementById('holidayDocInfoDisplay').innerText = `ไฟล์ของเดือน: ${data.month} ${data.year} (รหัสอ้างอิงไฟล์: ${data.fileId})`;
+            const rawData = data.items || [];
+            let totalSamples = 0, totalAmount = 0;
+            const labMap = {};
+            const testMap = {};
+
+            rawData.forEach(row => {
+                let samples = parseInt(row.samples || 1) || 1;
+                let amount = parseFloat(row.amount || 0) || 0;
+                let rawLab = row.Lab || row.lab || 'ไม่ระบุ';
+                let lab = rawLab.replace(/[0-9]+$/, '').trim(); // ตัดตัวเลขปีที่ต่อท้ายออก เช่น AI69 -> AI
+                let testName = row.testName || row.TestName || '-';
+                totalSamples += samples;
+                totalAmount += amount;
+                if (!labMap[lab]) labMap[lab] = { lab, total: 0, amount: 0 };
+                labMap[lab].total += samples;
+                labMap[lab].amount += amount;
+                const tKey = lab + '||' + testName;
+                if (!testMap[tKey]) testMap[tKey] = { lab, testName, total: 0, amount: 0 };
+                testMap[tKey].total += samples;
+                testMap[tKey].amount += amount;
+            });
+
+            const animateIntHoliday = (id, end, isFloat = false) => {
+                const obj = document.getElementById(id);
+                if(!obj) return;
+                if (id === 'holiday-kpi-amount') {
+                    obj.dataset.val = end;
+                    if (!isHolidayKpiMoneyVisible) { obj.innerText = '******'; return; }
+                }
+                obj.innerText = isFloat ? end.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : end.toLocaleString();
+            };
+
+            animateIntHoliday('holiday-kpi-total', totalSamples);
+            animateIntHoliday('holiday-kpi-amount', totalAmount, true);
+
+            const tbody = document.getElementById('holidayDataTableBody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                const sortedLabs = Object.values(labMap).sort((a, b) => b.total - a.total);
+                
+                sortedLabs.forEach(l => {
+                    const lTests = Object.values(testMap).filter(t => t.lab === l.lab).sort((a, b) => b.total - a.total);
+                    
+                    const trHeader = document.createElement('tr');
+                    trHeader.className = `cursor-pointer border-y bg-slate-100/80 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 hover:opacity-90 transition select-none font-bold`;
+                    trHeader.innerHTML = `
+                        <td colspan="4" class="py-3 px-6 relative z-10">
+                            <div class="flex justify-between items-center">
+                                <span>
+                                    <i class="fa-solid fa-flask mr-2 text-indigo-600 dark:text-indigo-400"></i>ห้องปฏิบัติการ: ${l.lab} 
+                                    <span class="text-xs font-normal opacity-70 ml-2">(${lTests.length} รายการ | รวม ${l.total.toLocaleString()} ตัวอย่าง | ${l.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ฿)</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-up transition-transform duration-300"></i>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(trHeader);
+
+                    const itemRows = [];
+                    lTests.forEach(t => {
+                        const trItem = document.createElement('tr');
+                        trItem.className = "bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors";
+                        trItem.innerHTML = `
+                            <td class="px-6 py-4 font-semibold text-slate-400 dark:text-slate-500 pl-10">${t.lab}</td>
+                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">${t.testName}</td>
+                            <td class="px-6 py-4 text-right font-medium text-slate-800 dark:text-slate-200">${t.total.toLocaleString()}</td>
+                            <td class="px-6 py-4 text-right font-medium text-emerald-600 dark:text-emerald-400">${t.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        `;
+                        tbody.appendChild(trItem);
+                        itemRows.push(trItem);
+                    });
+
+                    let isExpanded = true;
+                    trHeader.addEventListener('click', () => {
+                        isExpanded = !isExpanded;
+                        const icon = trHeader.querySelector('.fa-chevron-up');
+                        if (isExpanded) {
+                            if(icon) icon.style.transform = 'rotate(0deg)';
+                            itemRows.forEach(row => row.classList.remove('hidden'));
+                        } else {
+                            if(icon) icon.style.transform = 'rotate(180deg)';
+                            itemRows.forEach(row => row.classList.add('hidden'));
+                        }
+                    });
+                });
+
+                document.getElementById('holiday-tfoot-total').innerText = totalSamples.toLocaleString();
+                document.getElementById('holiday-tfoot-amount').innerText = totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            const top5Container = document.getElementById('holiday-top5-tests');
+            if (top5Container) {
+                const top5 = Object.values(testMap).sort((a, b) => b.amount - a.amount).slice(0, 5);
+                const maxAmt = top5.length > 0 ? top5[0].amount : 1;
+                top5Container.innerHTML = top5.map((t, idx) => {
+                    const progressWidth = (t.amount / maxAmt) * 100;
+                    const displayAmt = isHolidayTop5MoneyVisible ? t.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿' : '******';
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-start text-xs font-semibold text-slate-700 gap-2">
+                                <span class="flex-1">${idx + 1}. [${t.lab}] ${t.testName}</span>
+                                <span class="whitespace-nowrap holiday-top5-amt-text" data-amt="${t.amount}">${displayAmt}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: ${progressWidth}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                if(top5.length === 0) top5Container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">ไม่มีข้อมูล</p>';
+            }
+
+            globalHolidayLabDataForChart = Object.values(labMap);
+            window.drawHolidayBarChart = function() {
+                let chartData = [...globalHolidayLabDataForChart];
+                if (holidayChartSortMode === 'total') {
+                    chartData.sort((a, b) => b.total - a.total);
+                    document.getElementById('holiday-lab-subtitle').innerText = 'ปริมาณงานวันหยุดแยกตามห้องปฏิบัติการ (จำนวนตัวอย่าง)';
+                    const donutSub = document.getElementById('holiday-donut-subtitle');
+                    if (donutSub) donutSub.innerText = 'แสดงสัดส่วนแยกตามจำนวนตัวอย่าง';
+                } else {
+                    chartData.sort((a, b) => b.amount - a.amount);
+                    document.getElementById('holiday-lab-subtitle').innerText = 'ปริมาณงานวันหยุดแยกตามยอดเงินรวม (บาท)';
+                    const donutSub = document.getElementById('holiday-donut-subtitle');
+                    if (donutSub) donutSub.innerText = 'แสดงสัดส่วนแยกตามยอดเงินรวม';
+                }
+
+                const barOptions = {
+                    series: [{ name: 'ยอดรวม', data: chartData.map(d => holidayChartSortMode === 'total' ? d.total : d.amount) }],
+                    chart: { type: 'bar', height: Math.max(300, chartData.length * 40), toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
+                    colors: ['#6366f1'],
+                    plotOptions: { 
+                        bar: { 
+                            horizontal: true, 
+                            borderRadius: 4, 
+                            barHeight: '55%',
+                            dataLabels: { position: 'top' }
+                        } 
+                    },
+                    dataLabels: { 
+                        enabled: true,
+                        textAnchor: 'start',
+                        style: { colors: ['#475569'], fontSize: '12px', fontFamily: 'Prompt, sans-serif', fontWeight: 600 },
+                        formatter: function (val) {
+                            return holidayChartSortMode === 'total' 
+                                ? Number(val).toLocaleString() + ' ตัวอย่าง'
+                                : Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                        },
+                        offsetX: 5
+                    },
+                    grid: { padding: { right: 100 } },
+                    xaxis: { 
+                        categories: chartData.map(d => d.lab),
+                        labels: { formatter: function(val) { return Math.round(val); } }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return holidayChartSortMode === 'total' 
+                                    ? Number(val).toLocaleString() + ' ตัวอย่าง'
+                                    : Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                            }
+                        }
+                    }
+                };
+                if(holidayBarChartInstance) holidayBarChartInstance.destroy();
+                holidayBarChartInstance = new ApexCharts(document.querySelector("#holiday-bar-chart"), barOptions);
+                holidayBarChartInstance.render();
+
+                const donutOptions = {
+                    series: chartData.map(d => holidayChartSortMode === 'total' ? d.total : d.amount),
+                    labels: chartData.map(d => d.lab),
+                    chart: { type: 'donut', height: 320, fontFamily: 'Prompt, sans-serif' },
+                    plotOptions: { pie: { donut: { size: '65%' } } },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return holidayChartSortMode === 'total' 
+                                    ? Number(val).toLocaleString() + ' ตัวอย่าง'
+                                    : Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                            }
+                        }
+                    }
+                };
+                if(holidayDonutChartInstance) holidayDonutChartInstance.destroy();
+                holidayDonutChartInstance = new ApexCharts(document.querySelector("#holiday-donut-chart"), donutOptions);
+                holidayDonutChartInstance.render();
+            };
+            window.drawHolidayBarChart();
+
+            const trendOptions = {
+                series: [{ name: 'จำนวนตัวอย่างวันหยุด', data: [totalSamples * 0.75, totalSamples * 0.9, totalSamples * 0.85, totalSamples] }],
+                chart: { type: 'line', height: 320, toolbar: { show: false }, fontFamily: 'Prompt, sans-serif' },
+                colors: ['#4f46e5'],
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: { categories: ['ก่อนหน้า 3 เดือน', 'ก่อนหน้า 2 เดือน', 'ก่อนหน้า 1 เดือน', data.month] },
+                yaxis: { labels: { formatter: function(val) { return Math.round(val); } } }
+            };
+            if(holidayLineChartInstance) holidayLineChartInstance.destroy();
+            holidayLineChartInstance = new ApexCharts(document.querySelector("#holiday-line-chart"), trendOptions);
+            holidayLineChartInstance.render();
+        }
+
+        async function fetchHolidayDataAgg(year, month) {
+            let data = { totalSamples: 0, totalAmount: 0, items: [] };
+            try {
+                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(month);
+                const fiscalYear = (isLateYear && month !== 'all') ? parseInt(year) + 1 : parseInt(year);
+                if (month === 'all') {
+                    const snap = await getDocs(collection(db, `holiday_reports_${year}`));
+                    if (snap.empty) return null;
+                    snap.forEach(doc => {
+                        let d = doc.data();
+                        data.totalSamples += d.totalSamples || 0;
+                        data.totalAmount += d.totalAmount || 0;
+                        data.items = data.items.concat(d.items || []);
+                    });
+                } else {
+                    const docId = `${month} ${year}`;
+                    const snap = await getDoc(doc(db, `holiday_reports_${fiscalYear}`, docId));
+                    if (snap.exists()) {
+                        let d = snap.data();
+                        data.totalSamples = d.totalSamples || 0;
+                        data.totalAmount = d.totalAmount || 0;
+                        data.items = d.items || [];
+                    } else return null;
+                }
+                return data;
+            } catch (e) { return null; }
+        }
+
+        if(els.btnFetchHolidayData) {
+            els.btnFetchHolidayData.addEventListener('click', async () => {
+                const fetchMonth = document.getElementById('fetchHolidayMonth').value;
+                const fetchYear = document.getElementById('fetchHolidayYear').value;
+                if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
+                showLoading(`กำลังดึงข้อมูลตัวอย่างวันหยุด${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
+                try {
+                    const currData = await fetchHolidayDataAgg(fetchYear, fetchMonth);
+                    if (currData && currData.items.length > 0) {
+                        currData.month = fetchMonth === 'all' ? 'รวมทั้งปี' : fetchMonth;
+                        currData.year = fetchYear;
+                        currData.fileId = 'FETCHED';
+                        renderHolidayDashboard(currData);
+                        showToast(`ดึงข้อมูลสำเร็จ`, 'success');
+                        showSection('holidaySection');
+                    } else {
+                        showToast(`ไม่พบข้อมูลในระบบ`, 'error');
+                        showSection('holidaySection');
+                    }
+                } catch (error) {
+                    showToast('เชื่อมต่อฐานข้อมูลผิดพลาด', 'error');
+                    showSection('holidaySection');
+                }
+            });
+        }
+
+        if(els.btnResetHolidayDashboard) {
+            els.btnResetHolidayDashboard.addEventListener('click', () => {
+                showSection('uploadSection');
+            });
+        }
+
         // เชื่อม Event Listener สำหรับช่อง Search และปุ่ม Sort (ทำงานเฉพาะหน้า Balance Sheet)
         if (els.bsSearchInput) {
             els.bsSearchInput.addEventListener('input', () => {
@@ -2926,6 +3568,34 @@
             if (e.target.closest('#btnNextMonth_bs')) handleMonthChange('fetchBSMonth', 'fetchBSYear', 1, 'btnFetchBSData');
             if (e.target.closest('#btnPrevMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', -1, 'btnFetchSampleData');
             if (e.target.closest('#btnNextMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', 1, 'btnFetchSampleData');
+            if (e.target.closest('#btnPrevMonth_holiday')) handleMonthChange('fetchHolidayMonth', 'fetchHolidayYear', -1, 'btnFetchHolidayData');
+            if (e.target.closest('#btnNextMonth_holiday')) handleMonthChange('fetchHolidayMonth', 'fetchHolidayYear', 1, 'btnFetchHolidayData');
+            
+            if (e.target.closest('#btnToggleHolidayChart')) {
+                holidayChartSortMode = holidayChartSortMode === 'total' ? 'amount' : 'total';
+                const btnText = document.getElementById('toggleHolidayChartText');
+                if(btnText) btnText.innerText = holidayChartSortMode === 'total' ? 'สลับเรียงตาม: ยอดเงิน (บาท)' : 'สลับเรียงตาม: จำนวนตัวอย่าง';
+                if(window.drawHolidayBarChart) window.drawHolidayBarChart();
+            }
+
+            if (e.target.closest('#btnToggleHolidayKpiMoney')) {
+                isHolidayKpiMoneyVisible = !isHolidayKpiMoneyVisible;
+                const iconKpi = document.querySelector('#btnToggleHolidayKpiMoney i');
+                if (iconKpi) iconKpi.className = isHolidayKpiMoneyVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                const kpiAmountObj = document.getElementById('holiday-kpi-amount');
+                if (kpiAmountObj && kpiAmountObj.dataset.val) {
+                    kpiAmountObj.innerText = isHolidayKpiMoneyVisible ? parseFloat(kpiAmountObj.dataset.val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '******';
+                }
+            }
+
+            if (e.target.closest('#btnToggleHolidayTop5Money')) {
+                isHolidayTop5MoneyVisible = !isHolidayTop5MoneyVisible;
+                const iconTop5 = document.querySelector('#btnToggleHolidayTop5Money i');
+                if (iconTop5) iconTop5.className = isHolidayTop5MoneyVisible ? 'fa-solid fa-eye text-lg' : 'fa-solid fa-eye-slash text-lg';
+                document.querySelectorAll('.holiday-top5-amt-text').forEach(el => {
+                    el.innerText = isHolidayTop5MoneyVisible ? parseFloat(el.dataset.amt).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿' : '******';
+                });
+            }
 
             // Toggle โชว์/ซ่อน จำนวนเงิน KPI
             if (e.target.closest('#btnToggleKpiMoney')) {
@@ -3877,6 +4547,8 @@
             if (document.getElementById('fetchBSYear')) document.getElementById('fetchBSYear').value = targetThaiYear;
             if (document.getElementById('fetchSampleMonth')) document.getElementById('fetchSampleMonth').value = targetThaiMonth;
             if (document.getElementById('fetchSampleYear')) document.getElementById('fetchSampleYear').value = targetThaiYear;
+            if (document.getElementById('fetchHolidayMonth')) document.getElementById('fetchHolidayMonth').value = targetThaiMonth;
+            if (document.getElementById('fetchHolidayYear')) document.getElementById('fetchHolidayYear').value = targetThaiYear;
 
             const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(targetThaiMonth);
             const fiscalYear = isLateYear ? targetThaiYear + 1 : targetThaiYear;
@@ -3935,6 +4607,16 @@
                     updateSampleBadge('badge-amount', prevSmp ? prevSmp.totalAmount : 0, smpData.totalAmount);
                     updateSampleBadge('badge-iso', prevSmp ? prevSmp.totalISO : 0, smpData.totalISO);
                     updateSampleBadge('badge-noniso', prevSmp ? prevSmp.totalNonISO : 0, smpData.totalNonISO);
+                }
+            } catch(e) { console.log(e); }
+
+            try {
+                const hldData = await fetchHolidayDataAgg(targetThaiYear.toString(), targetThaiMonth);
+                if (hldData && hldData.items && hldData.items.length > 0) {
+                    hldData.month = targetThaiMonth;
+                    hldData.year = targetThaiYear.toString();
+                    hldData.fileId = 'FETCHED';
+                    renderHolidayDashboard(hldData);
                 }
             } catch(e) { console.log(e); }
 

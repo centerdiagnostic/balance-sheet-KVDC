@@ -92,11 +92,11 @@
 
     <aside id="mainSidebar" class="w-full md:w-72 bg-[#0B121F] text-slate-200 flex flex-col border-r border-slate-800/80 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.3)] sticky top-0 h-auto md:h-screen z-30 transition-all duration-300">
         <div class="sidebar-header p-5 flex items-center justify-between border-b border-slate-800/60 bg-[#090e18]/80 backdrop-blur-md transition-all duration-300">
-            <div class="sidebar-text flex items-center gap-2.5 overflow-hidden">
+            <div class="sidebar-text flex items-center gap-2 overflow-hidden">
                 <img src="https://kvdc-vetku.com/wp-content/uploads/2026/03/1.png" alt="KVDC Logo" class="h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(16,185,129,0.25)] transition-transform duration-500 hover:scale-105">
-                <div class="flex flex-col min-w-0">
-                    <span class="font-bold text-sm text-slate-100 tracking-tight uppercase">KVDC System</span>
-                    <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Diagnostics Analytics</span>
+                <div class="flex flex-col min-w-0 ml-1">
+                    <span class="font-extrabold text-sm tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse">FinPulse</span>
+                    <span class="text-[9px] text-emerald-400 font-semibold tracking-wider uppercase">Diagnostics Analytics</span>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -703,9 +703,14 @@
                     <div class="absolute top-1/2 -translate-y-1/2 -right-2 p-4 opacity-10 group-hover:scale-110 transition-transform">
                         <i data-lucide="circle-dollar-sign" class="w-20 h-20 text-emerald-600"></i>
                     </div>
-                    <p class="text-sm font-semibold text-emerald-600 mb-1 z-10">จำนวนเงินรวม (บาท)</p>
+                    <div class="flex justify-between items-center mb-1 z-10 w-full">
+                        <p class="text-sm font-semibold text-emerald-600">จำนวนเงินรวม (บาท)</p>
+                        <button id="btnToggleKpiMoney" class="text-emerald-600 hover:text-emerald-800 transition focus:outline-none" title="ซ่อน/แสดงจำนวนเงิน">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
                     <div class="flex flex-wrap items-baseline gap-2 mb-4 z-10 w-full">
-                        <h3 id="kpi-amount" class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight break-all" title="จำนวนเงินรวม">0</h3>
+                        <h3 id="kpi-amount" class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight break-all" title="จำนวนเงินรวม" data-val="0">******</h3>
                         <span id="badge-amount" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"></span>
                     </div>
                     <div class="mt-auto flex items-center text-xs text-emerald-700 font-medium bg-emerald-100/60 w-fit px-2.5 py-1 rounded-md z-10 border border-emerald-200 shadow-sm">
@@ -791,9 +796,14 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:col-span-2">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">5 อันดับรายการทดสอบทำเงินสูงสุด (Top 5 Tests)</h3>
-                        <p class="text-sm text-slate-500">รายการทดสอบที่สร้างมูลค่าเงินรวมสูงสุดในไฟล์</p>
+                    <div class="mb-4 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">5 อันดับรายการทดสอบทำเงินสูงสุด (Top 5 Tests)</h3>
+                            <p class="text-sm text-slate-500">รายการทดสอบที่สร้างมูลค่าเงินรวมสูงสุดในไฟล์</p>
+                        </div>
+                        <button id="btnToggleTop5Money" class="text-slate-400 hover:text-slate-600 transition p-2 focus:outline-none" title="ซ่อน/แสดงจำนวนเงิน">
+                            <i class="fa-solid fa-eye-slash text-lg"></i>
+                        </button>
                     </div>
                     <div id="sample-top5-tests" class="space-y-4 flex-grow overflow-y-auto no-scrollbar max-h-[320px]">
                     </div>
@@ -944,6 +954,8 @@
         let currentBSSortDesc = true;
         let sampleExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
         let currentCompareMode = 'pnl'; // เก็บสถานะว่ากำลังเปรียบเทียบแท็บไหน
+        let isKpiMoneyVisible = false; // แยกสถานะซ่อน/โชว์จำนวนเงิน KPI
+        let isTop5MoneyVisible = false; // แยกสถานะซ่อน/โชว์จำนวนเงิน Top 5
         
         // กราฟ Instances สำหรับแท็บ Sample
         let lineChartInstance = null;
@@ -2064,100 +2076,191 @@
                 items.push({name: 'กำไร (ขาดทุน) สะสม', value: sourceData.retainedEarnings, category: 'equity'});
             }
 
-            const groups = {
-                asset: {
-                    title: '1. สินทรัพย์',
-                    colorClass: 'bg-blue-100/60 text-blue-800',
-                    items: []
+            const hierarchy = [
+                {
+                    id: 'main_asset',
+                    title: '1. สัดส่วนสินทรัพย์',
+                    colorClass: 'bg-blue-100/80 text-blue-900',
+                    subgroups: [
+                        { id: 'sub_cash', title: 'เงินฝากคณะฯ', items: [], color: 'text-blue-700' },
+                        { id: 'sub_recv', title: 'ลูกหนี้รวม', items: [], color: 'text-orange-600' },
+                        { id: 'sub_mat', title: 'วัสดุ', items: [], color: 'text-emerald-600' },
+                        { id: 'sub_eq', title: 'ครุภัณฑ์', items: [], color: 'text-purple-600' },
+                        { id: 'sub_ast_oth', title: 'สินทรัพย์อื่นๆ', items: [], color: 'text-slate-600' }
+                    ]
                 },
-                liability: {
-                    title: '2. หนี้สิน',
-                    colorClass: 'bg-red-100/60 text-red-800',
-                    items: []
+                {
+                    id: 'main_le',
+                    title: '2. สัดส่วนหนี้สินและทุน',
+                    colorClass: 'bg-purple-100/80 text-purple-900',
+                    subgroups: [
+                        { id: 'sub_trade', title: 'เจ้าหนี้การค้า (รวม)', items: [], color: 'text-red-600' },
+                        { id: 'sub_accrued', title: 'ค่าใช้จ่ายค้างจ่าย', items: [], color: 'text-orange-500' },
+                        { id: 'sub_unearned', title: 'รายได้รับล่วงหน้า', items: [], color: 'text-amber-500' },
+                        { id: 'sub_stock', title: 'ทุน-หุ้นสามัญ', items: [], color: 'text-blue-500' },
+                        { id: 'sub_retain', title: 'กำไร(ขาดทุน)สะสม', items: [], color: 'text-purple-500' },
+                        { id: 'sub_net', title: 'กำไร(ขาดทุน)สุทธิ', items: [], color: 'text-emerald-500' },
+                        { id: 'sub_le_oth', title: 'หนี้สินและทุนอื่นๆ', items: [], color: 'text-slate-600' }
+                    ]
                 },
-                equity: {
-                    title: '3. ส่วนผู้ถือหุ้น (และกำไร)',
-                    colorClass: 'bg-purple-100/60 text-purple-800',
-                    items: []
-                },
-                other: {
-                    title: '4. อื่น ๆ',
-                    colorClass: 'bg-gray-100 text-gray-800',
-                    items: []
+                {
+                    id: 'main_oth',
+                    title: '3. รายการอื่นๆ',
+                    colorClass: 'bg-gray-100/80 text-gray-800',
+                    subgroups: [
+                        { id: 'sub_oth_all', title: 'รายการทั่วไป', items: [], color: 'text-gray-600' }
+                    ]
                 }
-            };
+            ];
 
             items.forEach(item => {
-                if (item.category === 'asset') {
-                    groups.asset.items.push(item);
-                }
-                else if (item.category === 'liability') {
-                    groups.liability.items.push(item);
-                }
-                else if (item.category === 'equity') {
-                    groups.equity.items.push(item);
-                }
-                else {
-                    groups.other.items.push(item);
+                let name = item.name;
+                let cat = item.category;
+
+                if (cat === 'asset') {
+                    if (name.includes('เงินฝาก') || name.includes('เงนฝาก')) {
+                        hierarchy[0].subgroups[0].items.push(item);
+                    } else if (name.includes('ลูกหนี้') || name.includes('ลูกหนี') || name.includes('ลูกหน')) {
+                        hierarchy[0].subgroups[1].items.push(item);
+                    } else if (name.includes('วัสดุ')) {
+                        hierarchy[0].subgroups[2].items.push(item);
+                    } else if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ')) {
+                        hierarchy[0].subgroups[3].items.push(item);
+                    } else {
+                        hierarchy[0].subgroups[4].items.push(item);
+                    }
+                } else if (cat === 'liability' || cat === 'equity' || name.includes('กำไร') || name.includes('ขาดทุน')) {
+                    if (name.includes('เจ้าหนี้')) {
+                        hierarchy[1].subgroups[0].items.push(item);
+                    } else if (name.includes('ค้างจ่าย')) {
+                        hierarchy[1].subgroups[1].items.push(item);
+                    } else if (name.includes('รับล่วงหน้า')) {
+                        hierarchy[1].subgroups[2].items.push(item);
+                    } else if (name.includes('หุ้นสามัญ')) {
+                        hierarchy[1].subgroups[3].items.push(item);
+                    } else if (name.includes('สะสม')) {
+                        hierarchy[1].subgroups[4].items.push(item);
+                    } else if (name.includes('สุทธิ')) {
+                        hierarchy[1].subgroups[5].items.push(item);
+                    } else {
+                        hierarchy[1].subgroups[6].items.push(item);
+                    }
+                } else {
+                    hierarchy[2].subgroups[0].items.push(item);
                 }
             });
 
-            Object.entries(groups).forEach(([key, group]) => {
+            hierarchy.forEach(mainGroup => {
+                let mainTotal = 0;
+                let mainItemCount = 0;
+                mainGroup.subgroups.forEach(sg => {
+                    sg.items.forEach(item => {
+                        mainTotal += (item.value || 0);
+                    });
+                    mainItemCount += sg.items.length;
+                });
 
-                if (group.items.length === 0) return;
-
-                const total = group.items.reduce(
-                    (sum, item) => sum + (item.value || 0),
-                    0
-                );
+                if (mainItemCount === 0) return;
 
                 const headerRow = document.createElement('tr');
-                headerRow.className = `cursor-pointer ${group.colorClass} hover:brightness-95 transition select-none`;
+                headerRow.className = `cursor-pointer ${mainGroup.colorClass} hover:brightness-95 transition select-none border-y border-white/50`;
                 headerRow.innerHTML = `
-                    <td colspan="2" class="py-3 px-6 font-bold border-y border-white/40">
+                    <td colspan="2" class="py-3 px-6 font-bold">
                         <div class="flex justify-between items-center">
                             <div>
-                                <i class="fa-solid fa-chevron-up mr-2 transition-transform duration-300 toggle-icon"></i>
-                                ${group.title} <span class="text-xs font-normal opacity-70 ml-2">(${group.items.length} รายการ)</span>
+                                <i class="fa-solid fa-chevron-up mr-2 transition-transform duration-300 main-toggle-icon"></i>
+                                ${mainGroup.title} <span class="text-xs font-normal opacity-70 ml-2">(${mainItemCount} รายการ)</span>
                             </div>
-                            <div class="bg-white/50 px-2 py-0.5 rounded shadow-sm">
-                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(total)}
+                            <div class="bg-white/60 px-2 py-0.5 rounded shadow-sm border border-white/50">
+                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(mainTotal)}
                             </div>
                         </div>
                     </td>
                 `;
-
                 tbody.appendChild(headerRow);
 
-                // เรียงลำดับจากมากไปน้อย
-                group.items.sort((a, b) => Math.abs(b.value || 0) - Math.abs(a.value || 0));
+                let isMainExpanded = true;
+                const subRowsToToggle = [];
 
-                group.items.forEach(item => {
-                    const detailRow = document.createElement('tr');
-                    detailRow.className = `group-${key} bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors`;
-                    detailRow.innerHTML = `
-                        <td class="py-3 px-10 text-gray-700">
-                            <i class="fa-solid fa-angle-right text-gray-300 text-xs mr-2"></i> ${item.name}
-                        </td>
-                        <td class="py-3 px-6 text-right font-medium ${item.value < 0 ? 'text-red-600' : 'text-gray-800'}">
-                            ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value || 0)}
+                mainGroup.subgroups.forEach(subGroup => {
+                    if (subGroup.items.length === 0) return;
+
+                    let subTotal = subGroup.items.reduce((sum, item) => sum + (item.value || 0), 0);
+
+                    // เรียงตามปุ่ม Sort UI
+                    subGroup.items.sort((a, b) => {
+                        return currentBSSortDesc 
+                            ? Math.abs(b.value || 0) - Math.abs(a.value || 0)
+                            : Math.abs(a.value || 0) - Math.abs(b.value || 0);
+                    });
+
+                    const subHeaderRow = document.createElement('tr');
+                    subHeaderRow.className = `cursor-pointer bg-slate-50 border-b border-slate-200 hover:bg-slate-100 transition select-none`;
+                    subHeaderRow.innerHTML = `
+                        <td colspan="2" class="py-2.5 px-10 font-semibold ${subGroup.color}">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <i class="fa-solid fa-angle-up mr-2 transition-transform duration-300 sub-toggle-icon opacity-70 text-sm w-3 text-center"></i>
+                                    <i class="fa-solid fa-folder-open mr-2 opacity-70 folder-icon"></i>
+                                    ${subGroup.title} <span class="text-xs font-normal opacity-70 ml-1">(${subGroup.items.length})</span>
+                                </div>
+                                <div class="text-sm">
+                                    ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(subTotal)}
+                                </div>
+                            </div>
                         </td>
                     `;
-                    tbody.appendChild(detailRow);
+                    tbody.appendChild(subHeaderRow);
+                    subRowsToToggle.push(subHeaderRow);
+
+                    let isSubExpanded = true;
+                    const itemRows = [];
+
+                    subGroup.items.forEach(item => {
+                        const detailRow = document.createElement('tr');
+                        detailRow.className = `bg-white border-b border-gray-100 hover:bg-blue-50/50 transition-colors`;
+                        detailRow.innerHTML = `
+                            <td class="py-2.5 pl-[4.5rem] pr-6 text-gray-700 text-sm">
+                                <i class="fa-solid fa-circle text-[6px] text-gray-300 mr-2 align-middle"></i> ${item.name}
+                            </td>
+                            <td class="py-2.5 px-6 text-right text-sm font-medium ${item.value < 0 ? 'text-red-600' : 'text-gray-700'}">
+                                ${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value || 0)}
+                            </td>
+                        `;
+                        tbody.appendChild(detailRow);
+                        itemRows.push(detailRow);
+                        subRowsToToggle.push(detailRow);
+                    });
+
+                    subHeaderRow.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        isSubExpanded = !isSubExpanded;
+                        const icon = subHeaderRow.querySelector('.sub-toggle-icon');
+                        icon.style.transform = isSubExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+                        const folderIcon = subHeaderRow.querySelector('.folder-icon');
+                        folderIcon.className = isSubExpanded ? 'fa-solid fa-folder-open mr-2 opacity-70 folder-icon' : 'fa-solid fa-folder mr-2 opacity-70 folder-icon';
+                        
+                        itemRows.forEach(row => {
+                            row.style.display = isSubExpanded ? '' : 'none';
+                        });
+                    });
                 });
 
-                // ระบบย่อ-ขยาย (Toggle)
-                let isExpanded = true;
                 headerRow.addEventListener('click', () => {
-                    isExpanded = !isExpanded;
-                    const rows = tbody.querySelectorAll(`.group-${key}`);
-                    const icon = headerRow.querySelector('.toggle-icon');
+                    isMainExpanded = !isMainExpanded;
+                    const icon = headerRow.querySelector('.main-toggle-icon');
+                    icon.style.transform = isMainExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
                     
-                    icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
-                    
-                    rows.forEach(row => {
-                        row.style.display = isExpanded ? '' : 'none';
+                    subRowsToToggle.forEach(row => {
+                        row.style.display = isMainExpanded ? '' : 'none';
                     });
+                    
+                    if(isMainExpanded) {
+                        const subIcons = tbody.querySelectorAll('.sub-toggle-icon');
+                        subIcons.forEach(ic => ic.style.transform = 'rotate(0deg)');
+                        const folderIcons = tbody.querySelectorAll('.folder-icon');
+                        folderIcons.forEach(ic => ic.className = 'fa-solid fa-folder-open mr-2 opacity-70 folder-icon');
+                    }
                 });
             });
             
@@ -2238,7 +2341,21 @@
             const animateInt = (id, end, isFloat = false) => {
                 const obj = document.getElementById(id);
                 if(!obj) return;
+
+                // ถ้าเป็น kpi-amount ให้เก็บค่าไว้ แล้วเช็คสถานะซ่อน
+                if (id === 'kpi-amount') {
+                    obj.dataset.val = end;
+                    if (!isKpiMoneyVisible) {
+                        obj.innerText = '******';
+                        obj.title = 'ซ่อนจำนวนเงิน';
+                        return; // ข้าม Animate ถ้ากำลังซ่อนอยู่
+                    }
+                }
+
                 let start = parseFloat(obj.innerText.replace(/,/g, '')) || 0;
+                // ป้องกัน NaN ในกรณีที่มันเคยแสดง ****** อยู่
+                if (isNaN(start)) start = 0; 
+
                 let dur = 1000;
                 let startTimestamp = null;
                 const step = (ts) => {
@@ -2317,11 +2434,12 @@
                 const maxAmt = top5Tests.length > 0 ? top5Tests[0].amt : 1;
                 top5Container.innerHTML = top5Tests.map((t, idx) => {
                     const progressWidth = (t.amt / maxAmt) * 100;
+                    const displayAmt = isTop5MoneyVisible ? t.amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿' : '******';
                     return `
                         <div class="space-y-1">
                             <div class="flex justify-between items-start text-xs font-semibold text-slate-700 gap-2">
                                 <span class="flex-1">${idx + 1}. ${t.name}</span>
-                                <span class="whitespace-nowrap">${t.amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ฿</span>
+                                <span class="whitespace-nowrap top5-amt-text" data-amt="${t.amt}">${displayAmt}</span>
                             </div>
                             <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                                 <div class="bg-indigo-600 h-full rounded-full" style="width: ${progressWidth}%"></div>
@@ -2808,6 +2926,39 @@
             if (e.target.closest('#btnNextMonth_bs')) handleMonthChange('fetchBSMonth', 'fetchBSYear', 1, 'btnFetchBSData');
             if (e.target.closest('#btnPrevMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', -1, 'btnFetchSampleData');
             if (e.target.closest('#btnNextMonth_sample')) handleMonthChange('fetchSampleMonth', 'fetchSampleYear', 1, 'btnFetchSampleData');
+
+            // Toggle โชว์/ซ่อน จำนวนเงิน KPI
+            if (e.target.closest('#btnToggleKpiMoney')) {
+                isKpiMoneyVisible = !isKpiMoneyVisible;
+                const iconKpi = document.querySelector('#btnToggleKpiMoney i');
+                if (iconKpi) iconKpi.className = isKpiMoneyVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                
+                const kpiAmountObj = document.getElementById('kpi-amount');
+                if (kpiAmountObj && kpiAmountObj.dataset.val) {
+                    if (isKpiMoneyVisible) {
+                        kpiAmountObj.innerText = parseFloat(kpiAmountObj.dataset.val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        kpiAmountObj.title = kpiAmountObj.innerText;
+                    } else {
+                        kpiAmountObj.innerText = '******';
+                        kpiAmountObj.title = 'ซ่อนจำนวนเงิน';
+                    }
+                }
+            }
+
+            // Toggle โชว์/ซ่อน จำนวนเงิน Top 5
+            if (e.target.closest('#btnToggleTop5Money')) {
+                isTop5MoneyVisible = !isTop5MoneyVisible;
+                const iconTop5 = document.querySelector('#btnToggleTop5Money i');
+                if (iconTop5) iconTop5.className = isTop5MoneyVisible ? 'fa-solid fa-eye text-lg' : 'fa-solid fa-eye-slash text-lg';
+                
+                document.querySelectorAll('.top5-amt-text').forEach(el => {
+                    if (isTop5MoneyVisible) {
+                        el.innerText = parseFloat(el.dataset.amt).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                    } else {
+                        el.innerText = '******';
+                    }
+                });
+            }
         });
 
         // ==========================================

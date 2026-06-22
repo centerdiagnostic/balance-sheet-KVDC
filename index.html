@@ -1354,54 +1354,62 @@
             if (!text) return "";
             let cleaned = text.replace(/[\.\*\+]+/g, '').replace(/^[-]+|[-]+$/g, '').trim();
             
-            // 0. จัดการคำเพี้ยนสระอำและสระอื่นๆ ทั่วไป
-            cleaned = cleaned.replace(/รำยได้/g, "รายได้").replace(/ค่ำเสื่อม/g, "ค่าเสื่อม").replace(/ค่ำใช้จ่ำย/g, "ค่าใช้จ่าย");
+            // 1. ถอดรหัสอักขระละตินที่ PDF แปลงเพี้ยน ให้กลับเป็น "ไม้เอก" และ "ไม้โท"
+            cleaned = cleaned.replace(/Ê/g, "้");
+            cleaned = cleaned.replace(/É/g, "่");
+            
+            // ลบวรรณยุกต์หรือสระที่ซ้อนทับกัน (สาเหตุที่ทำให้ไม้โทยืดขึ้นไปสูงๆ แบบในภาพลูกหนี้)
+            cleaned = cleaned.replace(/้+/g, "้");
+            cleaned = cleaned.replace(/่+/g, "่");
+            cleaned = cleaned.replace(/๊+/g, "๊");
+            cleaned = cleaned.replace(/๋+/g, "๋");
+            cleaned = cleaned.replace(/ี+/g, "ี");
+            cleaned = cleaned.replace(/ิ+/g, "ิ");
+            
+            // 2. ลบสัญลักษณ์ขยะประหลาด เช่น วงกลมประ (◌), จุดใต้ (ฺ), และวงกลมบน (ํ) 
+            cleaned = cleaned.replace(/[\u25CC\u0E3A\u0E4D]/g, ""); 
+
+            // 3. แก้ไขคำเฉพาะที่สระผิดรูปไปเลย
+            cleaned = cleaned.replace(/ไฟW้า/g, "ไฟฟ้า");
+            cleaned = cleaned.replace(/ดี้ม/g, "ดื่ม"); 
+            cleaned = cleaned.replace(/ซ[ีื]อ/g, "ซื้อ").replace(/ซื้ือ/g, "ซื้อ"); 
+            cleaned = cleaned.replace(/รำยได้/g, "รายได้");
             cleaned = cleaned.replace(/ค่ำ/g, "ค่า").replace(/จ่ำย/g, "จ่าย").replace(/จำก/g, "จาก").replace(/ท ำ/g, "ทำ").replace(/ด ำ/g, "ดำ").replace(/น ำ/g, "นำ");
             cleaned = cleaned.replace(/ต้นทน/g, "ต้นทุน").replace(/ต ้นทุน/g, "ต้นทุน").replace(/รำยรับ/g, "รายรับ");
-
-            // 1. ท่าไม้ตายขั้นสุดยอด: คลุมถุงชนวลี (Phrase Wildcard) ไม่สนใจสระตรงกลางที่มองไม่เห็น
-            if (cleaned.includes("อวัสดุวิทยาศาสตร์")) {
-                cleaned = cleaned.replace(/ซ.*อวัสดุวิทยาศาสตร์/, "ซื้อวัสดุวิทยาศาสตร์");
-            }
-            if (cleaned.includes("อมราคา") && cleaned.includes("ค่าเส")) {
-                cleaned = cleaned.replace(/ค่าเส.*อมราคา/, "ค่าเสื่อมราคา");
-            }
-            if (cleaned.includes("ลูกหน")) {
-                cleaned = cleaned.replace(/ลูกหน.*-\s*/, "ลูกหนี้ - ");
-                cleaned = cleaned.replace(/ลูกหน.*/, (match) => match.includes("โรงพยาบาล") || match.includes("หน่วย") || match.includes("บุคคล") ? match.replace(/ลูกหน.*?/, "ลูกหนี้") : match);
-            }
-
-            // 2. ท่าไม้ตายเสริม: ดัก Replace ตรงๆ
-            cleaned = cleaned.replace(/ซีÊอ/g, "ซื้อ").replace(/ซีEอ/g, "ซื้อ");
-            cleaned = cleaned.replace(/ค่าเสีÊอม/g, "ค่าเสื่อม").replace(/ค่าเสีEอม/g, "ค่าเสื่อม");
-            // ดักจับคำเพี้ยนหมวดสินทรัพย์และลูกหนี้เพิ่มเติม
-            cleaned = cleaned.replace(/ลูกหนี-Ê/g, "ลูกหนี้-").replace(/ลูกหนี-E/g, "ลูกหนี้-");
-            cleaned = cleaned.replace(/ลูกหนีÊ/g, "ลูกหนี้").replace(/ลูกหนีE/g, "ลูกหนี้");
             cleaned = cleaned.replace(/เงนฝาก/g, "เงินฝาก").replace(/หวหั น/g, "หัวหิน");
-            cleaned = cleaned.replace(/เวชภ ณฑั/g, "เวชภัณฑ์").replace(/สานํ ักงาน/g, "สำนักงาน");
+            cleaned = cleaned.replace(/เวชภ ณฑั/g, "เวชภัณฑ์").replace(/สาน[ํ ัก]+งาน/g, "สำนักงาน");
             cleaned = cleaned.replace(/บานงานคร ้ ัว/g, "บ้านงานครัว").replace(/ครุภณฑั/g, "ครุภัณฑ์");
-            cleaned = cleaned.replace(/ไฟฟ ้ าและวิทย/g, "ไฟฟ้าและวิทยุ").replace(/คอมพ วเตอร/g, "คอมพิวเตอร์");
-            
-            // ดักจับคำเพี้ยนหมวดหนี้สินและทุน
-            cleaned = cleaned.replace(/เจ้าหนีการค Ê ้า/g, "เจ้าหนี้การค้า").replace(/เจ้าหนี - Ê/g, "เจ้าหนี้ - ").replace(/เจ้าหนี-Ê/g, "เจ้าหนี้-");
-            cleaned = cleaned.replace(/ค่านาประปาค ํÊ ้างจ่าย/g, "ค่าน้ำประปาค้างจ่าย").replace(/เงนสิ ารองจ ํ ่าย/g, "เงินสำรองจ่าย");
-            cleaned = cleaned.replace(/หุนสาม ้ ัญ/g, "หุ้นสามัญ").replace(/กาไร ํ/g, "กำไร").replace(/ขาดทน/g, "ขาดทุน");
+            cleaned = cleaned.replace(/ไฟฟ ้ า/g, "ไฟฟ้า").replace(/คอมพ วเตอร/g, "คอมพิวเตอร์");
+            cleaned = cleaned.replace(/ค่านาประปาค/g, "ค่าน้ำประปาค");
+            cleaned = cleaned.replace(/เงนสิ ารอง/g, "เงินสำรอง");
+            cleaned = cleaned.replace(/หุนสาม ้ ัญ/g, "หุ้นสามัญ").replace(/กาไร/g, "กำไร").replace(/ขาดทน/g, "ขาดทุน");
             cleaned = cleaned.replace(/รบล ์ ่วงหน้า/g, "รับล่วงหน้า");
 
-            cleaned = cleaned.replace(/เลีÊยง/g, "เลี้ยง").replace(/เลีEยง/g, "เลี้ยง");
-            cleaned = cleaned.replace(/อื่Êน/g, "อื่น").replace(/อื่Eน/g, "อื่น").replace(/อืÊน/g, "อื่น").replace(/อืEน/g, "อื่น");
-            // เพิ่มการดักจับสระอิเพี้ยนเป็นตัว É (เพÉิม)
-            cleaned = cleaned.replace(/เพิÊม/g, "เพิ่ม").replace(/เพิEม/g, "เพิ่ม").replace(/เพÉิม/g, "เพิ่ม");
-            cleaned = cleaned.replace(/สีÊง/g, "สิ่ง").replace(/สีEง/g, "สิ่ง");
-            cleaned = cleaned.replace(/หนีÊ/g, "หนี้").replace(/หนีE/g, "หนี้");
-            cleaned = cleaned.replace(/สูญÊ/g, "สูญ").replace(/สูญE/g, "สูญ");
+            // 4. แก้ปัญหาคำว่า "ลูกหนี้" และ "ซื้อ" โดยป้องกันการทับซ้อนของสระ
+            cleaned = cleaned.replace(/ลูกหน[ีิ]?[้่]?[^\s\-ก-ฮ]*/g, "ลูกหนี้");
+            cleaned = cleaned.replace(/ลูกหนี้\s*-\s*/g, "ลูกหนี้ - ");
+            cleaned = cleaned.replace(/ซ[ีื][้]?[^\sก-ฮ]*อวัสดุวิทยาศาสตร์/g, "ซื้อวัสดุวิทยาศาสตร์");
             
-            // --- เพิ่มคำที่เจอใหม่จากภาพล่าสุด ---
-            cleaned = cleaned.replace(/ทีÊ/g, "ที่").replace(/ทีE/g, "ที่");
-            cleaned = cleaned.replace(/เกีÊยว/g, "เกี่ยว").replace(/เกีEยว/g, "เกี่ยว");
+            // 5. ระบบถอดรหัสตัวเลขปี พ.ศ. อัตโนมัติ
+            const gibberishMap = {
+                'Ś': '2', 'ś': '3', 'Ŝ': '4', 'ŝ': '5', 'Ş': '6', 'ş': '7', 'Š': '8', 'š': '9',
+                'Ř': '2', 'ř': '3', 'Ť': '0', 'ť': '1'
+            };
+            cleaned = cleaned.replace(/[ŚśŜŝŞşŠšŘřŤť]/g, match => gibberishMap[match]);
+
+            cleaned = cleaned.replace(/ร่ริฐรร์/g, "2564").replace(/ร่ริฐร์/g, "2565");
+            cleaned = cleaned.replace(/ร่ริฐรั้/g, "2565").replace(/ร่ริฐรฐ/g, "2566");
+            cleaned = cleaned.replace(/ร่ริฐ/g, "2567");
             
-            // ดักจับและลบขยะที่เกิดจากฟอนต์ตัวเลขปี พ.ศ. (เช่น ร่ริฐรั้)
-            cleaned = cleaned.replace(/ร่ริฐรั้/g, "2565").replace(/ร่ริฐร์/g, "2564").replace(/ร่ริฐรฐ/g, "2566").replace(/ปี ร่ริฐรั้ - ร่ริฐ/g, "ปี 2565 - 2566"); 
+            // 6. ปรับแก้ช่วงปีและคำแปลกๆ ที่หลงเหลือ
+            cleaned = cleaned.replace(/ปี\s*2567\s*-\s*2567/g, "ปี 2566 - 2567");
+            cleaned = cleaned.replace(/ปี\s*2564\s*-\s*2565/g, "ปี 2564 - 2565");
+            cleaned = cleaned.replace(/ปี\s*2566\s*ปีร้รุร้\s*-\s*รุร้/g, "2566");
+            cleaned = cleaned.replace(/อื่่น/g, "อื่น").replace(/อื่่น\s*ๆ/g, "อื่นๆ").replace(/อื่น\s*ๆ/g, "อื่นๆ");
+            
+            cleaned = cleaned.replace(/ปี\s*[^\sก-ฮ0-9]+\s*-\s*[^\sก-ฮ0-9]+/g, "ปี (ไม่ระบุ)");
+            cleaned = cleaned.replace(/ปี\s*[^\sก-ฮ0-9]{3,}/g, "ปี (ไม่ระบุ)");
+            
             const correctionMap = {
                 "หนสน": "หนี้สิน",
                 "หนี้สน": "หนี้สิน",

@@ -414,7 +414,7 @@
                 <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
                     <div class="min-w-0">
-                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 truncate sm:whitespace-normal break-words">สรุปภาพรวมทางการเงิน</h2>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 truncate sm:whitespace-normal break-words">รายงานสรุปภาพรวมสถานการณ์ทางการเงิน</h2>
                         <p class="text-xs sm:text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md truncate max-w-full" id="docInfoDisplay">
                             ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
                         </p>
@@ -4640,7 +4640,15 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'right', labels: { boxWidth: 12, font: { size: 12 } } },
-                        tooltip: { callbacks: { label: (ctx) => ' ' + new Intl.NumberFormat('th-TH').format(ctx.raw) + ' บาท' } }
+                        tooltip: { 
+                            callbacks: { 
+                                label: (ctx) => {
+                                    let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    let percentage = sum > 0 ? ((ctx.raw / sum) * 100).toFixed(2) : 0;
+                                    return ' ' + new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(ctx.raw) + ' บาท (' + percentage + '%)';
+                                }
+                            } 
+                        }
                     }
                 }
             });

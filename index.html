@@ -85,12 +85,160 @@
                 background: rgba(16, 185, 129, 0.1) !important;
             }
         }
+
+        /* Animation สำหรับหน้า Login */
+        @keyframes drawLine {
+            0% { stroke-dashoffset: 1500; }
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; filter: blur(8px); }
+            50% { opacity: 1; filter: blur(12px); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-draw {
+            stroke-dasharray: 1500;
+            animation: drawLine 4s ease-in-out forwards infinite alternate;
+        }
+        .glow-effect {
+            animation: pulseGlow 3s infinite;
+        }
+        .floating-icon {
+            animation: float 4s ease-in-out infinite;
+        }
+        .floating-icon-delayed {
+            animation: float 4s ease-in-out 2s infinite;
+        }
     </style>
 </head>
-<body class="text-gray-800 bg-slate-50 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 flex min-h-screen flex-col md:flex-row">
-    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+<body class="text-gray-800 bg-slate-50 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 flex min-h-screen flex-col md:flex-row overflow-hidden" id="appBody">
+    <div id="toastContainer" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
-    <aside id="mainSidebar" class="w-full md:w-72 bg-[#0B121F] text-slate-200 flex flex-col border-r border-slate-800/80 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.3)] sticky top-0 h-auto md:h-screen z-30 transition-all duration-300">
+    <section id="loginSection" class="fixed inset-0 z-[100] bg-slate-900 flex text-slate-100 font-sans selection:bg-emerald-500 selection:text-white transition-opacity duration-500">
+        <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-950 flex-col justify-between p-12">
+            <div class="absolute inset-0 opacity-20 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="relative z-10 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                    <i data-lucide="activity" class="text-white w-7 h-7"></i>
+                </div>
+                <span class="text-3xl font-bold tracking-wider text-white">FIN<span class="text-emerald-400">PULSE</span></span>
+            </div>
+
+            <div class="relative z-10 w-full max-w-lg mx-auto flex-grow flex flex-col justify-center">
+                <div class="relative w-full h-64 border-b border-l border-slate-700/50 pb-2 pl-2">
+                    <svg viewBox="0 0 500 200" class="w-full h-full overflow-visible drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0,200 L 0,150 C 50,150 80,80 120,90 C 160,100 180,160 220,130 C 260,100 280,40 320,60 C 360,80 390,140 430,110 C 470,80 490,20 500,10 L 500,200 Z" fill="url(#chartGradient)" class="opacity-50 transition-opacity duration-1000" />
+                        <path d="M 0,150 C 50,150 80,80 120,90 C 160,100 180,160 220,130 C 260,100 280,40 320,60 C 360,80 390,140 430,110 C 470,80 490,20 500,10" fill="none" stroke="#34d399" strokeWidth="4" strokeLinecap="round" class="animate-draw" />
+                        <circle cx="120" cy="90" r="5" fill="#0f172a" stroke="#34d399" strokeWidth="3" class="glow-effect" />
+                        <circle cx="220" cy="130" r="5" fill="#0f172a" stroke="#34d399" strokeWidth="3" class="glow-effect" />
+                        <circle cx="320" cy="60" r="5" fill="#0f172a" stroke="#34d399" strokeWidth="3" class="glow-effect" />
+                        <circle cx="430" cy="110" r="5" fill="#0f172a" stroke="#34d399" strokeWidth="3" class="glow-effect" />
+                        <circle cx="500" cy="10" r="7" fill="#10b981" class="glow-effect" />
+                    </svg>
+                    
+                    <div class="absolute top-4 right-10 bg-slate-800/80 backdrop-blur-sm border border-emerald-500/30 px-4 py-2 rounded-lg flex items-center gap-2 floating-icon shadow-lg">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+                        <span class="text-emerald-400 font-semibold">+12.5%</span>
+                        <span class="text-slate-400 text-xs ml-1">Profit</span>
+                    </div>
+                    
+                    <div class="absolute bottom-16 left-12 bg-slate-800/80 backdrop-blur-sm border border-slate-600 px-4 py-2 rounded-lg flex items-center gap-2 floating-icon-delayed shadow-lg">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-400"></i>
+                        <span class="text-slate-200 font-medium text-sm">Balance Sheet Updated</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10">
+                <h1 class="text-4xl font-bold text-white mb-4">Corporate Financial <br /><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Intelligence Dashboard</span></h1>
+                <p class="text-slate-400 text-lg max-w-md">ระบบจัดการงบดุล สรุปผลกำไรขาดทุน และวิเคราะห์สถานะทางการเงินขององค์กรแบบ Real-time</p>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-slate-900">
+            <div class="absolute top-8 left-8 lg:hidden flex items-center gap-2">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                    <i data-lucide="activity" class="text-white w-6 h-6"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-wider text-white">FIN<span class="text-emerald-400">PULSE</span></span>
+            </div>
+
+            <div class="w-full max-w-md bg-slate-800/50 p-8 sm:p-10 rounded-3xl border border-slate-700/50 shadow-2xl backdrop-blur-xl relative z-10">
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-bold text-white mb-2">ยินดีต้อนรับกลับเข้าสู่ระบบ</h2>
+                    <p class="text-slate-400">กรุณาเข้าสู่ระบบด้วยบัญชีขององค์กร</p>
+                </div>
+
+                <form id="loginForm" class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300 block">อีเมลองค์กร (Corporate Email)</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-400 transition-colors">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <input type="email" id="loginEmail" class="w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-300" placeholder="employee@company.com" required />
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300 block">รหัสผ่าน (Password)</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-400 transition-colors">
+                                <i data-lucide="lock" class="w-5 h-5"></i>
+                            </div>
+                            <input type="password" id="loginPassword" class="w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-300" placeholder="••••••••" required />
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="peer sr-only" />
+                                <div class="w-5 h-5 bg-slate-900 border border-slate-700 rounded peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-colors"></div>
+                                <svg class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-slate-300 transition-colors">จดจำฉันไว้ในระบบ</span>
+                        </label>
+                        <a href="#" class="text-emerald-400 hover:text-emerald-300 transition-colors font-medium">ลืมรหัสผ่าน?</a>
+                    </div>
+
+                    <button type="submit" id="loginSubmitBtn" class="w-full relative group overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]">
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                        <div class="relative flex items-center justify-center gap-2" id="loginBtnContent">
+                            เข้าสู่ระบบ (Sign In)
+                            <i data-lucide="arrow-right" class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"></i>
+                        </div>
+                    </button>
+                </form>
+
+                <div class="mt-8 flex items-center justify-center gap-2 text-slate-500 text-sm">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span>Secure Enterprise Connection</span>
+                </div>
+            </div>
+
+            <div class="absolute bottom-6 text-center w-full text-slate-500 text-sm">
+                <p>สงวนลิขสิทธิ์ &copy; 2026 FINPULSE</p>
+                <p class="mt-1">สำหรับพนักงานและผู้บริหารระดับสูงเท่านั้น (Internal Use Only)</p>
+            </div>
+        </div>
+    </section>
+
+    <aside id="mainSidebar" class="hidden w-full md:w-72 bg-[#0B121F] text-slate-200 flex flex-col border-r border-slate-800/80 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.3)] sticky top-0 h-auto md:h-screen z-30 transition-all duration-300">
         <div class="sidebar-header p-5 flex items-center justify-between border-b border-slate-800/60 bg-[#090e18]/80 backdrop-blur-md transition-all duration-300">
             <div class="sidebar-text flex items-center gap-2 overflow-hidden">
                 <img src="https://kvdc-vetku.com/wp-content/uploads/2026/03/1.png" alt="KVDC Logo" class="h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(16,185,129,0.25)] transition-transform duration-500 hover:scale-105">
@@ -129,12 +277,36 @@
                 <i class="fa-solid fa-calendar-day w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
                 <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">ตัวอย่างวันหยุด</span>
             </button>
+
+            <button id="navBtnAdmin" class="hidden sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-slate-700 transition-all duration-300 text-left group mt-4 border-t border-slate-800/60 pt-4">
+                <i class="fa-solid fa-users-gear w-5 text-base transition-transform duration-300 group-hover:scale-110 group-hover:text-emerald-400"></i> 
+                <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">จัดการผู้ใช้งาน</span>
+            </button>
+            
+            <div class="mt-auto pt-4 border-t border-slate-800/60 space-y-2">
+                <button id="btnLogout" class="sidebar-menu-item w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 border-l-4 border-transparent hover:border-red-500 transition-all duration-300 text-left group">
+                    <i class="fa-solid fa-right-from-bracket w-5 text-base transition-transform duration-300 group-hover:-translate-x-1"></i> 
+                    <span class="sidebar-text transition-transform duration-300 group-hover:translate-x-1">ออกจากระบบ</span>
+                </button>
+            </div>
         </div>
     </aside>
 
     <main class="flex-grow p-4 md:p-8 overflow-y-auto w-full max-w-[1600px] mx-auto">
 
-        <!-- ส่วนที่ 1: อัปโหลดไฟล์ PDF -->
+        <div id="profileWidgetWrapper" class="hidden flex items-center border-l border-gray-200 dark:border-slate-700 pl-4 ml-2 shrink-0">
+            <button id="btnOpenProfile" class="flex items-center gap-2 bg-white dark:bg-slate-800 p-1.5 pr-3 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-500 transition-all group">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-inner group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div class="flex flex-col items-start text-left hidden lg:flex">
+                    <span id="displayUserName" class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">กำลังโหลด...</span>
+                    <span id="displayUserRole" class="text-[9px] font-medium text-indigo-500 dark:text-indigo-400 leading-tight">โปรไฟล์ส่วนตัว</span>
+                </div>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1 group-hover:text-indigo-500 transition-colors"></i>
+            </button>
+        </div>
+
         <section id="uploadSection" class="bg-white rounded-xl shadow-sm p-8 mb-8 text-center border-2 border-dashed border-gray-300 transition-colors duration-300">
             <input type="file" id="fileInput" accept=".pdf, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
             <div class="flex flex-col items-center justify-center space-y-4">
@@ -1035,13 +1207,325 @@
                 </div>
             </div>
         </section>
+
+        <section id="adminSection" class="hidden space-y-6 max-w-5xl mx-auto">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 shrink-0">
+                        <i class="fa-solid fa-user-shield text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">ระบบจัดการผู้ใช้งาน (Admin Portal)</h2>
+                        <p class="text-sm text-slate-500 mt-1">จัดการรายชื่อ กำหนดสิทธิ์การเข้าถึงข้อมูล และตรวจสอบสถานะบัญชี</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="adminUserListView" class="bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-400"></div>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">รายชื่อสมาชิกในระบบทั้งหมด</h3>
+                        <p class="text-sm text-slate-500 mt-1">สถานะและสิทธิ์การใช้งานแบบ Real-time</p>
+                    </div>
+                    <button id="btnShowAddUserView" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-[0_4px_12px_rgba(79,70,229,0.2)] hover:shadow-[0_6px_16px_rgba(79,70,229,0.3)] hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> เพิ่มผู้ใช้งานใหม่
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/80 border-b border-slate-200">
+                            <tr>
+                                <th scope="col" class="px-4 py-4 font-bold whitespace-nowrap">รหัส พนง.</th>
+                                <th scope="col" class="px-4 py-4 font-bold whitespace-nowrap">ชื่อ-นามสกุล / ตำแหน่ง</th>
+                                <th scope="col" class="px-4 py-4 font-bold whitespace-nowrap">อีเมล</th>
+                                <th scope="col" class="px-4 py-4 font-bold text-center whitespace-nowrap">ระดับบัญชี</th>
+                                <th scope="col" class="px-4 py-4 font-bold whitespace-nowrap">สิทธิ์การเข้าถึงแท็บ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTableBody" class="divide-y divide-slate-100 bg-white">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="adminAddUserView" class="hidden bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-400"></div>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900 tracking-tight">สร้างบัญชีผู้ใช้งานใหม่</h3>
+                        <p class="text-sm text-slate-500 mt-1">กรอกข้อมูลพื้นฐานเพื่อออกรหัสการเข้าถึงระบบให้กับพนักงาน</p>
+                    </div>
+                    <button id="btnBackToUserList" class="px-4 py-2 text-slate-500 hover:text-slate-800 text-sm font-semibold rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-2 border border-slate-200 shadow-sm">
+                        <i class="fa-solid fa-arrow-left"></i> กลับหน้ารายชื่อ
+                    </button>
+                </div>
+                
+                <form id="createUserForm" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ชื่อ-นามสกุล</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <i class="fa-regular fa-id-badge"></i>
+                                </div>
+                                <input type="text" id="newUserName" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="ระบุชื่อจริงและนามสกุล" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">อีเมลพนักงาน</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </div>
+                                <input type="email" id="newUserEmail" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="employee@company.com" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" title="กรุณาระบุอีเมลให้ถูกต้อง (ต้องมีนามสกุลโดเมนอย่างน้อย 2 ตัวอักษร เช่น .com หรือ .th)" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รหัสผ่านชั่วคราว <span class="normal-case text-indigo-500 font-medium ml-1">(บังคับเปลี่ยนตอนล็อกอิน)</span></label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <i class="fa-solid fa-key"></i>
+                                </div>
+                                <input type="text" id="newUserPassword" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="กำหนดอย่างน้อย 6 ตัวอักษร" required minlength="6">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ระดับสิทธิ์บัญชี (Role)</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <select id="newUserRole" class="w-full pl-11 pr-10 py-3 appearance-none bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    <option value="user">พนักงานทั่วไป (User)</option>
+                                    <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-500">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100">
+                        <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <label class="block text-sm font-bold text-slate-800">กำหนดการเข้าถึงข้อมูล (Permissions)</label>
+                            <span class="text-xs text-indigo-600 font-medium bg-indigo-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> เลือกได้มากกว่า 1 รายการ</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="relative cursor-pointer">
+                                <input type="checkbox" name="permissions" value="pnl" class="peer sr-only">
+                                <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 transition-all duration-200 flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-wallet"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-slate-800">งบกำไรขาดทุน</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">เข้าถึงแดชบอร์ดสรุปรายได้ ค่าใช้จ่าย และวิเคราะห์ผลกำไรสุทธิ</p>
+                                    </div>
+                                    <div class="text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity flex items-center h-full">
+                                        <i class="fa-solid fa-circle-check text-xl"></i>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer">
+                                <input type="checkbox" name="permissions" value="bs" class="peer sr-only">
+                                <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 transition-all duration-200 flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-scale-balanced"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-slate-800">งบดุล</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">ดูข้อมูลบัญชีทรัพย์สิน หนี้สิน และส่วนทุนขององค์กร</p>
+                                    </div>
+                                    <div class="text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity flex items-center h-full">
+                                        <i class="fa-solid fa-circle-check text-xl"></i>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer">
+                                <input type="checkbox" name="permissions" value="sample" class="peer sr-only">
+                                <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 transition-all duration-200 flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-flask"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-slate-800">จำนวนการตรวจ</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">วิเคราะห์สัดส่วนงานทดสอบแลป และสถานะมาตรฐาน ISO</p>
+                                    </div>
+                                    <div class="text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity flex items-center h-full">
+                                        <i class="fa-solid fa-circle-check text-xl"></i>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer">
+                                <input type="checkbox" name="permissions" value="holiday" class="peer sr-only">
+                                <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50/50 transition-all duration-200 flex items-start gap-4 group">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-slate-800">ตัวอย่างวันหยุด</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">ข้อมูลปริมาณงานและรายได้เฉพาะช่วงวันหยุด/เสาร์-อาทิตย์</p>
+                                    </div>
+                                    <div class="text-indigo-500 opacity-0 peer-checked:opacity-100 transition-opacity flex items-center h-full">
+                                        <i class="fa-solid fa-circle-check text-xl"></i>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-6">
+                        <button type="submit" id="btnSubmitNewUser" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all duration-300 shadow-[0_4px_14px_rgba(79,70,229,0.25)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-check text-lg"></i> ยืนยันการสร้างบัญชี
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     </main>
+
+    <div id="userProfileModal" class="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-pen text-indigo-600 mr-2"></i>แก้ไขโปรไฟล์ส่วนตัว</h3>
+                <button type="button" class="text-slate-400 hover:text-slate-600" onclick="document.getElementById('userProfileModal').classList.add('hidden')">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="userProfileForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล</label>
+                    <input type="text" id="profileName" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง (Position)</label>
+                    <input type="text" id="profilePosition" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="เช่น นักวิเคราะห์, ผู้จัดการ">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" id="btnSaveProfile" class="w-full px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                        บันทึกการเปลี่ยนแปลง
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminEditUserModal" class="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-gear text-indigo-600 mr-2"></i>แก้ไขข้อมูลผู้ใช้งาน</h3>
+                <button type="button" class="text-slate-400 hover:text-slate-600" onclick="document.getElementById('adminEditUserModal').classList.add('hidden')">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="adminEditUserForm" class="space-y-5">
+                <input type="hidden" id="editUid">
+                <input type="hidden" id="editDocId">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล (ล็อกไม่ให้แก้)</label>
+                    <input type="email" id="editEmail" class="w-full px-4 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-500 cursor-not-allowed outline-none" readonly>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล</label>
+                        <input type="text" id="editName" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง</label>
+                        <input type="text" id="editPosition" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ระดับสิทธิ์ (Role)</label>
+                        <select id="editRole" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="user">พนักงานทั่วไป</option>
+                            <option value="admin">แอดมิน</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-bold text-slate-800 mb-2">แก้ไขสิทธิ์การมองเห็นแท็บ</label>
+                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="editPermissions" value="pnl" class="w-4 h-4 text-indigo-600 rounded">
+                            <span class="text-sm font-medium text-slate-700">งบกำไรขาดทุน</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="editPermissions" value="bs" class="w-4 h-4 text-indigo-600 rounded">
+                            <span class="text-sm font-medium text-slate-700">งบดุล</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="editPermissions" value="sample" class="w-4 h-4 text-indigo-600 rounded">
+                            <span class="text-sm font-medium text-slate-700">จำนวนการตรวจ</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="editPermissions" value="holiday" class="w-4 h-4 text-indigo-600 rounded">
+                            <span class="text-sm font-medium text-slate-700">ตัวอย่างวันหยุด</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" id="btnDeleteUserModal" class="hidden items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 font-medium rounded-lg hover:bg-red-100 transition shadow-sm whitespace-nowrap shrink-0">
+                        <i class="fa-solid fa-trash-can mr-1"></i> ลบบัญชี
+                    </button>
+                    <button type="submit" id="btnSaveEditUser" class="w-full px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                        อัปเดตข้อมูลผู้ใช้งาน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="passwordChangeModal" class="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-all">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">อัปเดตรหัสผ่านของคุณ</h3>
+                <p class="text-sm text-slate-500 mt-2">นี่คือการเข้าสู่ระบบครั้งแรกของคุณ กรุณาเปลี่ยนรหัสผ่านเพื่อความปลอดภัยของข้อมูลองค์กร</p>
+            </div>
+
+            <form id="firstLoginPwdForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่านใหม่</label>
+                    <input type="password" id="newSecurePassword" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" required minlength="6">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" id="confirmSecurePassword" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" required minlength="6">
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="button" id="btnSkipPwd" class="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition">
+                        ข้ามไปก่อน
+                    </button>
+                    <button type="submit" id="btnSaveNewPwd" class="flex-1 px-4 py-2.5 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-600 transition shadow-sm">
+                        อัปเดตรหัสผ่าน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- สคริปต์หลัก (กำหนดเป็น type="module" เพื่อรองรับ Firebase SDK) -->
     <script type="module">
         // 1. นำเข้า Firebase และ Firestore จาก CDN ของ Firebase V9 (ปรับใช้เวอร์ชันที่เสถียร)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, onSnapshot, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // 2. กำหนด Firebase Configuration (ตามที่ผู้ใช้ระบุ)
         const firebaseConfig = {
@@ -1129,8 +1613,29 @@
             navBtnHoliday: document.getElementById('navBtnHoliday'),
             holidaySection: document.getElementById('holidaySection'),
             btnFetchHolidayData: document.getElementById('btnFetchHolidayData'),
-            btnResetHolidayDashboard: document.getElementById('btnResetHolidayDashboard')
+            btnResetHolidayDashboard: document.getElementById('btnResetHolidayDashboard'),
+            navBtnAdmin: document.getElementById('navBtnAdmin'),
+            adminSection: document.getElementById('adminSection'),
+            passwordChangeModal: document.getElementById('passwordChangeModal'),
+            createUserForm: document.getElementById('createUserForm'),
+            firstLoginPwdForm: document.getElementById('firstLoginPwdForm'),
+            btnOpenProfile: document.getElementById('btnOpenProfile'),
+            userProfileModal: document.getElementById('userProfileModal'),
+            userProfileForm: document.getElementById('userProfileForm'),
+            adminUsersTableBody: document.getElementById('adminUsersTableBody'),
+            adminEditUserModal: document.getElementById('adminEditUserModal'),
+            adminEditUserForm: document.getElementById('adminEditUserForm'),
+            adminUserListView: document.getElementById('adminUserListView'),
+            adminAddUserView: document.getElementById('adminAddUserView'),
+            btnShowAddUserView: document.getElementById('btnShowAddUserView'),
+            btnBackToUserList: document.getElementById('btnBackToUserList')
         };
+        
+        let currentUserRole = 'user';
+        let currentUserPermissions = [];
+        let currentUserId = null;
+        let currentUserDocId = null; // เก็บ Document ID 5 หลัก
+        let unsubscribeUsers = null; // สำหรับยกเลิกการดักฟัง Real-time
 
         let currentBSSortDesc = true;
         let sampleExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
@@ -1146,10 +1651,25 @@
 
         // จัดการคลิกสลับหน้าจอ (Navigation พร้อมอัปเดตสไตล์ลิสต์ระดับพรีเมียมตามปุ่มที่เลือกใช้งานจริง)
         function updateNavClasses(activeBtn) {
-            [els.navBtnPnL, els.navBtnBS, els.navBtnSample, els.navBtnHoliday].forEach(btn => {
-                if(btn) btn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-emerald-500/30 transition-all duration-300 text-left group";
+            [els.navBtnPnL, els.navBtnBS, els.navBtnSample, els.navBtnHoliday, els.navBtnAdmin].forEach(btn => {
+                if(btn) {
+                    const isHidden = btn.classList.contains('hidden'); // เก็บสถานะการซ่อนไว้ก่อน
+                    btn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/40 border-l-4 border-transparent hover:border-emerald-500/30 transition-all duration-300 text-left group";
+                    if (isHidden) btn.classList.add('hidden'); // ใส่สถานะซ่อนกลับคืนไปหากไม่ได้สิทธิ์
+                }
             });
-            if(activeBtn) activeBtn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500/10 to-transparent text-emerald-400 border-l-4 border-emerald-500 shadow-inner shadow-emerald-500/5 transition-all duration-300 text-left group";
+            
+            // เฉพาะปุ่มแอดมินให้ margin-top แยกออกมาหน่อย
+            if(els.navBtnAdmin) {
+                els.navBtnAdmin.classList.add('mt-4', 'border-t', 'border-slate-800/60', 'pt-4');
+            }
+            
+            if(activeBtn) {
+                const isHidden = activeBtn.classList.contains('hidden');
+                activeBtn.className = "sidebar-menu-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500/10 to-transparent text-emerald-400 border-l-4 border-emerald-500 shadow-inner shadow-emerald-500/5 transition-all duration-300 text-left group";
+                if(activeBtn === els.navBtnAdmin) activeBtn.classList.add('mt-4', 'border-t', 'border-slate-800/60', 'pt-4');
+                if (isHidden) activeBtn.classList.add('hidden');
+            }
         }
 
         // ฟังก์ชันช่วยสลับหน้าจอ (UI State Manager) ที่ครอบคลุมทุก Section
@@ -1162,8 +1682,22 @@
             if(els.balanceSheetSection) els.balanceSheetSection.classList.add('hidden');
             if(els.sampleSection) els.sampleSection.classList.add('hidden');
             if(els.holidaySection) els.holidaySection.classList.add('hidden');
+            if(els.adminSection) els.adminSection.classList.add('hidden');
             
-            if(sectionId) document.getElementById(sectionId).classList.remove('hidden');
+            if(sectionId) {
+                const targetSection = document.getElementById(sectionId);
+                targetSection.classList.remove('hidden');
+                
+                // ย้ายปุ่มโปรไฟล์เข้าไปต่อท้ายใน Header ของแท็บที่กำลังเปิดอยู่โดยอัตโนมัติ
+                const profileWidget = document.getElementById('profileWidgetWrapper');
+                if (profileWidget) {
+                    profileWidget.classList.remove('hidden');
+                    const headerRow = targetSection.querySelector('.bg-white.justify-between');
+                    if (headerRow) {
+                        headerRow.appendChild(profileWidget);
+                    }
+                }
+            }
 
             // ปิดเมนูอัตโนมัติบนหน้าจอมือถือหลังจากเลือกแท็บเสร็จ
             const sidebarMenu = document.getElementById('sidebarMenu');
@@ -1177,8 +1711,14 @@
         if(els.navBtnBS) els.navBtnBS.addEventListener('click', () => { activeTab = 'bs'; updateNavClasses(els.navBtnBS); showSection('balanceSheetSection'); });
         if(els.navBtnSample) els.navBtnSample.addEventListener('click', () => { activeTab = 'sample'; updateNavClasses(els.navBtnSample); showSection('sampleSection'); });
         if(els.navBtnHoliday) els.navBtnHoliday.addEventListener('click', () => { activeTab = 'holiday'; updateNavClasses(els.navBtnHoliday); showSection('holidaySection'); });
+        if(els.navBtnAdmin) els.navBtnAdmin.addEventListener('click', () => { activeTab = 'admin'; updateNavClasses(els.navBtnAdmin); showSection('adminSection'); });
 
-        if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => showSection('dashboardSection'));
+        if(els.btnGoToDashboard) els.btnGoToDashboard.addEventListener('click', () => {
+            if (currentUserRole === 'admin' || currentUserPermissions.includes('pnl')) { els.navBtnPnL.click(); }
+            else if (currentUserPermissions.includes('bs')) { els.navBtnBS.click(); }
+            else if (currentUserPermissions.includes('sample')) { els.navBtnSample.click(); }
+            else if (currentUserPermissions.includes('holiday')) { els.navBtnHoliday.click(); }
+        });
 
         // ผูกสัญญานปุ่มสลับ Dark Mode ระบบ Global
         const btnDarkModeToggle = document.getElementById('btnDarkModeToggle');
@@ -1279,9 +1819,22 @@
         // ส่วนการอัปโหลดและสกัดข้อมูลจาก PDF
         // ==========================================
 
-        els.btnSelectFile.addEventListener('click', () => els.fileInput.click());
+        els.btnSelectFile.addEventListener('click', () => {
+            if (currentUserRole !== 'admin') {
+                showToast('สิทธิ์ของคุณไม่เพียงพอ เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่มีสิทธิ์อัปโหลดไฟล์เข้าระบบครับ', 'error');
+                return;
+            }
+            els.fileInput.click();
+        });
         
         els.fileInput.addEventListener('change', async (e) => {
+            // บังคับสิทธิ์ให้เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่มีสิทธิ์นำเข้าหรืออัปโหลดไฟล์ในทุกแท็บ
+            if (currentUserRole !== 'admin') {
+                showToast('สิทธิ์ของคุณไม่เพียงพอ เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่มีสิทธิ์อัปโหลดไฟล์เข้าระบบครับ', 'error');
+                els.fileInput.value = ''; // ล้างค่าไฟล์ที่ค้างไว้
+                return;
+            }
+
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
                 const fileName = file.name.toLowerCase();
@@ -1342,6 +1895,10 @@
         });
 
         els.uploadSection.addEventListener('drop', (e) => {
+            if (currentUserRole !== 'admin') {
+                showToast('สิทธิ์ของคุณไม่เพียงพอ เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่มีสิทธิ์อัปโหลดไฟล์เข้าระบบครับ', 'error');
+                return;
+            }
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 // โยนไฟล์ที่ลากมาเข้าไปใน input file แล้วสั่ง trigger event 'change' เหมือนตอนกดเลือกไฟล์เป๊ะๆ
                 els.fileInput.files = e.dataTransfer.files;
@@ -4006,7 +4563,7 @@
                 { label: 'ค่าสาธารณูปโภค', value: buckets.utilities, color: '#06b6d4' }, // สีฟ้า
                 { label: 'ค่าใช้สอย', value: buckets.supplies, color: '#84cc16' },       // สีเขียว
                 { label: 'ค่าเสื่อมครุภัณฑ์', value: buckets.depreciation, color: '#f59e0b' },// สีเหลือง
-                { label: 'รายจ่ายอื่นๆ(ค่าส่วนแบ่ง มก.)', value: buckets.others, color: '#94a3b8' } // สีเทา
+                { label: 'รายจ่ายอื่นๆ(ส่วนแบ่ง มก.)', value: buckets.others, color: '#94a3b8' } // สีเทา
             ];
 
             predefinedCategories.forEach(cat => {
@@ -4628,13 +5185,479 @@
                 }
             } catch(e) { console.log(e); }
 
-            // เปิดหน้า PnL เป็นหน้าแรกสุดเสมอ
-            if(els.navBtnPnL) els.navBtnPnL.click();
-            else showSection('dashboardSection');
+            // เปิดหน้าแรกตามสิทธิ์ของผู้ใช้งานที่ได้รับจริง โดยเช็คจาก permissions ล้วนๆ (ไม่เหมารวมว่าแอดมินต้องเห็น PnL)
+            if (currentUserPermissions.includes('pnl')) {
+                els.navBtnPnL.click();
+            } else if (currentUserPermissions.includes('bs')) {
+                els.navBtnBS.click();
+            } else if (currentUserPermissions.includes('sample')) {
+                els.navBtnSample.click();
+            } else if (currentUserPermissions.includes('holiday')) {
+                els.navBtnHoliday.click();
+            } else if (currentUserRole === 'admin') {
+                // กรณีเป็นแอดมินแต่ไม่ได้ติ๊กสิทธิ์ดูแท็บไหนเลย ให้พาไปหน้าจัดการผู้ใช้งานแทน
+                els.navBtnAdmin.click();
+            } else {
+                showSection(null);
+                showToast('คุณไม่มีสิทธิ์เข้าถึงแท็บใดๆ ในระบบ กรุณาติดต่อผู้ดูแลระบบครับ', 'error');
+            }
         }
 
-        // เรียกใช้งานฟังก์ชันเริ่มต้นเมื่อโหลดหน้าเว็บ
-        initApp();
+        // ==========================================
+        // ระบบ Authentication (เข้าสู่ระบบ/ออกจากระบบ)
+        // ==========================================
+        const auth = getAuth(app);
+        
+        // สร้าง Secondary App สำหรับ Admin ใช้สร้าง User ใหม่โดยที่ตัวเองไม่เด้งหลุด
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
+        const loginSection = document.getElementById('loginSection');
+        const appBody = document.getElementById('appBody');
+        const mainSidebarObj = document.getElementById('mainSidebar');
+        const loginForm = document.getElementById('loginForm');
+        const btnLogout = document.getElementById('btnLogout');
+        
+        if(window.lucide) { window.lucide.createIcons(); }
+
+        // เพิ่ม Event Listener สำหรับปุ่มออกจากระบบ
+        if (btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                    showToast('เกิดข้อผิดพลาดในการออกจากระบบ', 'error');
+                }
+            });
+        }
+
+        // เพิ่ม Event Listener สำหรับฟอร์มเข้าสู่ระบบ
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // ป้องกันไม่ให้หน้าเว็บรีเฟรช
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const btnSubmit = document.getElementById('loginSubmitBtn');
+                const btnContent = document.getElementById('loginBtnContent');
+                
+                // เปลี่ยนสถานะปุ่มเป็นกำลังโหลด
+                const originalContent = btnContent.innerHTML;
+                btnContent.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
+                btnSubmit.disabled = true;
+
+                try {
+                    // ส่งข้อมูลไปตรวจสอบกับ Firebase
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast('เข้าสู่ระบบสำเร็จ', 'success');
+                    // เมื่อสำเร็จ ระบบจะไปทำงานต่อที่ onAuthStateChanged อัตโนมัติ
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    let errorMsg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                        errorMsg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorMsg = 'เข้าสู่ระบบผิดพลาดหลายครั้ง โปรดลองใหม่ภายหลัง';
+                    }
+                    showToast(errorMsg, 'error');
+                } finally {
+                    // คืนค่าสถานะปุ่มกลับมาเหมือนเดิม
+                    btnContent.innerHTML = originalContent;
+                    btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                
+                // เปลี่ยนมาใช้การดึง Document โดยตรงด้วย UID เพื่อแก้ปัญหาที่บางบัญชีไม่มีฟิลด์ uid ในฐานข้อมูล
+                try {
+                    const userDocSnap = await getDoc(doc(db, "users", user.uid));
+                    
+                    if (userDocSnap.exists()) {
+                        currentUserDocId = userDocSnap.id; // จัดเก็บ Document ID ไว้ใช้
+                        const userData = userDocSnap.data();
+                        
+                        currentUserRole = userData.role || 'user';
+                        currentUserPermissions = userData.permissions || [];
+                        
+                        // อัปเดตชื่อผู้ใช้และตำแหน่งที่มุมขวาบน
+                        const displayUserName = document.getElementById('displayUserName');
+                        const displayUserRole = document.getElementById('displayUserRole');
+                        if (displayUserName) displayUserName.innerText = userData.name || user.email.split('@')[0];
+                        if (displayUserRole) displayUserRole.innerText = currentUserRole === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : (userData.position || 'เจ้าหน้าที่');
+                        
+                        if (userData.requirePasswordChange) {
+                            els.passwordChangeModal.classList.remove('hidden');
+                        }
+
+                        // แยกจัดการสิทธิ์เมนู Admin และปุ่มอัปโหลดไฟล์
+                        const uploadBtns = [els.btnResetDashboard, els.btnResetBSDashboard, els.btnResetSampleDashboard, els.btnResetHolidayDashboard];
+                        if (currentUserRole === 'admin') {
+                            els.navBtnAdmin.classList.remove('hidden');
+                            uploadBtns.forEach(btn => { if(btn) btn.classList.remove('hidden'); });
+                            subscribeToAdminUsers();
+                        } else {
+                            els.navBtnAdmin.classList.add('hidden');
+                            uploadBtns.forEach(btn => { if(btn) btn.classList.add('hidden'); });
+                        }
+
+                        // จัดการสิทธิ์การมองเห็นแท็บอื่นๆ ตามที่ถูกเลือกไว้ใน permissions (บังคับใช้ทั้งแอดมินและผู้ใช้)
+                        currentUserPermissions.includes('pnl') ? els.navBtnPnL.classList.remove('hidden') : els.navBtnPnL.classList.add('hidden');
+                        currentUserPermissions.includes('bs') ? els.navBtnBS.classList.remove('hidden') : els.navBtnBS.classList.add('hidden');
+                        currentUserPermissions.includes('sample') ? els.navBtnSample.classList.remove('hidden') : els.navBtnSample.classList.add('hidden');
+                        currentUserPermissions.includes('holiday') ? els.navBtnHoliday.classList.remove('hidden') : els.navBtnHoliday.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                }
+
+                loginSection.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    loginSection.classList.add('hidden');
+                    mainSidebarObj.classList.remove('hidden');
+                    mainSidebarObj.classList.add('flex');
+                    appBody.classList.remove('overflow-hidden');
+                }, 500);
+                
+                initApp();
+            } else {
+                loginSection.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                mainSidebarObj.classList.add('hidden');
+                mainSidebarObj.classList.remove('flex');
+                appBody.classList.add('overflow-hidden');
+                
+                if (unsubscribeUsers) unsubscribeUsers();
+                currentUserId = null;
+                currentUserDocId = null;
+                currentUserRole = 'user';
+                currentUserPermissions = [];
+            }
+        });
+
+        // 0. ฟังก์ชันสลับหน้าจอใน Admin Portal
+        if (els.btnShowAddUserView) {
+            els.btnShowAddUserView.addEventListener('click', () => {
+                els.adminUserListView.classList.add('hidden');
+                els.adminAddUserView.classList.remove('hidden');
+            });
+        }
+        if (els.btnBackToUserList) {
+            els.btnBackToUserList.addEventListener('click', () => {
+                els.adminAddUserView.classList.add('hidden');
+                els.adminUserListView.classList.remove('hidden');
+                els.createUserForm.reset();
+            });
+        }
+
+        // 1. ฟังก์ชันให้ Admin เพิ่มผู้ใช้ใหม่
+        if (els.createUserForm) {
+            els.createUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btnSubmit = document.getElementById('btnSubmitNewUser');
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+                btnSubmit.disabled = true;
+
+                const name = document.getElementById('newUserName').value;
+                const email = document.getElementById('newUserEmail').value;
+                const password = document.getElementById('newUserPassword').value;
+                const role = document.getElementById('newUserRole').value;
+                const checkboxes = document.querySelectorAll('input[name="permissions"]:checked');
+                const permissions = Array.from(checkboxes).map(cb => cb.value);
+                const empId = Math.floor(10000 + Math.random() * 90000).toString();
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                    const newUid = userCredential.user.uid;
+
+                    // บันทึกลงตาราง users ตรงๆ โดยใช้ UID ของ Firebase เป็นชื่อ Document
+                    await setDoc(doc(db, "users", newUid), {
+                        uid: newUid,
+                        employeeId: empId,
+                        name: name,
+                        email: email,
+                        role: role, 
+                        position: role === 'admin' ? 'ผู้ดูแลระบบ' : 'เจ้าหน้าที่',
+                        permissions: permissions,
+                        requirePasswordChange: true,
+                        createdAt: new Date().toISOString()
+                    });
+
+                    await signOut(secondaryAuth);
+                    showToast(`สร้างบัญชีพนักงานใหม่สำเร็จ! (รหัสพนง: ${empId})`, 'success');
+                    els.createUserForm.reset();
+                    els.btnBackToUserList.click();
+                } catch (error) {
+                    let errorMsg = error.message;
+                    if (error.code === 'auth/email-already-in-use') errorMsg = 'อีเมลนี้ถูกลงทะเบียนในระบบแล้ว';
+                    else if (error.code === 'auth/weak-password') errorMsg = 'รหัสผ่านคาดเดาง่ายเกินไป';
+                    showToast(`เพิ่มผู้ใช้ไม่สำเร็จ: ${errorMsg}`, 'error');
+                } finally {
+                    btnSubmit.innerHTML = '<i class="fa-solid fa-user-plus"></i> บันทึกผู้ใช้งาน';
+                    btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        // 2. ระบบดึงข้อมูลผู้ใช้มาแสดงแบบ Real-time (เฉพาะ Admin)
+        function subscribeToAdminUsers() {
+            if (unsubscribeUsers) unsubscribeUsers();
+            
+            const tableBody = document.getElementById('adminUsersTableBody');
+            if (!tableBody) return;
+
+            unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+                tableBody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-500 font-medium">ไม่พบข้อมูลสมาชิกในระบบ</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const user = docSnap.data();
+                    const docId = docSnap.id; // ใช้ UID ตรงๆ
+                    const isSelf = docId === currentUserId; 
+                    const userRole = user.role || user.roles || 'user'; 
+                    
+                    const badgeMap = {
+                        'pnl': '<span class="px-2.5 py-1 bg-green-50 border border-green-100 text-green-600 rounded-md text-[10px] font-bold tracking-wide">งบกำไรฯ</span>',
+                        'bs': '<span class="px-2.5 py-1 bg-blue-50 border border-blue-100 text-blue-600 rounded-md text-[10px] font-bold tracking-wide">งบดุล</span>',
+                        'sample': '<span class="px-2.5 py-1 bg-amber-50 border border-amber-100 text-amber-600 rounded-md text-[10px] font-bold tracking-wide">ตัวอย่าง</span>',
+                        'holiday': '<span class="px-2.5 py-1 bg-purple-50 border border-purple-100 text-purple-600 rounded-md text-[10px] font-bold tracking-wide">วันหยุด</span>'
+                    };
+                    
+                    let permsArray = Array.isArray(user.permissions) ? user.permissions : [];
+                    
+                    // ให้แสดง Badge ตามสิทธิ์ที่เลือกจริง หากมี 4 แท็บให้แสดงแบบรวบยอดเพื่อไม่ให้ล้น
+                    let permissionBadges = '';
+                    if (permsArray.length === 0) {
+                        permissionBadges = '<span class="text-slate-400 text-xs italic">ไม่มีสิทธิ์เข้าถึงข้อมูล</span>';
+                    } else if (permsArray.length === 4) {
+                        permissionBadges = '<span class="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-md text-[10px] font-bold tracking-wide shadow-sm whitespace-nowrap"><i class="fa-solid fa-check-double mr-1"></i>เข้าถึงทุกแท็บ</span>';
+                    } else if (permsArray.length > 3) {
+                        permissionBadges = permsArray.slice(0, 3).map(p => badgeMap[p] || '').join('') + '<span class="px-2 py-1 bg-slate-100 border border-slate-200 text-slate-500 rounded-md text-[10px] font-bold shadow-sm ml-1">...</span>';
+                    } else {
+                        permissionBadges = permsArray.map(p => badgeMap[p] || '').join('');
+                    }
+                    
+                    // แยกคอลัมน์ระดับบัญชี
+                    let roleHtml = userRole === 'admin' 
+                        ? '<span class="px-2.5 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-md text-xs font-bold shadow-sm whitespace-nowrap"><i class="fa-solid fa-crown mr-1"></i>แอดมิน</span>'
+                        : '<span class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-600 rounded-md text-xs font-medium whitespace-nowrap"><i class="fa-solid fa-user mr-1"></i>ผู้ใช้งาน</span>';
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors group cursor-pointer row-user-detail";
+                    tr.setAttribute('data-uid', docId);
+                    tr.setAttribute('data-user', JSON.stringify(user).replace(/'/g, "&apos;"));
+                    tr.setAttribute('data-isself', isSelf);
+
+                    tr.innerHTML = `
+                        <td class="px-4 py-4 font-mono font-medium text-slate-600 whitespace-nowrap">${user.employeeId || '-'}</td>
+                        <td class="px-4 py-4">
+                            <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors whitespace-nowrap">${user.name || 'ไม่ระบุชื่อ'} ${isSelf ? '<span class="text-[10px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded ml-1 uppercase">คุณ</span>' : ''}</div>
+                            <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${user.position || '-'}</div>
+                        </td>
+                        <td class="px-4 py-4 text-slate-500 whitespace-nowrap">${user.email || '-'}</td>
+                        <td class="px-4 py-4 text-center">${roleHtml}</td>
+                        <td class="px-4 py-4">
+                            <div class="flex flex-wrap gap-1.5 items-center">${permissionBadges}</div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.row-user-detail').forEach(row => {
+                    row.addEventListener('click', (e) => {
+                        const rowEl = e.currentTarget;
+                        const userDataStr = rowEl.getAttribute('data-user').replace(/&apos;/g, "'");
+                        const userData = JSON.parse(userDataStr);
+                        const isSelf = rowEl.getAttribute('data-isself') === 'true';
+                        
+                        document.getElementById('editUid').value = rowEl.getAttribute('data-uid');
+                        document.getElementById('editEmail').value = userData.email || '';
+                        document.getElementById('editName').value = userData.name || '';
+                        document.getElementById('editPosition').value = userData.position || '';
+                        document.getElementById('editRole').value = userData.role || userData.roles || 'user';
+                        
+                        document.querySelectorAll('input[name="editPermissions"]').forEach(cb => cb.checked = false);
+                        
+                        if (Array.isArray(userData.permissions)) {
+                            userData.permissions.forEach(p => {
+                                const cb = document.querySelector(`input[name="editPermissions"][value="${p}"]`);
+                                if (cb) cb.checked = true;
+                            });
+                        }
+
+                        const btnDel = document.getElementById('btnDeleteUserModal');
+                        if (btnDel) {
+                            if (isSelf) {
+                                // ถ้าเป็นบัญชีตัวเอง ให้ซ่อนปุ่มลบ
+                                btnDel.classList.add('hidden');
+                                btnDel.classList.remove('flex');
+                            } else {
+                                // ถ้าเป็นบัญชีพนักงานคนอื่น ให้แสดงปุ่มลบ
+                                btnDel.classList.remove('hidden');
+                                btnDel.classList.add('flex');
+                                btnDel.setAttribute('data-target-uid', rowEl.getAttribute('data-uid'));
+                            }
+                        }
+                        
+                        const modal = document.getElementById('adminEditUserModal');
+                        if(modal) modal.classList.remove('hidden');
+                    });
+                });
+            }, (error) => {
+                console.error("Firestore Listen Error:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-500 font-bold bg-red-50">เกิดข้อผิดพลาด: ${error.message}</td></tr>`;
+            });
+        }
+
+        // 3. ฟังก์ชัน Admin เซฟการแก้ไขข้อมูล User
+        if (els.adminEditUserForm) {
+            els.adminEditUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btnSubmit = document.getElementById('btnSaveEditUser');
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปเดต...';
+                btnSubmit.disabled = true;
+
+                const targetUid = document.getElementById('editUid').value;
+                const newName = document.getElementById('editName').value;
+                const newPos = document.getElementById('editPosition').value;
+                const newRole = document.getElementById('editRole').value;
+                const checkboxes = document.querySelectorAll('input[name="editPermissions"]:checked');
+                const newPerms = Array.from(checkboxes).map(cb => cb.value);
+
+                try {
+                    await setDoc(doc(db, "users", targetUid), {
+                        name: newName,
+                        position: newPos,
+                        role: newRole,
+                        permissions: newPerms
+                    }, { merge: true });
+
+                    showToast('อัปเดตข้อมูลพนักงานสำเร็จ', 'success');
+                    document.getElementById('adminEditUserModal').classList.add('hidden');
+                } catch(error) {
+                    showToast('อัปเดตไม่สำเร็จ โปรดลองใหม่', 'error');
+                } finally {
+                    btnSubmit.innerHTML = 'อัปเดตข้อมูลผู้ใช้งาน';
+                    btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        // เชื่อมปุ่มลบในหน้าต่าง Modal
+        if (document.getElementById('btnDeleteUserModal')) {
+            document.getElementById('btnDeleteUserModal').addEventListener('click', async (e) => {
+                if (confirm('คุณต้องการลบสิทธิ์พนักงานคนนี้ออกจากระบบใช่หรือไม่?')) {
+                    const targetUid = e.currentTarget.getAttribute('data-target-uid');
+                    const btnDel = e.currentTarget;
+                    const originalText = btnDel.innerHTML;
+                    btnDel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังลบ...';
+                    btnDel.disabled = true;
+
+                    try {
+                        await deleteDoc(doc(db, "users", targetUid));
+                        showToast('ลบพนักงานเรียบร้อย', 'success');
+                        document.getElementById('adminEditUserModal').classList.add('hidden');
+                    } catch(err) {
+                        showToast('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
+                    } finally {
+                        btnDel.innerHTML = originalText;
+                        btnDel.disabled = false;
+                    }
+                }
+            });
+        }
+
+        // 4. ฟังก์ชันเปิดหน้า User Profile ของตัวเอง
+        if (els.btnOpenProfile) {
+            els.btnOpenProfile.addEventListener('click', async () => {
+                try {
+                    if (!currentUserId) return;
+                    const docSnap = await getDoc(doc(db, "users", currentUserId));
+                    if(docSnap.exists()) {
+                        document.getElementById('profileName').value = docSnap.data().name || '';
+                        document.getElementById('profilePosition').value = docSnap.data().position || '';
+                        els.userProfileModal.classList.remove('hidden');
+                    }
+                } catch(err) {
+                    showToast('ดึงข้อมูลโปรไฟล์ผิดพลาด', 'error');
+                }
+            });
+        }
+
+        // 5. ฟังก์ชันให้ User แก้ไขโปรไฟล์ตัวเอง
+        if (els.userProfileForm) {
+            els.userProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUserId) return;
+                const btnSubmit = document.getElementById('btnSaveProfile');
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+                btnSubmit.disabled = true;
+
+                try {
+                    await setDoc(doc(db, "users", currentUserId), {
+                        name: document.getElementById('profileName').value,
+                        position: document.getElementById('profilePosition').value
+                    }, { merge: true });
+                    showToast('บันทึกโปรไฟล์ส่วนตัวสำเร็จ', 'success');
+                    
+                    // อัปเดตข้อมูลบนปุ่มมุมขวาให้เปลี่ยนทันทีโดยไม่ต้องรีเฟรชหน้า
+                    const displayUserName = document.getElementById('displayUserName');
+                    const displayUserRole = document.getElementById('displayUserRole');
+                    if (displayUserName) displayUserName.innerText = document.getElementById('profileName').value;
+                    if (displayUserRole && currentUserRole !== 'admin') {
+                        displayUserRole.innerText = document.getElementById('profilePosition').value || 'เจ้าหน้าที่';
+                    }
+
+                    els.userProfileModal.classList.add('hidden');
+                } catch(error) {
+                    showToast('ไม่สามารถอัปเดตโปรไฟล์ได้', 'error');
+                } finally {
+                    btnSubmit.innerHTML = 'บันทึกการเปลี่ยนแปลง';
+                    btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        // 6. ฟังก์ชันเปลี่ยนรหัสผ่านครั้งแรก
+        if (els.firstLoginPwdForm) {
+            const btnSkip = document.getElementById('btnSkipPwd');
+            const btnSave = document.getElementById('btnSaveNewPwd');
+            
+            btnSkip.addEventListener('click', () => { els.passwordChangeModal.classList.add('hidden'); });
+
+            els.firstLoginPwdForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUserId) return;
+                const pwd1 = document.getElementById('newSecurePassword').value;
+                const pwd2 = document.getElementById('confirmSecurePassword').value;
+
+                if (pwd1 !== pwd2) return showToast('รหัสผ่านและการยืนยันไม่ตรงกัน', 'error');
+
+                btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปเดต...';
+                btnSave.disabled = true;
+
+                try {
+                    await updatePassword(auth.currentUser, pwd1);
+                    await setDoc(doc(db, "users", currentUserId), { requirePasswordChange: false }, { merge: true });
+                    showToast('อัปเดตรหัสผ่านสำเร็จ', 'success');
+                    els.passwordChangeModal.classList.add('hidden');
+                } catch (error) {
+                    showToast(`ไม่สามารถเปลี่ยนรหัสได้: ${error.message}`, 'error');
+                } finally {
+                    btnSave.innerHTML = 'อัปเดตรหัสผ่าน';
+                    btnSave.disabled = false;
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

@@ -112,6 +112,30 @@
         .floating-icon-delayed {
             animation: float 4s ease-in-out 2s infinite;
         }
+        
+        /* Animation สำหรับโลโก้ชีพจร (Super Pulse) */
+        .logo-heartbeat {
+            animation: superHeartbeat 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, box-shadow;
+        }
+        .logo-pulse-line {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: superPulseLine 2s infinite linear;
+        }
+        @keyframes superHeartbeat {
+            0% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+            15% { transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.5); }
+            30% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+            45% { transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+            60%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        @keyframes superPulseLine {
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
     </style>
 </head>
 <body class="text-gray-800 bg-slate-50 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 flex min-h-screen flex-col md:flex-row overflow-hidden" id="appBody">
@@ -124,8 +148,10 @@
             <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div class="relative z-10 flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-                    <i data-lucide="activity" class="text-white w-7 h-7"></i>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] logo-heartbeat shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" class="logo-pulse-line"></path>
+                    </svg>
                 </div>
                 <span class="text-3xl font-bold tracking-wider text-white">FIN<span class="text-emerald-400">PULSE</span></span>
             </div>
@@ -169,8 +195,10 @@
 
         <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-slate-900">
             <div class="absolute top-8 left-8 lg:hidden flex items-center gap-2">
-                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                    <i data-lucide="activity" class="text-white w-6 h-6"></i>
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center logo-heartbeat shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" class="logo-pulse-line"></path>
+                    </svg>
                 </div>
                 <span class="text-2xl font-bold tracking-wider text-white">FIN<span class="text-emerald-400">PULSE</span></span>
             </div>
@@ -240,11 +268,14 @@
 
     <aside id="mainSidebar" class="hidden w-full md:w-72 bg-[#0B121F] text-slate-200 flex flex-col border-r border-slate-800/80 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.3)] sticky top-0 h-auto md:h-screen z-30 transition-all duration-300">
         <div class="sidebar-header p-5 flex items-center justify-between border-b border-slate-800/60 bg-[#090e18]/80 backdrop-blur-md transition-all duration-300">
-            <div class="sidebar-text flex items-center gap-2 overflow-hidden">
-                <img src="https://kvdc-vetku.com/wp-content/uploads/2026/03/1.png" alt="KVDC Logo" class="h-10 w-auto object-contain drop-shadow-[0_2px_8px_rgba(16,185,129,0.25)] transition-transform duration-500 hover:scale-105">
-                <div class="flex flex-col min-w-0 ml-1">
-                    <span class="font-extrabold text-sm tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse">FinPulse</span>
-                    <span class="text-[9px] text-emerald-400 font-semibold tracking-wider uppercase">Diagnostics Analytics</span>
+            <div class="sidebar-text flex items-center gap-3 overflow-visible py-1 pl-1">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center logo-heartbeat shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" class="logo-pulse-line"></path>
+                    </svg>
+                </div>
+                <div class="flex flex-col min-w-0 pt-1">
+                    <span class="font-extrabold text-xl tracking-wider text-white">FIN<span class="text-emerald-400">PULSE</span></span>
                 </div>
             </div>
             <div class="flex items-center gap-2">

@@ -410,24 +410,23 @@
         <section id="dashboardSection" class="hidden space-y-6">
             
             <!-- แถบเครื่องมือด้านบน Dashboard -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
-                <div class="flex-1 flex items-center gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">สรุปภาพรวมทางการเงิน</h2>
-                        <p class="text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md" id="docInfoDisplay">
+                    <div class="min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 truncate sm:whitespace-normal break-words">สรุปภาพรวมทางการเงิน</h2>
+                        <p class="text-xs sm:text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md truncate max-w-full" id="docInfoDisplay">
                             ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
                         </p>
                     </div>
                 </div>
 
-                <!-- ระบบดึงข้อมูลจาก Firebase -->
-                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700 w-full xl:w-auto">
                     <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/50">
-                        <button id="btnPrevMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                        <button id="btnPrevMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนก่อนหน้า">
                             <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
                         </button>
-                        <select id="fetchMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                        <select id="fetchMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-1 sm:px-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[100px] sm:w-[120px] text-center shrink-0" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
                             <option value="all">รวมทั้งปี</option>
                             <option value="มกราคม">มกราคม</option>
                             <option value="กุมภาพันธ์">กุมภาพันธ์</option>
@@ -442,22 +441,21 @@
                             <option value="พฤศจิกายน">พฤศจิกายน</option>
                             <option value="ธันวาคม">ธันวาคม</option>
                         </select>
-                        <button id="btnNextMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                        <button id="btnNextMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนถัดไป">
                             <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
                         </button>
                     </div>
-                    <input type="number" id="fetchYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
-                    <button id="btnFetchData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    <input type="number" id="fetchYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm w-20 sm:w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchData" class="px-3 sm:px-4 py-1.5 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 transition shadow-sm shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">ดึงข้อมูล</span>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="btnShowCompare" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 px-4 py-2 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                    <button id="btnShowCompare" class="flex-1 sm:flex-none text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-code-compare mr-1"></i> โหมดเปรียบเทียบ
                     </button>
-                    <!-- ปุ่มอัปโหลดไฟล์ใหม่ -->
-                    <button id="btnResetDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                    <button id="btnResetDashboard" class="flex-1 sm:flex-none text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-file-pdf mr-1"></i> อัปโหลดไฟล์ใหม่
                     </button>
                 </div>
@@ -707,23 +705,23 @@
         </section>
 
         <section id="balanceSheetSection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
-                <div class="flex-1 flex items-center gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">สรุปภาพรวมงบดุล <span id="bsBalanceStatus"></span></h2>
-                        <p class="text-sm font-medium text-emerald-600 mt-1 bg-emerald-50 inline-block px-3 py-1 rounded-md" id="bsDocInfoDisplay">
+                    <div class="min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center gap-2 truncate sm:whitespace-normal break-words">สรุปภาพรวมงบดุล <span id="bsBalanceStatus"></span></h2>
+                        <p class="text-xs sm:text-sm font-medium text-emerald-600 mt-1 bg-emerald-50 inline-block px-3 py-1 rounded-md truncate max-w-full" id="bsDocInfoDisplay">
                             ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
                         </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700 w-full xl:w-auto">
                     <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-emerald-500/50">
-                        <button id="btnPrevMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                        <button id="btnPrevMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนก่อนหน้า">
                             <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
                         </button>
-                        <select id="fetchBSMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                        <select id="fetchBSMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-1 sm:px-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[100px] sm:w-[120px] text-center shrink-0" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
                             <option value="all">รวมทั้งปี</option>
                             <option value="มกราคม">มกราคม</option>
                             <option value="กุมภาพันธ์">กุมภาพันธ์</option>
@@ -738,21 +736,21 @@
                             <option value="พฤศจิกายน">พฤศจิกายน</option>
                             <option value="ธันวาคม">ธันวาคม</option>
                         </select>
-                        <button id="btnNextMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                        <button id="btnNextMonth_bs" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนถัดไป">
                             <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
                         </button>
                     </div>
-                    <input type="number" id="fetchBSYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ปี พ.ศ.">
-                    <button id="btnFetchBSData" class="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 transition shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    <input type="number" id="fetchBSYear" value="2569" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm w-20 sm:w-24 focus:outline-none focus:ring-2 focus:ring-emerald-500 shrink-0" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchBSData" class="px-3 sm:px-4 py-1.5 bg-emerald-600 text-white text-xs sm:text-sm rounded-md hover:bg-emerald-700 transition shadow-sm shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">ดึงข้อมูล</span>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="btnShowBSCompare" class="text-sm text-emerald-600 hover:text-emerald-800 font-medium border border-emerald-200 px-4 py-2 rounded-lg hover:bg-emerald-50 transition whitespace-nowrap">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                    <button id="btnShowBSCompare" class="flex-1 sm:flex-none text-xs sm:text-sm text-emerald-600 hover:text-emerald-800 font-medium border border-emerald-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-emerald-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-code-compare mr-1"></i> โหมดเปรียบเทียบ
                     </button>
-                    <button id="btnResetBSDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                    <button id="btnResetBSDashboard" class="flex-1 sm:flex-none text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-file-pdf mr-1"></i> อัปโหลดไฟล์ใหม่
                     </button>
                 </div>
@@ -845,26 +843,26 @@
         </section>
 
         <section id="sampleSection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
-                <div class="flex-1 flex items-center gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="activity" class="w-6 h-6 text-blue-600"></i>
-                            Laboratory Analytics & ISO Status
+                    <div class="min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 truncate sm:whitespace-normal break-words">
+                            <i data-lucide="activity" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 shrink-0"></i>
+                            <span class="truncate sm:whitespace-normal">Laboratory Analytics & ISO Status</span>
                         </h2>
-                        <p class="text-sm font-medium text-blue-600 mt-1 bg-blue-50 inline-block px-3 py-1 rounded-md" id="sampleDocInfoDisplay">
+                        <p class="text-xs sm:text-sm font-medium text-blue-600 mt-1 bg-blue-50 inline-block px-3 py-1 rounded-md truncate max-w-full" id="sampleDocInfoDisplay">
                             ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
                         </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700 w-full xl:w-auto">
                     <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/50">
-                        <button id="btnPrevMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                        <button id="btnPrevMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนก่อนหน้า">
                             <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
                         </button>
-                        <select id="fetchSampleMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                        <select id="fetchSampleMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-1 sm:px-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[100px] sm:w-[120px] text-center shrink-0" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
                             <option value="all">รวมทั้งปี</option>
                             <option value="มกราคม">มกราคม</option>
                             <option value="กุมภาพันธ์">กุมภาพันธ์</option>
@@ -879,21 +877,21 @@
                             <option value="พฤศจิกายน">พฤศจิกายน</option>
                             <option value="ธันวาคม">ธันวาคม</option>
                         </select>
-                        <button id="btnNextMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                        <button id="btnNextMonth_sample" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนถัดไป">
                             <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
                         </button>
                     </div>
-                    <input type="number" id="fetchSampleYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ปี พ.ศ.">
-                    <button id="btnFetchSampleData" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    <input type="number" id="fetchSampleYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm w-20 sm:w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchSampleData" class="px-3 sm:px-4 py-1.5 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 transition shadow-sm shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">ดึงข้อมูล</span>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="btnShowSampleCompare" class="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-50 transition whitespace-nowrap">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                    <button id="btnShowSampleCompare" class="flex-1 sm:flex-none text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-code-compare mr-1"></i> โหมดเปรียบเทียบ
                     </button>
-                    <button id="btnResetSampleDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                    <button id="btnResetSampleDashboard" class="flex-1 sm:flex-none text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-file-excel mr-1"></i> อัปโหลดไฟล์ใหม่
                     </button>
                 </div>
@@ -1087,26 +1085,26 @@
         </section>
 
         <section id="holidaySection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
-                <div class="flex-1 flex items-center gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 sticky top-0 z-20">
+                <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-6 h-6 text-indigo-600"></i>
-                            Laboratory Analytics (Holiday Samples)
+                    <div class="min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 truncate sm:whitespace-normal break-words">
+                            <i data-lucide="calendar" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 shrink-0"></i>
+                            <span class="truncate sm:whitespace-normal">Laboratory Analytics (Holiday Samples)</span>
                         </h2>
-                        <p class="text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md" id="holidayDocInfoDisplay">
+                        <p class="text-xs sm:text-sm font-medium text-indigo-600 mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-md truncate max-w-full" id="holidayDocInfoDisplay">
                             ไฟล์ของเดือน: - ปี - (รหัสอ้างอิงไฟล์: -)
                         </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700 w-full xl:w-auto">
                     <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-indigo-500/50">
-                        <button id="btnPrevMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนก่อนหน้า">
+                        <button id="btnPrevMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนก่อนหน้า">
                             <i class="fa-solid fa-chevron-left text-xs pointer-events-none"></i>
                         </button>
-                        <select id="fetchHolidayMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-2 text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[120px] text-center" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
+                        <select id="fetchHolidayMonth" class="appearance-none bg-transparent border-none focus:ring-0 px-1 sm:px-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer outline-none w-[100px] sm:w-[120px] text-center shrink-0" style="text-align: center; text-align-last: center; -moz-text-align-last: center;">
                             <option value="all">รวมทั้งปี</option>
                             <option value="มกราคม">มกราคม</option>
                             <option value="กุมภาพันธ์">กุมภาพันธ์</option>
@@ -1121,18 +1119,18 @@
                             <option value="พฤศจิกายน">พฤศจิกายน</option>
                             <option value="ธันวาคม">ธันวาคม</option>
                         </select>
-                        <button id="btnNextMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow" title="เดือนถัดไป">
+                        <button id="btnNextMonth_holiday" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนถัดไป">
                             <i class="fa-solid fa-chevron-right text-xs pointer-events-none"></i>
                         </button>
                     </div>
-                    <input type="number" id="fetchHolidayYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ปี พ.ศ.">
-                    <button id="btnFetchHolidayData" class="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass"></i> ดึงข้อมูล
+                    <input type="number" id="fetchHolidayYear" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm w-20 sm:w-24 focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0" placeholder="ปี พ.ศ.">
+                    <button id="btnFetchHolidayData" class="px-3 sm:px-4 py-1.5 bg-indigo-600 text-white text-xs sm:text-sm rounded-md hover:bg-indigo-700 transition shadow-sm shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">ดึงข้อมูล</span>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="btnResetHolidayDashboard" class="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap">
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                    <button id="btnResetHolidayDashboard" class="flex-1 sm:flex-none text-xs sm:text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-red-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-file-excel mr-1"></i> อัปโหลดไฟล์ใหม่
                     </button>
                 </div>

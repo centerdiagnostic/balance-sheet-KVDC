@@ -4545,7 +4545,7 @@
             // 1. เตรียมกล่อง (Buckets) สำหรับ 6 หมวดหมู่หลักแบบตายตัว
             let buckets = {
                 materials: 0,   // 1. ค่าวัสดุยอดใช้ไป
-                wages: 0,       // 2. หมวดหมู่ค่าจ้าง
+                wages: 0,       // 2. งบบุคลากร
                 utilities: 0,   // 3. ค่าสาธารณูปโภค
                 supplies: 0,    // 4. ค่าใช้สอย
                 depreciation: 0,// 5. ค่าเสื่อมครุภัณฑ์
@@ -4564,7 +4564,7 @@
                     let val = Math.abs(item.value);
                     let name = item.name;
 
-                    // หมวดที่ 2: หมวดหมู่ค่าจ้าง
+                    // หมวดที่ 2: งบบุคลากร
                     const employeeKeywords = [
                         'พนักงาน', 'ค่าจ้างชั่วคราว', 'ตอบแทน', 'เงินเพิ่ม', 'วิชาชีพ',
                         'ประกันสังคม', 'ประกนสังคม', 'สังคม', 'ค่าครองชีพ', 'กองทุน', 
@@ -4605,7 +4605,7 @@
 
             const predefinedCategories = [
                 { label: 'ค่าวัสดุยอดใช้ไป', value: buckets.materials, color: '#ef4444' }, // สีแดง
-                { label: 'หมวดหมู่ค่าจ้าง', value: buckets.wages, color: '#f97316' },     // สีส้ม
+                { label: 'งบบุคลากร', value: buckets.wages, color: '#f97316' },     // สีส้ม
                 { label: 'ค่าสาธารณูปโภค', value: buckets.utilities, color: '#06b6d4' }, // สีฟ้า
                 { label: 'ค่าใช้สอย', value: buckets.supplies, color: '#84cc16' },       // สีเขียว
                 { label: 'ค่าเสื่อมครุภัณฑ์', value: buckets.depreciation, color: '#f59e0b' },// สีเหลือง

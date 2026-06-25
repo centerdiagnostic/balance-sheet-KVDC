@@ -33,6 +33,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -410,7 +413,7 @@
         <section id="dashboardSection" class="hidden space-y-6">
             
             <!-- แถบเครื่องมือด้านบน Dashboard -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
+            <div id="export-pnl-header" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
                 <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
                     <div class="min-w-0 flex-1 w-full">
@@ -422,7 +425,7 @@
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
+            <div id="export-pnl-filter" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-gray-50 dark:bg-slate-800 p-2 rounded-lg border border-gray-200 dark:border-slate-700 w-full xl:w-auto">
                     <div class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/50">
                         <button id="btnPrevMonth_pnl" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow shrink-0" title="เดือนก่อนหน้า">
@@ -453,7 +456,10 @@
                     </button>
                 </div>
 
-                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                <div id="pnlActionBtns" class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                    <button id="btnExportPdfPnl" class="flex-1 sm:flex-none text-xs sm:text-sm text-emerald-600 hover:text-emerald-800 font-medium border border-emerald-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-emerald-50 transition whitespace-nowrap text-center">
+                        <i class="fa-solid fa-file-arrow-down mr-1"></i> Export PDF
+                    </button>
                     <button id="btnShowCompare" class="flex-1 sm:flex-none text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 px-3 sm:px-4 py-2 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap text-center">
                         <i class="fa-solid fa-code-compare mr-1"></i> โหมดเปรียบเทียบ
                     </button>
@@ -464,7 +470,7 @@
             </div>
 
             <!-- การ์ดสรุปผล (Summary Cards) -->
-            <div class="flex flex-col gap-4">
+            <div id="export-pnl-cards" class="flex flex-col gap-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border-l-4 border-blue-500 flex flex-col justify-between">
                         <div class="flex justify-between items-start mb-2">
@@ -543,15 +549,15 @@
 
             <!-- ส่วนกราฟ (Charts) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
+                <div id="export-pnl-chart1" class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">สัดส่วนค่าใช้จ่ายหลัก</h3>
                     <div class="relative h-64 w-full flex justify-center"><canvas id="expenseChart"></canvas></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-2">
+                <div id="export-pnl-chart2" class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-2">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">โครงสร้างกระแสเงิน (Waterfall)</h3>
                     <div class="relative h-64 w-full"><canvas id="compareChart"></canvas></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-3 flex flex-col items-center justify-center">
+                <div id="export-pnl-chart3" class="bg-white p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 lg:col-span-3 flex flex-col items-center justify-center">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 w-full text-left">สถานะความสามารถทำกำไร (Net Profit Margin)</h3>
                     <div class="relative h-48 w-full max-w-md"><canvas id="gaugeChart"></canvas></div>
                     <p id="gaugeStatusText" class="mt-2 text-lg font-bold text-gray-700">-</p>
@@ -559,7 +565,7 @@
             </div>
 
             <!-- ส่วนตารางข้อมูล (Data Table) -->
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+            <div id="pnlDataTableContainer" class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <h3 class="text-lg font-semibold text-gray-800">รายการข้อมูลทั้งหมด</h3>
                     <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -707,7 +713,7 @@
         </section>
 
         <section id="balanceSheetSection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
+            <div id="export-pnl-header" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
                 <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
                     <div class="min-w-0 flex-1 w-full">
@@ -846,7 +852,7 @@
         </section>
 
         <section id="sampleSection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
+            <div id="export-pnl-header" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
                 <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
                     <div class="min-w-0 flex-1 w-full">
@@ -1089,7 +1095,7 @@
         </section>
 
         <section id="holidaySection" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
+            <div id="export-pnl-header" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30">
                 <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
                     <img src="https://kvdc-vetku.com/wp-content/uploads/2026/02/1.png" alt="KVDC Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow-sm">
                     <div class="min-w-0 flex-1 w-full">
@@ -1638,6 +1644,7 @@
             btnFetchData: document.getElementById('btnFetchData'),
             btnResetDashboard: document.getElementById('btnResetDashboard'),
             btnShowCompare: document.getElementById('btnShowCompare'),
+            btnExportPdfPnl: document.getElementById('btnExportPdfPnl'),
             btnShowBSCompare: document.getElementById('btnShowBSCompare'),
             btnShowSampleCompare: document.getElementById('btnShowSampleCompare'),
             btnBackToDashboard: document.getElementById('btnBackToDashboard'),
@@ -4389,6 +4396,261 @@
             els.searchInput.value = '';
             showSection('uploadSection');
         });
+
+        // ระบบ Export PDF สำหรับหน้ากำไรขาดทุน
+        if (els.btnExportPdfPnl) {
+            els.btnExportPdfPnl.addEventListener('click', async () => {
+                const originalText = els.btnExportPdfPnl.innerHTML;
+                els.btnExportPdfPnl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังสร้าง Report...';
+                els.btnExportPdfPnl.disabled = true;
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const dashboard = document.getElementById('dashboardSection');
+                    const actionBtns = document.getElementById('pnlActionBtns');
+                    const profileWidget = document.getElementById('profileWidgetWrapper');
+                    const headerEl = document.getElementById('export-pnl-header');
+
+                    // ซ่อนปุ่มและโปรไฟล์ไม่ให้ติดไปในรายงาน
+                    if (actionBtns) actionBtns.style.display = 'none';
+                    if (profileWidget) profileWidget.style.display = 'none';
+
+                    // จัดการส่วนหัว (Header) เพื่อป้องกัน html2canvas ตัดข้อความ (Truncate Bug)
+                    let origHeaderClasses = '';
+                    const h2El = headerEl ? headerEl.querySelector('h2') : null;
+                    const pEl = headerEl ? headerEl.querySelector('p') : null;
+                    let origH2Classes = '';
+                    let origPClasses = '';
+
+                    if (headerEl) {
+                        origHeaderClasses = headerEl.className;
+                        headerEl.classList.remove('sticky', 'top-0', 'z-30');
+                        headerEl.style.position = 'relative';
+                        
+                        if (h2El) {
+                            origH2Classes = h2El.className;
+                            h2El.classList.remove('truncate'); // ปลด truncate
+                            h2El.style.lineHeight = '1.5'; // เพิ่มระยะบรรทัดป้องกันตัวอักษรโดนตัด
+                        }
+                        if (pEl) {
+                            origPClasses = pEl.className;
+                            pEl.classList.remove('truncate'); // ปลด truncate
+                        }
+                    }
+
+                    // จัดการส่วนตัวกรอง (Filter) ป้องกัน html2canvas เรนเดอร์พื้นหลังเพี้ยนและตัดข้อความ
+                    const filterEl = document.getElementById('export-pnl-filter');
+                    const filterControls = filterEl ? filterEl.querySelectorAll('select, input') : [];
+                    const filterReplacements = [];
+                    // หากล่องที่ครอบปุ่ม < > และ เดือน
+                    const filterWrapper = filterEl ? filterEl.querySelector('.shadow-inner') : null;
+                    let origWrapperClass = '';
+
+                    if (filterEl) {
+                        if (filterWrapper) {
+                            origWrapperClass = filterWrapper.className;
+                            // ลบเงาและเปลี่ยนพื้นหลังให้เป็นสีทึบ 100% ป้องกันภาพลายตาราง (Checkerboard)
+                            filterWrapper.classList.remove('bg-slate-100/80', 'dark:bg-slate-800/80', 'shadow-inner');
+                            filterWrapper.classList.add('bg-slate-100', 'dark:bg-slate-800');
+                        }
+
+                        filterControls.forEach(ctrl => {
+                            const repl = document.createElement('div');
+                            repl.className = ctrl.className;
+                            repl.classList.remove('appearance-none', 'outline-none');
+                            
+                            repl.style.display = 'flex';
+                            repl.style.alignItems = 'center';
+                            repl.style.justifyContent = 'center';
+                            repl.style.width = ctrl.offsetWidth + 'px';
+                            repl.style.height = ctrl.offsetHeight + 'px';
+                            repl.style.boxSizing = 'border-box';
+                            
+                            // จำลองสีพื้นหลังและเส้นขอบให้เหมือนของจริงแบบ 100% (ไม่ใช้โปร่งใส)
+                            if (ctrl.tagName === 'INPUT') {
+                                repl.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff';
+                            } else {
+                                repl.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#1e293b' : '#f1f5f9';
+                            }
+
+                            repl.innerText = ctrl.tagName === 'SELECT' ? ctrl.options[ctrl.selectedIndex].text : ctrl.value;
+                            
+                            ctrl.parentNode.insertBefore(repl, ctrl);
+                            const origDisplay = ctrl.style.display;
+                            ctrl.style.display = 'none';
+                            
+                            filterReplacements.push({ orig: ctrl, repl: repl, origDisplay: origDisplay });
+                        });
+                    }
+
+                    // ขยาย Container ชั่วคราวเพื่อให้ Layout กราฟและกล่องต่างๆ ไม่ถูกบีบ
+                    const origDashWidth = dashboard.style.width;
+                    dashboard.style.width = '1200px'; 
+                    
+                    // หน่วงเวลาให้เบราว์เซอร์จัด Layout และให้ CSS Transition (duration-300) ทำงานจนจบ 
+                    // รวมถึงรอให้ Chart.js วาดกราฟขนาดใหม่ให้เสร็จสมบูรณ์ ป้องกันกราฟแหว่ง
+                    await new Promise(resolve => setTimeout(resolve, 600));
+
+                    // แปลง Canvas (กราฟ) เป็นรูปภาพ (<img>) ชั่วคราว ป้องกัน html2canvas เรนเดอร์กราฟผิดพลาด
+                    const canvases = dashboard.querySelectorAll('canvas');
+                    const canvasReplacements = [];
+                    canvases.forEach(canvas => {
+                        const img = document.createElement('img');
+                        img.src = canvas.toDataURL('image/png', 1.0);
+                        img.style.width = canvas.offsetWidth + 'px';
+                        img.style.height = canvas.offsetHeight + 'px';
+                        img.style.maxWidth = '100%';
+                        img.style.objectFit = 'contain';
+                        img.className = canvas.className;
+                        
+                        canvas.parentNode.insertBefore(img, canvas);
+                        const origDisplay = canvas.style.display;
+                        canvas.style.display = 'none';
+                        
+                        canvasReplacements.push({ canvas: canvas, img: img, origDisplay: origDisplay });
+                    });
+
+                    // ฟังก์ชันช่วยเหลือสำหรับถ่ายภาพแต่ละ ID 
+                    const captureEl = async (id) => {
+                        const el = document.getElementById(id);
+                        if(!el) return null;
+                        const canvas = await html2canvas(el, {
+                            scale: 2, 
+                            useCORS: true,
+                            backgroundColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff'
+                        });
+                        return {
+                            data: canvas.toDataURL('image/jpeg', 1.0),
+                            ratio: canvas.width / canvas.height
+                        };
+                    };
+
+                    // ทยอยถ่ายภาพทีละส่วน
+                    const headerImg = await captureEl('export-pnl-header');
+                    const filterImg = await captureEl('export-pnl-filter');
+                    const cardsImg = await captureEl('export-pnl-cards');
+                    const chart1Img = await captureEl('export-pnl-chart1');
+                    const chart2Img = await captureEl('export-pnl-chart2');
+                    const chart3Img = await captureEl('export-pnl-chart3');
+
+                    // คืนค่า Layout กลับเป็นปกติทันทีที่ถ่ายเสร็จ
+                    dashboard.style.width = origDashWidth;
+                    if (actionBtns) actionBtns.style.display = '';
+                    if (profileWidget) profileWidget.style.display = '';
+                    if (headerEl) {
+                        headerEl.className = origHeaderClasses;
+                        headerEl.style.position = '';
+                        if (h2El) { h2El.className = origH2Classes; h2El.style.lineHeight = ''; }
+                        if (pEl) { pEl.className = origPClasses; }
+                    }
+                    if (filterEl) {
+                        if (filterWrapper) filterWrapper.className = origWrapperClass;
+                        // คืนค่าส่วนตัวกรอง (Filter) กลับเป็น Select/Input ตามเดิม
+                        filterReplacements.forEach(item => {
+                            item.orig.style.display = item.origDisplay;
+                            item.repl.remove();
+                        });
+                    }
+
+                    // คืนค่า Canvas กราฟกลับมาและลบรูปภาพจำลองทิ้ง
+                    canvasReplacements.forEach(item => {
+                        item.canvas.style.display = item.origDisplay;
+                        item.img.remove();
+                    });
+
+                    // สร้างไฟล์ PDF แบบ A4 แนวตั้ง
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    
+                    const marginX = 12; // ขอบซ้าย-ขวา
+                    const contentWidth = pageWidth - (marginX * 2);
+                    let cursorY = 12; // จุดเริ่มต้นแกน Y ของกระดาษ
+
+                    // ฟังก์ชันสำหรับคำนวณความสูงและแปะรูปลง PDF อัตโนมัติ พร้อมเช็คการขึ้นหน้าใหม่
+                    const addImgToPdf = (imgObj, x, y, width) => {
+                        if(!imgObj) return 0;
+                        const height = width / imgObj.ratio;
+                        // หากเนื้อหาล้นหน้ากระดาษ ให้ตัดขึ้นหน้าใหม่
+                        if (y + height > pageHeight - 15) {
+                            pdf.addPage();
+                            cursorY = 12;
+                            y = 12;
+                        }
+                        pdf.addImage(imgObj.data, 'JPEG', x, y, width, height);
+                        return height;
+                    };
+
+                    // 1. แปะส่วนหัว (Header)
+                    if (headerImg) cursorY += addImgToPdf(headerImg, marginX, cursorY, contentWidth) + 6;
+
+                    // 1.5 แปะส่วนตัวกรองเดือนและปี (Filter)
+                    if (filterImg) cursorY += addImgToPdf(filterImg, marginX, cursorY, contentWidth) + 8;
+
+                    // 2. แปะส่วนการ์ดสรุปผล
+                    if (cardsImg) cursorY += addImgToPdf(cardsImg, marginX, cursorY, contentWidth) + 8;
+                    
+                    // 3. แปะกราฟที่ 1 (วงกลม) และ 2 (Waterfall) ให้อยู่คู่กันซ้ายขวาอย่างสวยงาม
+                    if (chart1Img && chart2Img) {
+                        const gap = 5; 
+                        const w1 = (contentWidth * 0.35) - (gap / 2); 
+                        const w2 = (contentWidth * 0.65) - (gap / 2); 
+                        const h1 = w1 / chart1Img.ratio;
+                        const h2 = w2 / chart2Img.ratio;
+                        const maxHeight = Math.max(h1, h2);
+
+                        if (cursorY + maxHeight > pageHeight - 15) {
+                            pdf.addPage();
+                            cursorY = 12;
+                        }
+
+                        pdf.addImage(chart1Img.data, 'JPEG', marginX, cursorY, w1, h1);
+                        pdf.addImage(chart2Img.data, 'JPEG', marginX + w1 + gap, cursorY, w2, h2);
+                        cursorY += maxHeight + 8; 
+                    }
+
+                    // 4. แปะกราฟที่ 3 (Gauge) ไว้ด้านล่างสุดเต็มจอ
+                    if (chart3Img) addImgToPdf(chart3Img, marginX, cursorY, contentWidth);
+
+                    // สร้างและแปะลายน้ำ วัน/เดือน/ปี เวลา (มุมขวาล่างสุด) ทุกหน้า
+                    const addTimestamp = () => {
+                        const now = new Date();
+                        const tsStr = `ส่งออกเมื่อ: ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear() + 543} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} น.`;
+                        
+                        const tCanv = document.createElement('canvas');
+                        const tCtx = tCanv.getContext('2d');
+                        tCtx.font = '16px "Prompt", sans-serif'; 
+                        tCanv.width = tCtx.measureText(tsStr).width + 10;
+                        tCanv.height = 24;
+                        tCtx.font = '16px "Prompt", sans-serif';
+                        tCtx.fillStyle = '#94a3b8'; 
+                        tCtx.textAlign = 'right';
+                        tCtx.textBaseline = 'middle';
+                        tCtx.fillText(tsStr, tCanv.width - 5, tCanv.height / 2);
+                        
+                        const tsImg = tCanv.toDataURL('image/png');
+                        const tsW = tCanv.width * 0.2; 
+                        const tsH = tCanv.height * 0.2;
+                        
+                        const totalPages = pdf.internal.getNumberOfPages();
+                        for (let i = 1; i <= totalPages; i++) {
+                            pdf.setPage(i);
+                            pdf.addImage(tsImg, 'PNG', pageWidth - tsW - 10, pageHeight - tsH - 5, tsW, tsH);
+                        }
+                    };
+                    addTimestamp();
+
+                    pdf.save(`Financial_Report_${new Date().getTime()}.pdf`);
+                    showToast('สร้างไฟล์ PDF สำเร็จ', 'success');
+                } catch (error) {
+                    console.error("PDF Export Error:", error);
+                    showToast('เกิดข้อผิดพลาดในการ Export PDF', 'error');
+                } finally {
+                    els.btnExportPdfPnl.innerHTML = originalText;
+                    els.btnExportPdfPnl.disabled = false;
+                }
+            });
+        }
 
         // ระบบค้นหาและตัวกรองในตาราง
         els.searchInput.addEventListener('input', () => {

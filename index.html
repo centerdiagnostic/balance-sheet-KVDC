@@ -2854,7 +2854,7 @@
                 });
             }
 
-            // 4. วาด Asset Doughnut Chart (ปรับกลุ่มตามผู้ใช้ต้องการ 4 กลุ่มหลัก)
+            // 4. วาด Asset Doughnut Chart (ปรับกลุ่มตามผู้ใช้ต้องการ 5 กลุ่มหลัก)
             let items = data.items || [];
 
             let assetBuckets = {
@@ -2862,16 +2862,28 @@
                 receivable: 0,
                 material: 0,
                 equipment: 0,
+                lims: 0,
                 others: 0
             };
 
             items.forEach(item => {
-                if (item.category === 'asset') {
-                    let name = item.name;
-                    let val = item.value;
+                let name = item.name;
+                let val = item.value;
+                let cat = item.category;
 
-                    // กรองเฉพาะค่าที่เป็นบวก เพื่อไม่เอาค่าเสื่อมราคาสะสมมาหักลบในกราฟสัดส่วนสินทรัพย์
-                    if (val > 0 && !name.includes('ค่าเสื่อม')) {
+                // แก้บัค: 'ค่าเสื่อมราคาสะสม' มีคำว่า 'สะสม' ทำให้ตอน Extract ข้อมูลถูกจัดไปอยู่หมวด equity
+                // จึงต้องบังคับเปลี่ยน category ให้กลับมาเป็น asset ก่อนนำไปคำนวณในกราฟสินทรัพย์
+                if (name.includes('ค่าเสื่อม')) {
+                    cat = 'asset';
+                }
+
+                if (cat === 'asset') {
+                    // สำหรับกลุ่ม "ครุภัณฑ์" (ที่ดิน อาคาร อุปกรณ์) ให้รวมยอดสุทธิโดยนำค่าเสื่อมราคาสะสม (ซึ่งติดลบ) มาหักออกด้วย (รองรับ 0.00 เผื่ออนาคต)
+                    if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ') || name.includes('ค่าเสื่อม') || name.includes('อาคาร') || name.includes('สิ่งปลูกสร้าง') || name.includes('ยานพาหนะ') || name.includes('เครื่องใช้') || name.includes('เครื่องตกแต่ง') || name.includes('เครื่องมือ') || name.includes('ส่วนปรับปรุงที่ดิน')) {
+                        assetBuckets.equipment += val; // val ของค่าเสื่อมจะติดลบอยู่แล้ว จึงเป็นการหักลบอัตโนมัติเพื่อให้ได้ยอดสุทธิ
+                    } 
+                    // สำหรับสินทรัพย์อื่นๆ กรองเฉพาะค่าที่เป็นบวก
+                    else if (val > 0) {
                         // ดักจับและจัดกลุ่มด้วยคีย์เวิร์ดกว้างๆ
                         if (name.includes('เงินฝาก') || name.includes('เงนฝาก')) {
                             assetBuckets.cash += val;
@@ -2879,10 +2891,10 @@
                             assetBuckets.receivable += val;
                         } else if (name.includes('วัสดุ')) {
                             assetBuckets.material += val;
-                        } else if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ')) {
-                            assetBuckets.equipment += val;
+                        } else if (name.toLowerCase().includes('lims')) {
+                            assetBuckets.lims += val; // แยกกลุ่ม Lims
                         } else {
-                            assetBuckets.others += val; // รายการอื่นๆ เช่น จ่ายล่วงหน้า
+                            assetBuckets.others += val; // รายการอื่นๆ เช่น จ่ายล่วงหน้าตัวอื่น
                         }
                     }
                 }
@@ -2896,7 +2908,8 @@
                 { label: 'เงินฝากคณะฯ', value: assetBuckets.cash, color: '#3b82f6' },      // สีฟ้า
                 { label: 'ลูกหนี้รวม', value: assetBuckets.receivable, color: '#f59e0b' },// สีส้ม
                 { label: 'วัสดุ', value: assetBuckets.material, color: '#10b981' },       // สีเขียว
-                { label: 'ครุภัณฑ์', value: assetBuckets.equipment, color: '#8b5cf6' }    // สีม่วง
+                { label: 'ครุภัณฑ์', value: assetBuckets.equipment, color: '#8b5cf6' },    // สีม่วง
+                { label: 'ค่าบำรุงรักษาจ่ายล่วงหน้า (Lims)', value: assetBuckets.lims, color: '#ec4899' } // สีชมพู
                 // เอา "สินทรัพย์อื่นๆ" ออกจากการแสดงผลบนกราฟตามที่ต้องการ
             ];
 
@@ -2908,24 +2921,16 @@
                 }
             });
 
-            Chart.defaults.font.family = "'Prompt', sans-serif";
             if (assetChartInstance) assetChartInstance.destroy();
             const ctxAsset = document.getElementById('assetChart').getContext('2d');
-            
-            // คำนวณเปอร์เซ็นต์สำหรับ Legend (สินทรัพย์)
-            const assetTotal = chartData.reduce((a, b) => a + b, 0);
-            const assetLabelsWithPct = chartLabels.map((lbl, i) => {
-                const pct = assetTotal > 0 ? ((chartData[i] / assetTotal) * 100).toFixed(2) : 0;
-                return `${lbl} (${pct}%)`;
-            });
 
             assetChartInstance = new Chart(ctxAsset, {
                 type: 'doughnut',
                 data: {
-                    labels: assetLabelsWithPct.length > 0 ? assetLabelsWithPct : ['ไม่มีข้อมูลสินทรัพย์'],
+                    labels: chartLabels.length > 0 ? chartLabels : ['ไม่มีข้อมูลสินทรัพย์'],
                     datasets: [{
                         data: chartData.length > 0 ? chartData : [1],
-                        backgroundColor: assetLabelsWithPct.length > 0 ? chartBgColors : ['#e2e8f0'],
+                        backgroundColor: chartLabels.length > 0 ? chartBgColors : ['#e2e8f0'],
                         hoverOffset: 15
                     }]
                 },
@@ -2993,21 +2998,14 @@
 
             if (window.liabEquityChartInstance) window.liabEquityChartInstance.destroy();
             const ctxLE = document.getElementById('liabEquityChart').getContext('2d');
-            
-            // คำนวณเปอร์เซ็นต์สำหรับ Legend (หนี้สินและทุน)
-            const leTotal = leData.reduce((a, b) => a + b, 0);
-            const leLabelsWithPct = leLabels.map((lbl, i) => {
-                const pct = leTotal > 0 ? ((leData[i] / leTotal) * 100).toFixed(2) : 0;
-                return `${lbl} (${pct}%)`;
-            });
 
             window.liabEquityChartInstance = new Chart(ctxLE, {
                 type: 'doughnut',
                 data: {
-                    labels: leLabelsWithPct.length > 0 ? leLabelsWithPct : ['ไม่มีข้อมูลหนี้สิน/ทุน'],
+                    labels: leLabels.length > 0 ? leLabels : ['ไม่มีข้อมูลหนี้สิน/ทุน'],
                     datasets: [{
                         data: leData.length > 0 ? leData : [1],
-                        backgroundColor: leLabelsWithPct.length > 0 ? leBgColors : ['#e2e8f0'],
+                        backgroundColor: leLabels.length > 0 ? leBgColors : ['#e2e8f0'],
                         hoverOffset: 15
                     }]
                 },
@@ -3110,6 +3108,7 @@
                         { id: 'sub_recv', title: 'ลูกหนี้รวม', items: [], color: 'text-orange-600' },
                         { id: 'sub_mat', title: 'วัสดุ', items: [], color: 'text-emerald-600' },
                         { id: 'sub_eq', title: 'ครุภัณฑ์', items: [], color: 'text-purple-600' },
+                        { id: 'sub_lims', title: 'ค่าบำรุงรักษาจ่ายล่วงหน้า (Lims)', items: [], color: 'text-pink-600' },
                         { id: 'sub_ast_oth', title: 'สินทรัพย์อื่นๆ', items: [], color: 'text-slate-600' }
                     ]
                 },
@@ -3141,6 +3140,11 @@
                 let name = item.name;
                 let cat = item.category;
 
+                // แก้บัคจัดหมวดหมู่: ดึง 'ค่าเสื่อมราคาสะสม' ที่หลุดไปอยู่ทุน(equity) ให้กลับมาแสดงในตารางหมวดสินทรัพย์
+                if (name.includes('ค่าเสื่อม')) {
+                    cat = 'asset';
+                }
+
                 if (cat === 'asset') {
                     if (name.includes('เงินฝาก') || name.includes('เงนฝาก')) {
                         hierarchy[0].subgroups[0].items.push(item);
@@ -3148,10 +3152,12 @@
                         hierarchy[0].subgroups[1].items.push(item);
                     } else if (name.includes('วัสดุ')) {
                         hierarchy[0].subgroups[2].items.push(item);
-                    } else if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ')) {
+                    } else if (name.includes('ครุภัณฑ์') || name.includes('ครภัณฑ์') || name.includes('ครณภัณฑ์') || name.includes('ครุภณฑ') || name.includes('ค่าเสื่อม') || name.includes('อาคาร') || name.includes('สิ่งปลูกสร้าง') || name.includes('ยานพาหนะ') || name.includes('เครื่องใช้') || name.includes('เครื่องตกแต่ง') || name.includes('เครื่องมือ') || name.includes('ส่วนปรับปรุงที่ดิน')) {
                         hierarchy[0].subgroups[3].items.push(item);
-                    } else {
+                    } else if (name.toLowerCase().includes('lims')) {
                         hierarchy[0].subgroups[4].items.push(item);
+                    } else {
+                        hierarchy[0].subgroups[5].items.push(item);
                     }
                 } else if (cat === 'liability' || cat === 'equity' || name.includes('กำไร') || name.includes('ขาดทุน')) {
                     if (name.includes('เจ้าหนี้')) {

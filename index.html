@@ -2923,14 +2923,21 @@
 
             if (assetChartInstance) assetChartInstance.destroy();
             const ctxAsset = document.getElementById('assetChart').getContext('2d');
+            
+            // คำนวณเปอร์เซ็นต์สำหรับ Legend (สินทรัพย์)
+            const assetTotal = chartData.reduce((a, b) => a + b, 0);
+            const assetLabelsWithPct = chartLabels.map((lbl, i) => {
+                const pct = assetTotal > 0 ? ((chartData[i] / assetTotal) * 100).toFixed(2) : 0;
+                return `${lbl} (${pct}%)`;
+            });
 
             assetChartInstance = new Chart(ctxAsset, {
                 type: 'doughnut',
                 data: {
-                    labels: chartLabels.length > 0 ? chartLabels : ['ไม่มีข้อมูลสินทรัพย์'],
+                    labels: assetLabelsWithPct.length > 0 ? assetLabelsWithPct : ['ไม่มีข้อมูลสินทรัพย์'],
                     datasets: [{
                         data: chartData.length > 0 ? chartData : [1],
-                        backgroundColor: chartLabels.length > 0 ? chartBgColors : ['#e2e8f0'],
+                        backgroundColor: assetLabelsWithPct.length > 0 ? chartBgColors : ['#e2e8f0'],
                         hoverOffset: 15
                     }]
                 },
@@ -2999,13 +3006,20 @@
             if (window.liabEquityChartInstance) window.liabEquityChartInstance.destroy();
             const ctxLE = document.getElementById('liabEquityChart').getContext('2d');
 
+            // คำนวณเปอร์เซ็นต์สำหรับ Legend (หนี้สินและทุน)
+            const leTotal = leData.reduce((a, b) => a + b, 0);
+            const leLabelsWithPct = leLabels.map((lbl, i) => {
+                const pct = leTotal > 0 ? ((leData[i] / leTotal) * 100).toFixed(2) : 0;
+                return `${lbl} (${pct}%)`;
+            });
+
             window.liabEquityChartInstance = new Chart(ctxLE, {
                 type: 'doughnut',
                 data: {
-                    labels: leLabels.length > 0 ? leLabels : ['ไม่มีข้อมูลหนี้สิน/ทุน'],
+                    labels: leLabelsWithPct.length > 0 ? leLabelsWithPct : ['ไม่มีข้อมูลหนี้สิน/ทุน'],
                     datasets: [{
                         data: leData.length > 0 ? leData : [1],
-                        backgroundColor: leLabels.length > 0 ? leBgColors : ['#e2e8f0'],
+                        backgroundColor: leLabelsWithPct.length > 0 ? leBgColors : ['#e2e8f0'],
                         hoverOffset: 15
                     }]
                 },

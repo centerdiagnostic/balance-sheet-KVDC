@@ -5622,6 +5622,12 @@
                             uploadBtns.forEach(btn => { if(btn) btn.classList.add('hidden'); });
                         }
 
+                        // กำหนดให้ทุกคนสามารถเข้าถึงและมองเห็นปุ่ม Action (เช่น Export PDF, โหมดเปรียบเทียบ) ได้เสมอ
+                        const pnlActionBtns = document.getElementById('pnlActionBtns');
+                        if (pnlActionBtns) {
+                            pnlActionBtns.classList.remove('hidden');
+                        }
+
                         // จัดการสิทธิ์การมองเห็นแท็บอื่นๆ ตามที่ถูกเลือกไว้ใน permissions (บังคับใช้ทั้งแอดมินและผู้ใช้)
                         currentUserPermissions.includes('pnl') ? els.navBtnPnL.classList.remove('hidden') : els.navBtnPnL.classList.add('hidden');
                         currentUserPermissions.includes('bs') ? els.navBtnBS.classList.remove('hidden') : els.navBtnBS.classList.add('hidden');

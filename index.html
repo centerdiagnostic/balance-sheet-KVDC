@@ -4856,14 +4856,15 @@
         function renderCharts() {
             Chart.defaults.font.family = "'Prompt', sans-serif";
             
-            // 1. เตรียมกล่อง (Buckets) สำหรับ 6 หมวดหมู่หลักแบบตายตัว
+            // 1. เตรียมกล่อง (Buckets) สำหรับ 7 หมวดหมู่หลักแบบตายตัว
             let buckets = {
                 materials: 0,   // 1. ค่าวัสดุยอดใช้ไป
                 wages: 0,       // 2. งบบุคลากร
-                utilities: 0,   // 3. ค่าสาธารณูปโภค
-                supplies: 0,    // 4. ค่าใช้สอย
-                depreciation: 0,// 5. ค่าเสื่อมครุภัณฑ์
-                others: 0       // 6. รายจ่ายอื่นๆ(ค่าส่วนแบ่ง มก.)
+                overtime: 0,    // 3. ค่าตอบแทนนอกเวลาฯ
+                utilities: 0,   // 4. ค่าสาธารณูปโภค
+                supplies: 0,    // 5. ค่าใช้สอย
+                depreciation: 0,// 6. ค่าเสื่อมครุภัณฑ์
+                others: 0       // 7. รายจ่ายอื่นๆ(ค่าส่วนแบ่ง มก.)
             };
 
             // ดึงค่าวัสดุยอดใช้ไปจาก ต้นทุนขาย (COGS) เสมอ
@@ -4887,23 +4888,27 @@
                     // ต้องไม่รวมค่ารักษาพยาบาลบุคคลในครอบครัว (เพราะต้องไปอยู่ค่าใช้สอย)
                     const isEmployeeExpense = employeeKeywords.some(kw => name.includes(kw)) && !name.includes('ครอบคร') && !name.includes('รักษาพยาบาล');
 
-                    if (isEmployeeExpense) {
+                    // แยกหมวดที่ 3: ค่าตอบแทนปฏิบัติงานนอกเวลาราชการ
+                    if (name.includes('นอกเวลาราชการ')) {
+                        buckets.overtime += val;
+                    }
+                    else if (isEmployeeExpense) {
                         buckets.wages += val;
                     } 
                     else {
-                        // หมวดที่ 3: ค่าสาธารณูปโภค
+                        // หมวดที่ 4: ค่าสาธารณูปโภค
                         if (name.includes('ไฟฟ') || name.includes('ประปา') || name.includes('โทรศ') || name.includes('โทรสาร') || name.includes('สาธารณูปโภค') || name.includes('ไปรษณ') || name.includes('อากร')) {
                             buckets.utilities += val;
                         }
-                        // หมวดที่ 5: ค่าเสื่อมครุภัณฑ์
+                        // หมวดที่ 6: ค่าเสื่อมครุภัณฑ์
                         else if (name.includes('เสื่อม')) {
                             buckets.depreciation += val;
                         }
-                        // หมวดที่ 6: รายจ่ายอื่นๆ (ค่าส่วนแบ่ง มก.)
+                        // หมวดที่ 7: รายจ่ายอื่นๆ (ค่าส่วนแบ่ง มก.)
                         else if (name.includes('ส่วนแบ่ง') || name.includes('ส่วนแบ')) {
                             buckets.others += val;
                         }
-                        // หมวดที่ 4: ค่าใช้สอย (เพิ่มคำว่า ระลึก และ เกษียณ เพื่อดักจับรายการที่ตกหล่น)
+                        // หมวดที่ 5: ค่าใช้สอย (เพิ่มคำว่า ระลึก และ เกษียณ เพื่อดักจับรายการที่ตกหล่น)
                         else if (name.includes('โครงการ') || name.includes('น้ำด') || name.includes('เลือดแกะ') || name.includes('lims') || name.includes('Lims') || name.includes('บำรุงรักษา') || name.includes('โอนเงิน') || name.includes('ซ่อมแซม') || name.includes('รักษาพยาบาล') || name.includes('ครอบคร') || name.includes('ห้องพัก') || name.includes('ใช้สอย') || name.includes('จ้างเหมา') || name.includes('สอบเทียบ') || name.includes('ติดตั้ง') || name.includes('กำจัด') || name.includes('พัฒาระบบ') || name.includes('พัฒนาระบบ') || name.includes('ระลึก') || name.includes('เกษียณ')) {
                             buckets.supplies += val;
                         }
@@ -4912,7 +4917,7 @@
                 }
             });
 
-            // 3. จัดเรียงข้อมูลเพื่อนำไปวาดกราฟตามลำดับที่ผู้ใช้ต้องการเป๊ะๆ 1-6
+            // 3. จัดเรียงข้อมูลเพื่อนำไปวาดกราฟตามลำดับที่ผู้ใช้ต้องการเป๊ะๆ 1-7
             let chartLabels = [];
             let chartData = [];
             let chartBgColors = [];
@@ -4920,6 +4925,7 @@
             const predefinedCategories = [
                 { label: 'ค่าวัสดุยอดใช้ไป', value: buckets.materials, color: '#ef4444' }, // สีแดง
                 { label: 'งบบุคลากร', value: buckets.wages, color: '#f97316' },     // สีส้ม
+                { label: 'ค่าตอบแทนนอกเวลาฯ', value: buckets.overtime, color: '#eab308' }, // สีเหลืองทอง
                 { label: 'ค่าสาธารณูปโภค', value: buckets.utilities, color: '#06b6d4' }, // สีฟ้า
                 { label: 'ค่าใช้สอย', value: buckets.supplies, color: '#84cc16' },       // สีเขียว
                 { label: 'ค่าเสื่อมครุภัณฑ์', value: buckets.depreciation, color: '#f59e0b' },// สีเหลือง

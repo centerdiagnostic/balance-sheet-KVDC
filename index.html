@@ -4908,8 +4908,8 @@
                         else if (name.includes('ส่วนแบ่ง') || name.includes('ส่วนแบ')) {
                             buckets.others += val;
                         }
-                        // หมวดที่ 5: ค่าใช้สอย (เพิ่มคำว่า ระลึก และ เกษียณ เพื่อดักจับรายการที่ตกหล่น)
-                        else if (name.includes('โครงการ') || name.includes('น้ำด') || name.includes('เลือดแกะ') || name.includes('lims') || name.includes('Lims') || name.includes('บำรุงรักษา') || name.includes('โอนเงิน') || name.includes('ซ่อมแซม') || name.includes('รักษาพยาบาล') || name.includes('ครอบคร') || name.includes('ห้องพัก') || name.includes('ใช้สอย') || name.includes('จ้างเหมา') || name.includes('สอบเทียบ') || name.includes('ติดตั้ง') || name.includes('กำจัด') || name.includes('พัฒาระบบ') || name.includes('พัฒนาระบบ') || name.includes('ระลึก') || name.includes('เกษียณ')) {
+                        // หมวดที่ 5: ค่าใช้สอย (เพิ่มคำว่า ระลึก, เกษียณ และ สารเคมี เพื่อดักจับรายการที่ตกหล่น)
+                        else if (name.includes('โครงการ') || name.includes('น้ำด') || name.includes('เลือดแกะ') || name.includes('lims') || name.includes('Lims') || name.includes('บำรุงรักษา') || name.includes('โอนเงิน') || name.includes('ซ่อมแซม') || name.includes('รักษาพยาบาล') || name.includes('ครอบคร') || name.includes('ห้องพัก') || name.includes('ใช้สอย') || name.includes('จ้างเหมา') || name.includes('สอบเทียบ') || name.includes('ติดตั้ง') || name.includes('กำจัด') || name.includes('สารเคมี') || name.includes('พัฒาระบบ') || name.includes('พัฒนาระบบ') || name.includes('ระลึก') || name.includes('เกษียณ')) {
                             buckets.supplies += val;
                         }
                         // นำ else สุดท้ายที่กวาดรายการขยะทิ้งไป เพื่อให้หมวดอื่นๆ แสดงแค่ "ส่วนแบ่ง มก." เท่านั้น

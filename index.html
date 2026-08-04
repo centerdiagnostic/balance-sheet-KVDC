@@ -947,9 +947,13 @@
                         <i data-lucide="check-circle" class="w-20 h-20 text-blue-600"></i>
                     </div>
                     <p class="text-sm font-semibold text-slate-500 mb-1 z-10">สถานะ ISO</p>
-                    <div class="flex items-baseline mb-4 z-10">
+                    <div class="flex items-baseline mb-1 z-10">
                         <h3 id="kpi-iso" class="text-4xl font-bold text-blue-600 tracking-tight">0</h3>
                         <span id="badge-iso" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2"></span>
+                    </div>
+                    <div class="text-xs font-medium text-slate-500 z-10 mb-3 flex justify-between items-center w-full">
+                        <span>ยอดเงินรวม: <span id="kpi-amount-iso" class="text-blue-600 font-bold" data-val="0">******</span> ฿</span>
+                        <span id="kpi-pct-amount-iso" class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold" title="สัดส่วนเปอร์เซ็นต์ต่อรายได้ทั้งหมด">0%</span>
                     </div>
                     <div class="mt-auto w-full bg-slate-100 rounded-full h-1.5 z-10 overflow-hidden">
                         <div id="bar-iso" class="bg-blue-600 h-full rounded-full progress-bar-anim" style="width: 0%"></div>
@@ -961,9 +965,13 @@
                         <i data-lucide="alert-triangle" class="w-20 h-20 text-amber-500"></i>
                     </div>
                     <p class="text-sm font-semibold text-slate-500 mb-1 z-10">สถานะ Non-ISO</p>
-                    <div class="flex items-baseline mb-4 z-10">
+                    <div class="flex items-baseline mb-1 z-10">
                         <h3 id="kpi-noniso" class="text-4xl font-bold text-amber-500 tracking-tight">0</h3>
                         <span id="badge-noniso" class="hidden flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold ml-2"></span>
+                    </div>
+                    <div class="text-xs font-medium text-slate-500 z-10 mb-3 flex justify-between items-center w-full">
+                        <span>ยอดเงินรวม: <span id="kpi-amount-noniso" class="text-amber-500 font-bold" data-val="0">******</span> ฿</span>
+                        <span id="kpi-pct-amount-noniso" class="text-[10px] bg-amber-50 text-amber-500 px-1.5 py-0.5 rounded font-bold" title="สัดส่วนเปอร์เซ็นต์ต่อรายได้ทั้งหมด">0%</span>
                     </div>
                     <div class="mt-auto w-full bg-slate-100 rounded-full h-1.5 z-10 overflow-hidden">
                         <div id="bar-noniso" class="bg-amber-500 h-full rounded-full progress-bar-anim" style="width: 0%"></div>
@@ -994,8 +1002,13 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                    <h3 class="text-lg font-bold text-slate-800 mb-1">สัดส่วน ISO ภาพรวม</h3>
-                    <p id="donut-subtitle" class="text-sm text-slate-500 mb-2">วิเคราะห์จากข้อมูลในไฟล์</p>
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="text-lg font-bold text-slate-800">สัดส่วน ISO ภาพรวม</h3>
+                        <button id="btnToggleDonutChart" class="text-slate-400 hover:text-indigo-600 transition p-1 focus:outline-none" title="สลับจำนวน/ยอดเงิน">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </button>
+                    </div>
+                    <p id="donut-subtitle" class="text-sm text-slate-500 mb-2">แสดงสัดส่วนจาก: จำนวนตัวอย่าง</p>
                     
                     <div class="relative flex-grow flex items-center justify-center">
                         <div id="donut-chart" class="w-full h-[280px]"></div>
@@ -1040,6 +1053,14 @@
                     </div>
                     <div id="sample-heatmap-chart" class="w-full h-[320px]"></div>
                 </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-800">การจัดกลุ่มประสิทธิภาพห้องปฏิบัติการ (Quadrant Analysis)</h3>
+                    <p class="text-sm text-slate-500">วิเคราะห์ความสัมพันธ์ระหว่าง <span class="font-semibold text-blue-600">จำนวนตัวอย่าง (แกน X)</span> และ <span class="font-semibold text-emerald-600">ยอดเงินรวม (แกน Y)</span> เพื่อดูศักยภาพของแต่ละ Lab</p>
+                </div>
+                <div id="sample-scatter-chart" class="w-full h-[400px]"></div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -3325,6 +3346,7 @@
             if(rawData.length === 0) return;
 
             let currentTotalSamples = 0, currentTotalISO = 0, currentTotalNonISO = 0, currentTotalAmount = 0;
+            let currentTotalAmountISO = 0, currentTotalAmountNonISO = 0;
             const yearlyMap = {};
             const labMap = {};
             const tableMap = {}; // เพิ่มสำหรับเก็บข้อมูลตารางโดยเฉพาะ เพื่อให้แสดง Test Name ได้
@@ -3357,8 +3379,13 @@
 
                 currentTotalSamples += samples;
                 currentTotalAmount += amount;
-                if (isISO) currentTotalISO += samples;
-                else currentTotalNonISO += samples;
+                if (isISO) {
+                    currentTotalISO += samples;
+                    currentTotalAmountISO += amount;
+                } else {
+                    currentTotalNonISO += samples;
+                    currentTotalAmountNonISO += amount;
+                }
 
                 // สำหรับกราฟ (กลุ่มรวมแค่ Lab)
                 if (!labMap[lab]) labMap[lab] = { lab, ISO: 0, 'Non-ISO': 0, total: 0, amount: 0, amountISO: 0, amountNonISO: 0 };
@@ -3381,13 +3408,21 @@
             const labData = Object.values(labMap).sort((a, b) => b.total - a.total);
             const tableData = Object.values(tableMap).sort((a, b) => b.total - a.total); // จัดเรียงข้อมูลในตารางจากจำนวนมากไปน้อย
 
+            // คำนวณเปอร์เซ็นต์ส่วนแบ่งรายได้
+            const pctAmountISO = currentTotalAmount > 0 ? ((currentTotalAmountISO / currentTotalAmount) * 100).toFixed(1) : '0.0';
+            const pctAmountNonISO = currentTotalAmount > 0 ? ((currentTotalAmountNonISO / currentTotalAmount) * 100).toFixed(1) : '0.0';
+            const elPctIso = document.getElementById('kpi-pct-amount-iso');
+            const elPctNonIso = document.getElementById('kpi-pct-amount-noniso');
+            if (elPctIso) elPctIso.innerText = `${pctAmountISO}%`;
+            if (elPctNonIso) elPctNonIso.innerText = `${pctAmountNonISO}%`;
+
             // Update KPI Cards
             const animateInt = (id, end, isFloat = false) => {
                 const obj = document.getElementById(id);
                 if(!obj) return;
 
                 // ถ้าเป็น kpi-amount ให้เก็บค่าไว้ แล้วเช็คสถานะซ่อน
-                if (id === 'kpi-amount') {
+                if (id === 'kpi-amount' || id === 'kpi-amount-iso' || id === 'kpi-amount-noniso') {
                     obj.dataset.val = end;
                     if (!isKpiMoneyVisible) {
                         obj.innerText = '******';
@@ -3427,20 +3462,15 @@
             animateInt('kpi-total', currentTotalSamples);
             animateInt('kpi-amount', currentTotalAmount, true);
             animateInt('kpi-iso', currentTotalISO);
+            animateInt('kpi-amount-iso', currentTotalAmountISO, true);
             animateInt('kpi-noniso', currentTotalNonISO);
+            animateInt('kpi-amount-noniso', currentTotalAmountNonISO, true);
             
             const pctObj = document.getElementById('kpi-percent');
-            const donutTextObj = document.getElementById('donut-percent-text');
             if(pctObj) pctObj.innerText = isoPercentage.toFixed(1);
-            if(donutTextObj) donutTextObj.innerText = isoPercentage.toFixed(1);
 
             document.getElementById('bar-iso').style.width = `${isoPercentage}%`;
             document.getElementById('bar-noniso').style.width = `${100 - isoPercentage}%`;
-
-            const pIso = currentTotalSamples > 0 ? ((currentTotalISO/currentTotalSamples)*100).toFixed(0) : 0;
-            const pNonIso = currentTotalSamples > 0 ? ((currentTotalNonISO/currentTotalSamples)*100).toFixed(0) : 0;
-            document.getElementById('legend-iso-text').innerText = `ISO (${pIso}%)`;
-            document.getElementById('legend-noniso-text').innerText = `Non-ISO (${pNonIso}%)`;
 
             // บันทึกข้อมูลเข้า Cache ของระบบเพื่อนำไปใช้ในการจัดเรียงตารางอัจฉริยะ (Interactive Sort)
             cachedTableData = tableData;
@@ -3528,6 +3558,63 @@
             sampleHeatmapChartInstance = new ApexCharts(document.querySelector("#sample-heatmap-chart"), heatmapOptions);
             sampleHeatmapChartInstance.render();
 
+            // --- Scatter Chart (Quadrant Analysis) ---
+            const avgSamples = labData.length > 0 ? labData.reduce((sum, l) => sum + l.total, 0) / labData.length : 0;
+            const avgAmount = labData.length > 0 ? labData.reduce((sum, l) => sum + l.amount, 0) / labData.length : 0;
+            
+            const scatterOptions = {
+                series: [{
+                    name: "Labs",
+                    data: labData.map(l => ({
+                        x: l.total,
+                        y: l.amount,
+                        labName: l.lab
+                    }))
+                }],
+                chart: { type: 'scatter', height: 400, fontFamily: 'Prompt, sans-serif', toolbar: { show: false }, zoom: { enabled: false } },
+                dataLabels: { enabled: false },
+                xaxis: {
+                    title: { text: 'จำนวนตัวอย่าง (Samples)', style: { fontWeight: 600 } },
+                    labels: { formatter: (val) => Math.round(val).toLocaleString() },
+                    tickAmount: 6
+                },
+                yaxis: {
+                    title: { text: 'ยอดเงินรวม (THB)', style: { fontWeight: 600 } },
+                    labels: { formatter: (val) => Math.round(val).toLocaleString() },
+                    tickAmount: 5
+                },
+                markers: { size: 10, colors: ['#4f46e5'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 12 } },
+                tooltip: {
+                    custom: function({series, seriesIndex, dataPointIndex, w}) {
+                        var data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                        var displayAmt = typeof isKpiMoneyVisible !== 'undefined' && !isKpiMoneyVisible ? '******' : data.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ฿';
+                        return `<div class="p-3 shadow-md bg-white border border-slate-200 rounded-lg">
+                            <div class="font-bold text-slate-800 mb-2 border-b pb-1">${data.labName}</div>
+                            <div class="text-sm text-slate-600 mb-1"><span class="font-semibold text-blue-600">จำนวน:</span> ${data.x.toLocaleString()} ตัวอย่าง</div>
+                            <div class="text-sm text-slate-600"><span class="font-semibold text-emerald-600">ยอดเงิน:</span> ${displayAmt}</div>
+                        </div>`;
+                    }
+                },
+                annotations: {
+                    xaxis: [{
+                        x: avgSamples,
+                        strokeDashArray: 4,
+                        borderColor: '#94a3b8',
+                        label: { style: { color: '#475569', background: '#f8fafc', fontWeight: 600 }, text: 'ค่าเฉลี่ยตัวอย่าง' }
+                    }],
+                    yaxis: [{
+                        y: avgAmount,
+                        strokeDashArray: 4,
+                        borderColor: '#94a3b8',
+                        label: { style: { color: '#475569', background: '#f8fafc', fontWeight: 600 }, text: 'ค่าเฉลี่ยยอดเงิน' }
+                    }]
+                }
+            };
+
+            if(window.sampleScatterChartInstance) { window.sampleScatterChartInstance.destroy(); }
+            window.sampleScatterChartInstance = new ApexCharts(document.querySelector("#sample-scatter-chart"), scatterOptions);
+            window.sampleScatterChartInstance.render();
+
             // --- Line Chart ---
             const lineOptions = {
                 series: [
@@ -3598,19 +3685,51 @@
             }
 
             // --- Donut Chart ---
-            const donutOptions = {
-                series: [currentTotalISO, currentTotalNonISO],
-                chart: { type: 'donut', height: 280, fontFamily: 'Prompt, sans-serif' },
-                labels: ['ISO Standard', 'Non-ISO'],
-                colors: [COLORS.ISO, COLORS.NonISO],
-                plotOptions: { pie: { donut: { size: '75%', labels: { show: false } }, expandOnClick: false } },
-                dataLabels: { enabled: false }, stroke: { show: false }, legend: { show: false },
-                tooltip: { y: { formatter: (val) => val.toLocaleString() + " ตัวอย่าง" } }
+            window.sampleDonutSortMode = window.sampleDonutSortMode || 'total';
+
+            window.drawSampleDonutChart = function() {
+                let isAmount = window.sampleDonutSortMode === 'amount';
+                let s_iso = isAmount ? currentTotalAmountISO : currentTotalISO;
+                let s_non = isAmount ? currentTotalAmountNonISO : currentTotalNonISO;
+                let s_total = isAmount ? currentTotalAmount : currentTotalSamples;
+
+                const donutOptions = {
+                    series: [s_iso, s_non],
+                    chart: { type: 'donut', height: 280, fontFamily: 'Prompt, sans-serif' },
+                    labels: ['ISO Standard', 'Non-ISO'],
+                    colors: [COLORS.ISO, COLORS.NonISO],
+                    plotOptions: { pie: { donut: { size: '75%', labels: { show: false } }, expandOnClick: false } },
+                    dataLabels: { enabled: false }, stroke: { show: false }, legend: { show: false },
+                    tooltip: { 
+                        y: { 
+                            formatter: (val) => isAmount 
+                                ? val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ฿" 
+                                : val.toLocaleString() + " ตัวอย่าง" 
+                        } 
+                    }
+                };
+
+                if(donutChartInstance) { donutChartInstance.destroy(); }
+                donutChartInstance = new ApexCharts(document.querySelector("#donut-chart"), donutOptions);
+                donutChartInstance.render();
+
+                // อัปเดตข้อความเปอร์เซ็นต์ตรงกลาง
+                const pctVal = s_total > 0 ? ((s_iso / s_total) * 100).toFixed(1) : '0.0';
+                const donutTextObj = document.getElementById('donut-percent-text');
+                if(donutTextObj) donutTextObj.innerText = pctVal;
+
+                // อัปเดต Subtitle
+                const donutSub = document.getElementById('donut-subtitle');
+                if(donutSub) donutSub.innerText = isAmount ? 'แสดงสัดส่วนจาก: ยอดเงินรวม (บาท)' : 'แสดงสัดส่วนจาก: จำนวนตัวอย่าง';
+
+                // อัปเดต Legend
+                const pIso = s_total > 0 ? ((s_iso/s_total)*100).toFixed(0) : 0;
+                const pNonIso = s_total > 0 ? ((s_non/s_total)*100).toFixed(0) : 0;
+                document.getElementById('legend-iso-text').innerText = `ISO (${pIso}%)`;
+                document.getElementById('legend-noniso-text').innerText = `Non-ISO (${pNonIso}%)`;
             };
 
-            if(donutChartInstance) { donutChartInstance.destroy(); }
-            donutChartInstance = new ApexCharts(document.querySelector("#donut-chart"), donutOptions);
-            donutChartInstance.render();
+            window.drawSampleDonutChart();
 
             // --- Bar Chart (Updated with Toggle Functionality) ---
             globalLabDataForChart = Object.values(labMap);
@@ -4273,16 +4392,24 @@
                 const iconKpi = document.querySelector('#btnToggleKpiMoney i');
                 if (iconKpi) iconKpi.className = isKpiMoneyVisible ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
                 
-                const kpiAmountObj = document.getElementById('kpi-amount');
-                if (kpiAmountObj && kpiAmountObj.dataset.val) {
-                    if (isKpiMoneyVisible) {
-                        kpiAmountObj.innerText = parseFloat(kpiAmountObj.dataset.val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                        kpiAmountObj.title = kpiAmountObj.innerText;
-                    } else {
-                        kpiAmountObj.innerText = '******';
-                        kpiAmountObj.title = 'ซ่อนจำนวนเงิน';
+                ['kpi-amount', 'kpi-amount-iso', 'kpi-amount-noniso'].forEach(id => {
+                    const obj = document.getElementById(id);
+                    if (obj && obj.dataset.val) {
+                        if (isKpiMoneyVisible) {
+                            obj.innerText = parseFloat(obj.dataset.val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            obj.title = obj.innerText;
+                        } else {
+                            obj.innerText = '******';
+                            obj.title = 'ซ่อนจำนวนเงิน';
+                        }
                     }
-                }
+                });
+            }
+
+            // Toggle กราฟโดนัท ISO / Non-ISO (สลับจำนวนตัวอย่างกับยอดเงิน)
+            if (e.target.closest('#btnToggleDonutChart')) {
+                window.sampleDonutSortMode = window.sampleDonutSortMode === 'total' ? 'amount' : 'total';
+                if(window.drawSampleDonutChart) window.drawSampleDonutChart();
             }
 
             // Toggle โชว์/ซ่อน จำนวนเงิน Top 5

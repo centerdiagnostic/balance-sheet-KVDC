@@ -342,20 +342,31 @@
             </button>
         </div>
 
-        <section id="uploadSection" class="bg-white rounded-xl shadow-sm p-8 mb-8 text-center border-2 border-dashed border-gray-300 transition-colors duration-300">
+        <section id="uploadSection" class="bg-white rounded-xl shadow-sm p-8 mb-8 text-center border-2 border-dashed border-gray-300 transition-colors duration-300 relative">
+            <!-- จุดที่แสดงสถานะการโหลดฐานข้อมูลลูกค้า -->
+            <div class="absolute top-4 left-4 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm">
+                <div id="clientDbStatusIndicator" class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                <span id="clientDbStatusText" class="text-xs font-semibold text-slate-600">ฐานข้อมูลลูกค้า: ยังไม่อัปโหลด</span>
+            </div>
+
             <input type="file" id="fileInput" accept=".pdf, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
-            <div class="flex flex-col items-center justify-center space-y-4">
+            <input type="file" id="clientFileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
+            
+            <div class="flex flex-col items-center justify-center space-y-4 pt-6">
                 <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
                     <i class="fa-solid fa-file-arrow-up text-4xl"></i>
                 </div>
-                <h2 class="text-xl font-semibold">อัปโหลดรายงาน (PDF หรือ Excel)</h2>
-                <p class="text-gray-500 text-sm max-w-md">อัปโหลดไฟล์ PDF สำหรับงบการเงิน หรือไฟล์ Excel/CSV สำหรับข้อมูลจำนวนการตรวจ</p>
-                <div class="flex gap-4">
-                    <button id="btnGoToDashboard" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium shadow-sm">
-                        <i class="fa-solid fa-chart-pie mr-2"></i> เข้าสู่หน้าแดชบอร์ด
+                <h2 class="text-xl font-semibold">อัปโหลดข้อมูลเข้าระบบ</h2>
+                <p class="text-gray-500 text-sm max-w-md">1. โหลดฐานข้อมูลลูกค้า (ถ้าต้องการจัดกลุ่ม) <br>2. โหลดรายงานประจำเดือน (PDF/Excel)</p>
+                <div class="flex flex-wrap justify-center gap-4 mt-2">
+                    <button id="btnSelectClientFile" class="px-5 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition font-medium shadow-sm text-sm">
+                        <i class="fa-solid fa-users mr-2"></i> 1. อัปโหลดฐานลูกค้า
                     </button>
-                    <button id="btnSelectFile" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm">
-                        <i class="fa-solid fa-upload mr-2"></i> เลือกไฟล์ PDF
+                    <button id="btnSelectFile" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm text-sm">
+                        <i class="fa-solid fa-file-invoice mr-2"></i> 2. อัปโหลดรายงาน
+                    </button>
+                    <button id="btnGoToDashboard" class="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium shadow-sm text-sm">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> เข้าสู่หน้าแดชบอร์ด
                     </button>
                 </div>
             </div>
@@ -394,12 +405,82 @@
                     </div>
                 </div>
 
+                <div id="sampleCoverageWarning" class="hidden text-left text-xs sm:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6 flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
+                    <span></span>
+                </div>
+
                 <div class="flex justify-center gap-4">
                     <button id="btnCancelSave" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">ยกเลิก</button>
                     <button id="btnSaveToFirebase" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium shadow-sm">
                         <i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูล (Save to Firebase)
                     </button>
                 </div>
+            </div>
+        </section>
+
+        <!-- ส่วนอัปโหลด 3 ไฟล์สำหรับแท็บ "จำนวนตัวอย่าง" (ไฟล์ A/B/C) เพื่อคำนวณสัดส่วนประเภทลูกค้า -->
+        <section id="sampleUploadSection" class="hidden bg-white rounded-xl shadow-sm p-8 mb-8 border-2 border-dashed border-gray-300 transition-colors duration-300 relative">
+            <input type="file" id="sampleFileInputA" accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
+            <input type="file" id="sampleFileInputB" accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
+            <input type="file" id="sampleFileInputC" accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="hidden">
+
+            <div class="flex flex-col items-center justify-center space-y-3 pt-2 pb-6">
+                <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
+                    <i class="fa-solid fa-layer-group text-4xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold">อัปโหลดข้อมูลจำนวนตัวอย่างประจำเดือน (3 ไฟล์)</h2>
+                <p class="text-gray-500 text-sm max-w-lg text-center">อัปโหลดไฟล์ A, B และ C ให้ครบทั้ง 3 ไฟล์ ระบบจะคำนวณยอดจำนวนตัวอย่างและสัดส่วนประเภทลูกค้าให้อัตโนมัติ</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-left">
+                <div id="sampleDropZoneA" class="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col gap-3 transition-colors duration-200">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-full bg-indigo-600 text-white text-xs font-bold shrink-0">A</span>
+                        <span class="text-sm font-semibold text-slate-800">รายงานยอดจำนวนตัวอย่าง</span>
+                    </div>
+                    <p class="text-xs text-gray-500">ไฟล์ทางการ ชีต "รายงาน" — ใช้เป็นยอดรวมจำนวนตัวอย่างจริง</p>
+                    <p class="text-[11px] text-indigo-500 font-medium">ชื่อไฟล์ต้นทาง: QBE-Summary Sample LAB</p>
+                    <button id="btnSelectSampleFileA" type="button" class="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition font-medium text-xs border border-indigo-200">
+                        <i class="fa-solid fa-file-excel mr-1"></i> เลือกไฟล์ A
+                    </button>
+                    <p class="text-[10px] text-gray-400 text-center">หรือลากไฟล์มาวางในกรอบนี้</p>
+                    <div id="sampleFileAStatus" class="text-xs text-gray-400 flex items-center gap-1"><i class="fa-regular fa-circle"></i> ยังไม่ได้เลือกไฟล์</div>
+                </div>
+
+                <div id="sampleDropZoneB" class="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col gap-3 transition-colors duration-200">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0">B</span>
+                        <span class="text-sm font-semibold text-slate-800">รายการทดสอบ (Test Name)</span>
+                    </div>
+                    <p class="text-xs text-gray-500">ไฟล์ "Query Results" — ใช้หา Draw # และห้องแลปจาก Test Name</p>
+                    <p class="text-[11px] text-blue-500 font-medium">ชื่อไฟล์ต้นทาง: Query Results</p>
+                    <button id="btnSelectSampleFileB" type="button" class="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition font-medium text-xs border border-blue-200">
+                        <i class="fa-solid fa-file-excel mr-1"></i> เลือกไฟล์ B
+                    </button>
+                    <p class="text-[10px] text-gray-400 text-center">หรือลากไฟล์มาวางในกรอบนี้</p>
+                    <div id="sampleFileBStatus" class="text-xs text-gray-400 flex items-center gap-1"><i class="fa-regular fa-circle"></i> ยังไม่ได้เลือกไฟล์</div>
+                </div>
+
+                <div id="sampleDropZoneC" class="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col gap-3 transition-colors duration-200">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-full bg-emerald-600 text-white text-xs font-bold shrink-0">C</span>
+                        <span class="text-sm font-semibold text-slate-800">ประเภทลูกค้า (Category)</span>
+                    </div>
+                    <p class="text-xs text-gray-500">ไฟล์ "Query Results" — มีคอลัมน์ Draw # และ Category</p>
+                    <p class="text-[11px] text-emerald-500 font-medium">ชื่อไฟล์ต้นทาง: Sample Login</p>
+                    <button id="btnSelectSampleFileC" type="button" class="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition font-medium text-xs border border-emerald-200">
+                        <i class="fa-solid fa-file-excel mr-1"></i> เลือกไฟล์ C
+                    </button>
+                    <p class="text-[10px] text-gray-400 text-center">หรือลากไฟล์มาวางในกรอบนี้</p>
+                    <div id="sampleFileCStatus" class="text-xs text-gray-400 flex items-center gap-1"><i class="fa-regular fa-circle"></i> ยังไม่ได้เลือกไฟล์</div>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-6">
+                <button id="btnProcessSampleFiles" type="button" disabled class="px-6 py-2.5 bg-gray-300 text-gray-500 rounded-lg font-medium shadow-sm text-sm cursor-not-allowed transition-colors">
+                    <i class="fa-solid fa-gears mr-2"></i> ประมวลผลข้อมูลทั้ง 3 ไฟล์
+                </button>
             </div>
         </section>
 
@@ -1031,6 +1112,27 @@
                 </div>
             </div>
 
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200" id="categoryBreakdownCard">
+                <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">สัดส่วนประเภทลูกค้า</h3>
+                        <p class="text-sm text-slate-500">ประมาณการจำนวนตัวอย่างแยกตามประเภทลูกค้า</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span id="categoryBaseTotalText" class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1 rounded-md whitespace-nowrap">ฐานข้อมูลที่ลิงก์ได้: -</span>
+                        <span id="categoryCompareLabelText" class="hidden text-[11px] text-slate-400 font-medium"></span>
+                    </div>
+                </div>
+                <div id="categoryBreakdownEmpty" class="text-center text-sm text-slate-400 py-10">
+                    <i class="fa-solid fa-chart-pie text-3xl mb-2 block"></i>
+                    เดือนนี้ยังไม่มีข้อมูลสัดส่วนประเภทลูกค้า (ต้องอัปโหลดไฟล์ B และ C เพิ่มเติมตอนบันทึกข้อมูล)
+                </div>
+                <div id="categoryBreakdownContent" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    <div id="category-donut-chart" class="w-full h-[300px]"></div>
+                    <div id="category-breakdown-list" class="space-y-3"></div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:col-span-2">
                     <div class="mb-4 flex justify-between items-start">
@@ -1597,7 +1699,7 @@
     <script type="module">
         // 1. นำเข้า Firebase และ Firestore จาก CDN ของ Firebase V9 (ปรับใช้เวอร์ชันที่เสถียร)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, onSnapshot, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, onSnapshot, deleteDoc, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // 2. กำหนด Firebase Configuration (ตามที่ผู้ใช้ระบุ)
@@ -1684,6 +1786,18 @@
             btnFetchSampleData: document.getElementById('btnFetchSampleData'),
             btnResetSampleDashboard: document.getElementById('btnResetSampleDashboard'),
             sampleLabFilter: document.getElementById('sampleLabFilter'),
+            // เพิ่ม DOM สำหรับอัปโหลด 3 ไฟล์ (A/B/C) ของแท็บจำนวนตัวอย่าง
+            sampleUploadSection: document.getElementById('sampleUploadSection'),
+            sampleFileInputA: document.getElementById('sampleFileInputA'),
+            sampleFileInputB: document.getElementById('sampleFileInputB'),
+            sampleFileInputC: document.getElementById('sampleFileInputC'),
+            btnSelectSampleFileA: document.getElementById('btnSelectSampleFileA'),
+            btnSelectSampleFileB: document.getElementById('btnSelectSampleFileB'),
+            btnSelectSampleFileC: document.getElementById('btnSelectSampleFileC'),
+            btnProcessSampleFiles: document.getElementById('btnProcessSampleFiles'),
+            sampleDropZoneA: document.getElementById('sampleDropZoneA'),
+            sampleDropZoneB: document.getElementById('sampleDropZoneB'),
+            sampleDropZoneC: document.getElementById('sampleDropZoneC'),
             navBtnHoliday: document.getElementById('navBtnHoliday'),
             holidaySection: document.getElementById('holidaySection'),
             btnFetchHolidayData: document.getElementById('btnFetchHolidayData'),
@@ -1713,6 +1827,19 @@
 
         let currentBSSortDesc = true;
         let sampleExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
+
+        // สถานะอัปโหลด 3 ไฟล์ (A/B/C) และผลลัพธ์การเชื่อมข้อมูลสำหรับแท็บ "จำนวนตัวอย่าง"
+        let sampleFileAReady = false;
+        let sampleFileBReady = false;
+        let sampleFileCReady = false;
+        let sampleFileB_Units = [];        // [{ draw, testName, lab }] หลังตัด Exclude List และ dedupe แล้ว
+        let sampleFileC_Map = {};          // { "Draw#": "Category" }
+        let sampleCategoryBreakdown = [];  // [{ category, unitCount, percent, estimatedSamples }]
+        let sampleCategoryBaseTotal = 0;   // จำนวน unit ที่ลิงก์ B+C ได้ทั้งหมด
+        let sampleCategoryUnmatchedCount = 0;
+        let sampleDetailUnits = [];        // รายละเอียดราย unit สำหรับบันทึกลง Firestore
+        let categoryDonutChartInstance = null;
+
         let currentCompareMode = 'pnl'; // เก็บสถานะว่ากำลังเปรียบเทียบแท็บไหน
         let isKpiMoneyVisible = false; // แยกสถานะซ่อน/โชว์จำนวนเงิน KPI
         let isTop5MoneyVisible = false; // แยกสถานะซ่อน/โชว์จำนวนเงิน Top 5
@@ -1755,6 +1882,7 @@
             if(els.compareSection) els.compareSection.classList.add('hidden');
             if(els.balanceSheetSection) els.balanceSheetSection.classList.add('hidden');
             if(els.sampleSection) els.sampleSection.classList.add('hidden');
+            if(els.sampleUploadSection) els.sampleUploadSection.classList.add('hidden');
             if(els.holidaySection) els.holidaySection.classList.add('hidden');
             if(els.adminSection) els.adminSection.classList.add('hidden');
             
@@ -1948,6 +2076,136 @@
                 }
             }
         });
+
+        // ==========================================
+        // อัปโหลด 3 ไฟล์ (A/B/C) สำหรับแท็บ "จำนวนตัวอย่าง"
+        // ==========================================
+        if (els.btnSelectSampleFileA) els.btnSelectSampleFileA.addEventListener('click', () => els.sampleFileInputA.click());
+        if (els.btnSelectSampleFileB) els.btnSelectSampleFileB.addEventListener('click', () => els.sampleFileInputB.click());
+        if (els.btnSelectSampleFileC) els.btnSelectSampleFileC.addEventListener('click', () => els.sampleFileInputC.click());
+
+        if (els.sampleFileInputA) {
+            els.sampleFileInputA.addEventListener('change', async (e) => {
+                if (!e.target.files.length) return;
+                const file = e.target.files[0];
+                showLoading('กำลังอ่านไฟล์ A (ยอดจำนวนตัวอย่างทางการ)...');
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    activeTab = 'sample';
+                    await extractDataFromExcel(arrayBuffer);
+                    sampleFileAReady = sampleExtractedData.items.length > 0;
+                    updateSampleFileStatus('A', sampleFileAReady ? `${file.name} (รวม ${sampleExtractedData.totalSamples.toLocaleString()} ตัวอย่าง)` : null);
+                    if (!sampleFileAReady) showToast('อ่านไฟล์ A ไม่พบข้อมูล กรุณาตรวจสอบไฟล์', 'error');
+                } catch (err) {
+                    console.error('Sample File A Error:', err);
+                    sampleFileAReady = false;
+                    updateSampleFileStatus('A', null);
+                    showToast('เกิดข้อผิดพลาดในการอ่านไฟล์ A', 'error');
+                }
+                updateSampleProcessButtonState();
+                showSection('sampleUploadSection');
+            });
+        }
+
+        if (els.sampleFileInputB) {
+            els.sampleFileInputB.addEventListener('change', async (e) => {
+                if (!e.target.files.length) return;
+                const file = e.target.files[0];
+                showLoading('กำลังอ่านไฟล์ B (รายการทดสอบ) และตัดห้องแลปที่ไม่นับ...');
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await parseSampleFileB(arrayBuffer);
+                    sampleFileB_Units = result.units;
+                    sampleFileBReady = sampleFileB_Units.length > 0;
+                    const monthCoverage = summarizeSampleFileBMonths(sampleFileB_Units);
+                    updateSampleFileStatus('B', sampleFileBReady ? `${file.name} (${sampleFileB_Units.length.toLocaleString()} unit จาก ${result.rawCount.toLocaleString()} แถว) — ${monthCoverage}` : null);
+                    if (!sampleFileBReady) showToast('อ่านไฟล์ B ไม่พบข้อมูล กรุณาตรวจสอบไฟล์', 'error');
+                } catch (err) {
+                    console.error('Sample File B Error:', err);
+                    sampleFileBReady = false;
+                    sampleFileB_Units = [];
+                    updateSampleFileStatus('B', null);
+                    showToast(err.message || 'เกิดข้อผิดพลาดในการอ่านไฟล์ B', 'error');
+                }
+                updateSampleProcessButtonState();
+                showSection('sampleUploadSection');
+            });
+        }
+
+        if (els.sampleFileInputC) {
+            els.sampleFileInputC.addEventListener('change', async (e) => {
+                if (!e.target.files.length) return;
+                const file = e.target.files[0];
+                showLoading('กำลังอ่านไฟล์ C (ประเภทลูกค้า)...');
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await parseSampleFileC(arrayBuffer);
+                    sampleFileC_Map = result.map;
+                    sampleFileCReady = Object.keys(sampleFileC_Map).length > 0;
+                    updateSampleFileStatus('C', sampleFileCReady ? `${file.name} (${Object.keys(sampleFileC_Map).length.toLocaleString()} Draw# จาก ${result.rawCount.toLocaleString()} แถว)` : null);
+                    if (!sampleFileCReady) showToast('อ่านไฟล์ C ไม่พบข้อมูล กรุณาตรวจสอบไฟล์', 'error');
+                } catch (err) {
+                    console.error('Sample File C Error:', err);
+                    sampleFileCReady = false;
+                    sampleFileC_Map = {};
+                    updateSampleFileStatus('C', null);
+                    showToast(err.message || 'เกิดข้อผิดพลาดในการอ่านไฟล์ C', 'error');
+                }
+                updateSampleProcessButtonState();
+                showSection('sampleUploadSection');
+            });
+        }
+
+        if (els.btnProcessSampleFiles) {
+            els.btnProcessSampleFiles.addEventListener('click', () => {
+                if (!(sampleFileAReady && sampleFileBReady && sampleFileCReady)) return;
+
+                // ไม่คำนวณสัดส่วนทันทีตรงนี้ เพราะไฟล์ B/C อาจมีข้อมูลหลายเดือน/ทั้งปีปนกัน
+                // ต้องรู้เดือน/ปีที่จะบันทึกก่อน ถึงจะกรองข้อมูลไฟล์ B ให้ตรงเดือนแล้วคำนวณได้ถูกต้อง (ไปคำนวณตอนกด "บันทึกข้อมูล")
+                extractedType = 'sample';
+                const coverageMsg = summarizeSampleFileBMonths(sampleFileB_Units);
+                showToast(`โหลดไฟล์ครบทั้ง 3 ไฟล์แล้ว (${coverageMsg}) กรุณาเลือกเดือน/ปีที่จะบันทึก ระบบจะกรองข้อมูลไฟล์ B ให้ตรงกับเดือนที่เลือกอัตโนมัติ`, 'success');
+                showSection('saveFormSection');
+                updateSampleCoverageWarning();
+            });
+        }
+
+        // ผูก Drag & Drop ให้แต่ละกรอบไฟล์ A/B/C ลากวางได้อิสระต่อกัน
+        function setupSampleDropZone(zoneEl, inputEl) {
+            if (!zoneEl || !inputEl) return;
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                zoneEl.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (currentUserRole !== 'admin') return;
+                    zoneEl.classList.add('drag-over');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                zoneEl.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    zoneEl.classList.remove('drag-over');
+                });
+            });
+
+            zoneEl.addEventListener('drop', (e) => {
+                if (currentUserRole !== 'admin') {
+                    showToast('สิทธิ์ของคุณไม่เพียงพอ เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่มีสิทธิ์อัปโหลดไฟล์เข้าระบบครับ', 'error');
+                    return;
+                }
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    inputEl.files = e.dataTransfer.files;
+                    inputEl.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        setupSampleDropZone(els.sampleDropZoneA, els.sampleFileInputA);
+        setupSampleDropZone(els.sampleDropZoneB, els.sampleFileInputB);
+        setupSampleDropZone(els.sampleDropZoneC, els.sampleFileInputC);
 
         // Event Drag & Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -2198,6 +2456,310 @@
 
             sampleExtractedData = { totalSamples: totalSamples, totalAmount: totalAmount, items: itemsList };
         }
+
+        // ==========================================
+        // ฟังก์ชันสำหรับแท็บ "จำนวนตัวอย่าง": อัปโหลดไฟล์ B/C และคำนวณสัดส่วนประเภทลูกค้า
+        // ==========================================
+
+        // อ่านไฟล์ B (รายการทดสอบ) -> สร้างรายการ unique unit (Draw #, Test Name) หลังตัด Exclude List
+        // รองรับไฟล์ที่รวมข้อมูลหลายเดือน/ทั้งปีไว้ในไฟล์เดียว โดยอ่านเดือน/ปีจากคอลัมน์ Sample Date ต่อแถว
+        async function parseSampleFileB(arrayBuffer) {
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames.includes('Query Results') ? 'Query Results' : workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+            if (!rows.length) return { units: [], rawCount: 0 };
+
+            const headerRow = rows[0].map(c => String(c).trim());
+            const drawIdx = headerRow.findIndex(h => h.toLowerCase().replace(/\s+/g, '') === 'draw#');
+            const testNameIdx = headerRow.findIndex(h => h.trim().toLowerCase() === 'test name');
+            const sampleDateIdx = headerRow.findIndex(h => h.trim().toLowerCase() === 'sample date');
+
+            if (drawIdx === -1 || testNameIdx === -1) {
+                throw new Error('ไม่พบคอลัมน์ Draw # หรือ Test Name ในไฟล์ B กรุณาตรวจสอบว่าเป็นไฟล์ที่ถูกต้อง');
+            }
+
+            // รายชื่อ Prefix ห้องแลปที่ต้องตัดออกเสมอ (ตามสเปก: KP, ST, AV, DI, SW, VA, AD)
+            const excludeLabs = new Set(['KP', 'ST', 'AV', 'DI', 'SW', 'VA', 'AD']);
+            const seenUnits = new Set();
+            const units = [];
+            let rawCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length === 0) continue;
+
+                const draw = String(row[drawIdx] || '').trim();
+                const testName = String(row[testNameIdx] || '').trim();
+                if (!draw || !testName) continue;
+                rawCount++;
+
+                const prefixMatch = testName.match(/^([A-Za-z]+)/);
+                const lab = prefixMatch ? prefixMatch[1].toUpperCase() : '';
+                if (excludeLabs.has(lab)) continue;
+
+                // นับหน่วยเป็น unique (Draw #, Test Name)
+                const unitKey = draw + '||' + testName;
+                if (seenUnits.has(unitKey)) continue;
+                seenUnits.add(unitKey);
+
+                // อ่านเดือน/ปีจากคอลัมน์ Sample Date เพื่อให้กรองตามเดือนที่เลือกบันทึกได้ภายหลัง (รองรับไฟล์หลายเดือน/ทั้งปี)
+                let monthYear = sampleDateIdx !== -1 ? parseSampleDateToMonthYear(row[sampleDateIdx]) : null;
+
+                units.push({
+                    draw: draw,
+                    testName: testName,
+                    lab: lab,
+                    month: monthYear ? monthYear.month : null,
+                    year: monthYear ? monthYear.year : null
+                });
+            }
+
+            return { units: units, rawCount: rawCount };
+        }
+
+        // แปลงค่าวันที่ในคอลัมน์ Sample Date ของไฟล์ B (รูปแบบ M/D/YYYY ตามระบบแลป หรือ Date/เลขลำดับวันที่ของ Excel) เป็นเดือนไทย + ปี พ.ศ.
+        function parseSampleDateToMonthYear(dateVal) {
+            if (dateVal === null || dateVal === undefined || dateVal === '') return null;
+
+            let jsDate = null;
+            if (dateVal instanceof Date) {
+                jsDate = dateVal;
+            } else if (typeof dateVal === 'number') {
+                jsDate = new Date(Math.round((dateVal - 25569) * 86400 * 1000)); // เลขลำดับวันที่ Excel -> Date
+            }
+
+            let m, yInt;
+            if (jsDate && !isNaN(jsDate.getTime())) {
+                m = jsDate.getMonth() + 1;
+                yInt = jsDate.getFullYear();
+            } else {
+                const str = String(dateVal).trim();
+                const datePart = str.split(' ')[0]; // ตัดเวลาออก เช่น "7/1/2026 9:14:25 AM" -> "7/1/2026"
+                const parts = datePart.split(/[\/\-]/);
+                if (parts.length < 3) return null;
+                let a = parseInt(parts[0], 10); // ค่าแรก: ปกติคือ "เดือน" (ไฟล์ระบบแลปเป็นรูปแบบ M/D/YYYY)
+                let b = parseInt(parts[1], 10); // ค่าที่สอง: ปกติคือ "วัน"
+                yInt = parseInt(parts[2].trim().substring(0, 4), 10);
+                m = a;
+                if (m > 12 && b <= 12) m = b; // เผื่อบางไฟล์สลับเป็น D/M/Y ให้สลับกลับให้ถูก
+            }
+
+            if (isNaN(m) || m < 1 || m > 12 || isNaN(yInt)) return null;
+
+            let yBE;
+            if (yInt < 100) yBE = 2500 + yInt;
+            else if (yInt >= 2000 && yInt < 2500) yBE = yInt + 543; // ปี ค.ศ. -> พ.ศ.
+            else yBE = yInt; // เป็น พ.ศ. อยู่แล้ว
+
+            const monthsArr = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            return { month: monthsArr[m - 1], year: yBE.toString() };
+        }
+
+        // สรุปช่วงเดือน/ปีที่พบในไฟล์ B ให้ผู้ใช้เห็นก่อนเลือกเดือนบันทึก
+        function summarizeSampleFileBMonths(units) {
+            const monthsOrder = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+            const seen = {};
+            units.forEach(u => {
+                if (u.month && u.year) {
+                    const key = `${u.year}-${monthsOrder.indexOf(u.month)}`;
+                    seen[key] = { month: u.month, year: u.year, sortKey: parseInt(u.year, 10) * 100 + monthsOrder.indexOf(u.month) };
+                }
+            });
+            const list = Object.values(seen).sort((a, b) => a.sortKey - b.sortKey);
+            if (list.length === 0) return 'ไม่พบคอลัมน์/ข้อมูลวันที่ในไฟล์ ระบบจะถือว่าทั้งไฟล์เป็นข้อมูลของเดือนที่เลือกตอนบันทึก';
+            if (list.length === 1) return `พบข้อมูลเดือนเดียว: ${list[0].month} ${list[0].year}`;
+            return `พบข้อมูลครอบคลุม ${list.length} เดือน: ${list[0].month} ${list[0].year} ถึง ${list[list.length - 1].month} ${list[list.length - 1].year}`;
+        }
+
+        // อ่านไฟล์ C (ประเภทลูกค้า) -> สร้าง map Draw # -> Category (dedupe ตาม Draw #)
+        async function parseSampleFileC(arrayBuffer) {
+            const data = new Uint8Array(arrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames.includes('Query Results') ? 'Query Results' : workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+            if (!rows.length) return { map: {}, rawCount: 0 };
+
+            // คอลัมน์ Bill Company ในไฟล์ต้นฉบับมีอักขระ ฺ (U+0E3A) นำหน้าปนมา จึงต้องทำความสะอาดชื่อคอลัมน์ก่อนเทียบ
+            const headerRow = rows[0].map(c => String(c).replace(/[\u0E3A\u25CC]/g, '').trim());
+            const drawIdx = headerRow.findIndex(h => h.toLowerCase().replace(/\s+/g, '') === 'draw#');
+            const categoryIdx = headerRow.findIndex(h => h.trim().toLowerCase() === 'category');
+
+            if (drawIdx === -1 || categoryIdx === -1) {
+                throw new Error('ไม่พบคอลัมน์ Draw # หรือ Category ในไฟล์ C กรุณาตรวจสอบว่าเป็นไฟล์ที่ถูกต้อง');
+            }
+
+            const map = {};
+            let rawCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length === 0) continue;
+
+                const draw = String(row[drawIdx] || '').trim();
+                const category = String(row[categoryIdx] || '').trim();
+                if (!draw || !category) continue;
+                rawCount++;
+
+                // ยึด Category ที่เจอครั้งแรกต่อ Draw # (ตามสเปก)
+                if (!(draw in map)) map[draw] = category;
+            }
+
+            return { map: map, rawCount: rawCount };
+        }
+
+        // เชื่อมไฟล์ B กับไฟล์ C ผ่าน Draw # -> ได้สัดส่วน % ต่อประเภทลูกค้า แล้วคูณกับยอดจริงจากไฟล์ A
+        // targetMonth/targetYear ใช้กรองไฟล์ B เฉพาะแถวของเดือนที่กำลังจะบันทึก (รองรับไฟล์ B ที่รวมหลายเดือน/ทั้งปี)
+        function computeSampleCategoryBreakdown(targetMonth, targetYear) {
+            // ถ้าทุก unit ไม่มีเดือน/ปีที่แยกได้เลย (เช่น ไม่มีคอลัมน์ Sample Date) ให้ถือว่าทั้งไฟล์เป็นของเดือนที่เลือกเดือนเดียว (พฤติกรรมเดิมตอนอัปทีละเดือน)
+            const hasAnyDate = sampleFileB_Units.some(u => u.month && u.year);
+            const scopedUnits = hasAnyDate
+                ? sampleFileB_Units.filter(u => u.month === targetMonth && u.year === targetYear)
+                : sampleFileB_Units;
+
+            const categoryCounts = {};
+            const detailUnits = [];
+            let matchedCount = 0;
+            let unmatchedCount = 0;
+
+            scopedUnits.forEach(u => {
+                const category = sampleFileC_Map[u.draw];
+                if (category) {
+                    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+                    matchedCount++;
+                    detailUnits.push({ draw: u.draw, testName: u.testName, lab: u.lab, category: category });
+                } else {
+                    unmatchedCount++;
+                    detailUnits.push({ draw: u.draw, testName: u.testName, lab: u.lab, category: 'ไม่พบข้อมูลประเภทลูกค้า' });
+                }
+            });
+
+            const officialTotal = sampleExtractedData.totalSamples || 0;
+            let breakdown = Object.keys(categoryCounts).map(cat => {
+                const percentExact = matchedCount > 0 ? (categoryCounts[cat] / matchedCount) * 100 : 0;
+                const estimatedExact = (percentExact / 100) * officialTotal;
+                return {
+                    category: cat,
+                    unitCount: categoryCounts[cat],
+                    percentExact: percentExact,
+                    estimatedExact: estimatedExact,
+                    estimatedSamples: Math.floor(estimatedExact)
+                };
+            });
+
+            // ปรับเศษทศนิยมด้วยวิธี Largest Remainder ให้ผลรวม estimatedSamples เท่ากับยอดจริงในไฟล์ A พอดี
+            let allocated = breakdown.reduce((s, b) => s + b.estimatedSamples, 0);
+            let remainder = Math.round(officialTotal - allocated);
+            breakdown.sort((a, b) => (b.estimatedExact - b.estimatedSamples) - (a.estimatedExact - a.estimatedSamples));
+            for (let i = 0; i < remainder && i < breakdown.length; i++) {
+                breakdown[i].estimatedSamples += 1;
+            }
+
+            breakdown.forEach(b => {
+                b.percent = Math.round(b.percentExact * 10) / 10;
+                delete b.percentExact;
+                delete b.estimatedExact;
+            });
+            breakdown.sort((a, b) => b.unitCount - a.unitCount);
+
+            return { breakdown: breakdown, matchedCount: matchedCount, unmatchedCount: unmatchedCount, detailUnits: detailUnits, scopedCount: scopedUnits.length };
+        }
+
+        // อัปเดตข้อความสถานะไฟล์ A/B/C บนหน้าอัปโหลด
+        function updateSampleFileStatus(letter, message) {
+            const el = document.getElementById(`sampleFile${letter}Status`);
+            if (!el) return;
+            if (!message) {
+                el.className = 'text-xs text-gray-400 flex items-center gap-1';
+                el.innerHTML = '<i class="fa-regular fa-circle"></i> ยังไม่ได้เลือกไฟล์';
+            } else {
+                el.className = 'text-xs text-emerald-600 font-medium flex items-center gap-1';
+                el.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+            }
+        }
+
+        // เปิด/ปิดปุ่ม "ประมวลผลข้อมูลทั้ง 3 ไฟล์" ตามความพร้อมของไฟล์ A/B/C
+        function updateSampleProcessButtonState() {
+            const btn = els.btnProcessSampleFiles;
+            if (!btn) return;
+            const allReady = sampleFileAReady && sampleFileBReady && sampleFileCReady;
+            btn.disabled = !allReady;
+            btn.className = allReady
+                ? 'px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium shadow-sm text-sm hover:bg-indigo-700 transition-colors'
+                : 'px-6 py-2.5 bg-gray-300 text-gray-500 rounded-lg font-medium shadow-sm text-sm cursor-not-allowed transition-colors';
+        }
+
+        // ล้างสถานะการอัปโหลด 3 ไฟล์ทั้งหมด (เรียกตอนกดยกเลิก หรือหลังบันทึกสำเร็จ)
+        function resetSampleUploadState() {
+            sampleFileAReady = false;
+            sampleFileBReady = false;
+            sampleFileCReady = false;
+            sampleFileB_Units = [];
+            sampleFileC_Map = {};
+            sampleCategoryBreakdown = [];
+            sampleCategoryBaseTotal = 0;
+            sampleCategoryUnmatchedCount = 0;
+            sampleDetailUnits = [];
+            sampleExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
+
+            if (els.sampleFileInputA) els.sampleFileInputA.value = '';
+            if (els.sampleFileInputB) els.sampleFileInputB.value = '';
+            if (els.sampleFileInputC) els.sampleFileInputC.value = '';
+
+            updateSampleFileStatus('A', null);
+            updateSampleFileStatus('B', null);
+            updateSampleFileStatus('C', null);
+            updateSampleProcessButtonState();
+        }
+
+        // ล้างเฉพาะสถานะไฟล์ A (ยอดจำนวนตัวอย่างทางการ) โดยไม่แตะไฟล์ B/C ที่โหลดไว้แล้ว
+        // ใช้ตอนจะอัปโหลดเดือนถัดไป กรณีไฟล์ B/C เป็นไฟล์รวมหลายเดือน/ทั้งปีที่ยังใช้ต่อได้อยู่
+        function resetSampleFileAOnly() {
+            sampleFileAReady = false;
+            sampleExtractedData = { totalSamples: 0, totalAmount: 0, items: [] };
+
+            if (els.sampleFileInputA) els.sampleFileInputA.value = '';
+            updateSampleFileStatus('A', null);
+            updateSampleProcessButtonState();
+        }
+
+        // ตรวจสอบว่าไฟล์ B ที่โหลดไว้ (อาจเป็นไฟล์เก่าจากหลายเดือนก่อน) มีข้อมูลของเดือน/ปีที่เลือกอยู่หรือไม่
+        function checkSampleFileBCoverage(month, year) {
+            const hasAnyDate = sampleFileB_Units.some(u => u.month && u.year);
+            if (!hasAnyDate) return { covered: true, hasDateInfo: false }; // ไฟล์เก่าไม่มีคอลัมน์วันที่ ถือว่าใช้ได้ตามพฤติกรรมเดิม (1 ไฟล์ = 1 เดือน)
+            const covered = sampleFileB_Units.some(u => u.month === month && u.year === year);
+            return { covered: covered, hasDateInfo: true };
+        }
+
+        // อัปเดตกล่องเตือนในหน้าเลือกเดือน/ปี หากไฟล์ B/C ที่โหลดไว้ไม่ครอบคลุมเดือนที่กำลังจะบันทึก
+        function updateSampleCoverageWarning() {
+            const warnEl = document.getElementById('sampleCoverageWarning');
+            if (!warnEl) return;
+            if (extractedType !== 'sample') { warnEl.classList.add('hidden'); return; }
+
+            const monthEl = document.getElementById('monthSelect');
+            const yearEl = document.getElementById('yearInput');
+            if (!monthEl || !yearEl) return;
+
+            const result = checkSampleFileBCoverage(monthEl.value, yearEl.value);
+            const textEl = warnEl.querySelector('span');
+
+            if (result.hasDateInfo && !result.covered) {
+                warnEl.classList.remove('hidden');
+                if (textEl) textEl.innerText = `ไฟล์ B/C ที่โหลดไว้ไม่มีข้อมูลของเดือน ${monthEl.value} ${yearEl.value} ถ้าบันทึกตอนนี้จะได้เฉพาะยอดจากไฟล์ A โดยไม่มีสัดส่วนประเภทลูกค้าของเดือนนี้ กรุณากดเลือกไฟล์ B/C ใหม่ที่ครอบคลุมเดือนนี้ก่อนบันทึก`;
+            } else {
+                warnEl.classList.add('hidden');
+            }
+        }
+
+        const sampleMonthSelectEl = document.getElementById('monthSelect');
+        const sampleYearInputEl = document.getElementById('yearInput');
+        if (sampleMonthSelectEl) sampleMonthSelectEl.addEventListener('change', updateSampleCoverageWarning);
+        if (sampleYearInputEl) sampleYearInputEl.addEventListener('input', updateSampleCoverageWarning);
 
         // ฟังก์ชันสกัดข้อมูลจากไฟล์ CSV (อัปเกรดการสแกนหาหัวตารางอัตโนมัติ)
         async function extractDataFromCSV(csvText) {
@@ -2516,7 +3078,12 @@
         els.btnCancelSave.addEventListener('click', () => {
             extractedData = [];
             els.fileInput.value = '';
-            showSection('uploadSection');
+            if (activeTab === 'sample') {
+                resetSampleFileAOnly();
+                showSection('sampleUploadSection');
+            } else {
+                showSection('uploadSection');
+            }
         });
 
         function parseThaiMonthYearFromStr(dateStr) {
@@ -2568,6 +3135,41 @@
                 if (m >= 1 && m <= 12) return { month: monthsArr[m - 1], year: yStr };
             }
             return null;
+        }
+
+        // บันทึกรายละเอียดระดับ unit (Draw #) ของแท็บ "จำนวนตัวอย่าง" ลง subcollection แบบแบ่งชิ้น (chunk)
+        // เพื่อให้ย้อนวิเคราะห์รายละเอียดได้ในอนาคต โดยไม่ชนขีดจำกัดขนาดเอกสาร 1MB ของ Firestore
+        async function saveSampleDetailUnits(collectionName, docId, month, yearStr, fiscalYearStr, detailUnits) {
+            const subColRef = collection(db, collectionName, docId, 'detail_units');
+
+            // ลบ chunk เก่าก่อน เผื่อมีการอัปโหลดไฟล์ทับเดือนเดิมซ้ำ
+            const oldSnap = await getDocs(subColRef);
+            if (!oldSnap.empty) {
+                const delBatch = writeBatch(db);
+                oldSnap.forEach(d => delBatch.delete(d.ref));
+                await delBatch.commit();
+            }
+
+            const CHUNK_SIZE = 300;
+            const chunks = [];
+            for (let i = 0; i < detailUnits.length; i += CHUNK_SIZE) {
+                chunks.push(detailUnits.slice(i, i + CHUNK_SIZE));
+            }
+            if (chunks.length === 0) return;
+
+            const saveBatch = writeBatch(db);
+            chunks.forEach((chunk, idx) => {
+                const chunkRef = doc(subColRef, `chunk_${idx}`);
+                saveBatch.set(chunkRef, {
+                    chunkIndex: idx,
+                    month: month,
+                    year: yearStr,
+                    fiscalYear: fiscalYearStr,
+                    count: chunk.length,
+                    records: chunk
+                });
+            });
+            await saveBatch.commit();
         }
 
         els.btnSaveToFirebase.addEventListener('click', async () => {
@@ -2645,6 +3247,18 @@
 
             let documentData = {};
             if (extractedType === 'sample') {
+                // กรองข้อมูลไฟล์ B เฉพาะเดือน/ปีที่เลือกบันทึก แล้วค่อยเชื่อมกับไฟล์ C คำนวณสัดส่วนประเภทลูกค้า
+                // (รองรับกรณีไฟล์ B/C มีข้อมูลหลายเดือน/ทั้งปีรวมอยู่ในไฟล์เดียว)
+                const breakdownResult = computeSampleCategoryBreakdown(month, yearStr);
+                sampleCategoryBreakdown = breakdownResult.breakdown;
+                sampleCategoryBaseTotal = breakdownResult.matchedCount;
+                sampleCategoryUnmatchedCount = breakdownResult.unmatchedCount;
+                sampleDetailUnits = breakdownResult.detailUnits;
+
+                if (breakdownResult.scopedCount === 0 && sampleFileB_Units.length > 0) {
+                    showToast(`ไม่พบข้อมูลไฟล์ B ของเดือน ${month} ${yearStr} จะบันทึกเฉพาะยอดจากไฟล์ A โดยไม่มีสัดส่วนประเภทลูกค้าของเดือนนี้`, 'error');
+                }
+
                 documentData = {
                     fileId: fileId,
                     month: month,
@@ -2654,6 +3268,9 @@
                     totalSamples: sampleExtractedData.totalSamples,
                     totalAmount: sampleExtractedData.totalAmount,
                     items: sampleExtractedData.items,
+                    categoryBreakdown: sampleCategoryBreakdown,
+                    categoryBaseTotal: sampleCategoryBaseTotal,
+                    categoryUnmatchedCount: sampleCategoryUnmatchedCount,
                     timestamp: new Date().toISOString()
                 };
             } else if (extractedType === 'balance_sheet') {
@@ -2692,10 +3309,16 @@
 
             try {
                 await setDoc(docRef, documentData);
+
+                if (extractedType === 'sample' && sampleDetailUnits.length > 0) {
+                    await saveSampleDetailUnits(collectionName, docId, month, yearStr, fiscalYear.toString(), sampleDetailUnits);
+                }
+
                 showToast('บันทึกข้อมูลลงระบบเรียบร้อยแล้ว', 'success');
                 
                 if (extractedType === 'sample') {
                     renderSampleDashboard(documentData);
+                    resetSampleFileAOnly();
                     showSection('sampleSection');
                     if(els.navBtnSample) els.navBtnSample.click();
                 } else if (extractedType === 'balance_sheet') {
@@ -3368,6 +3991,8 @@
 
                 let lab = row.Lab || row.lab || row.name || row['ห้องปฏิบัติการ'] || 'ไม่ระบุ';
                 if (!lab || lab.trim() === '') lab = 'ไม่ระบุ';
+                // รวมห้องแลปย่อย (เช่น BI-AQUATIC, BI-AVIAN, BI-SWINE, WQ-Chem, WQ-Mic, AI-SERVICE) ให้เป็นห้องแลปหลักเดียวกัน (BI, WQ, AI)
+                if (lab.includes('-')) lab = lab.split('-')[0].trim();
                 
                 // สกัดชื่อเทสเพิ่มเติม
                 let testName = row.testName || row.TestName || row.test || row['รายการ'] || '-';
@@ -3821,6 +4446,103 @@
                     window.drawSampleBarChart();
                 });
             }
+
+            // --- สัดส่วนประเภทลูกค้า (จากการเชื่อมไฟล์ B + C) ---
+            renderCategoryBreakdownChart(data);
+        }
+
+        // แปลง % เปลี่ยนแปลงเทียบช่วงก่อนหน้า เป็น badge (รูปแบบเดียวกับ updateSampleBadge)
+        function categoryChangeBadgeHtml(oldVal, newVal) {
+            if (!oldVal || oldVal === 0) {
+                return `<span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold" title="ไม่มีข้อมูลช่วงก่อนหน้าเพื่อเทียบ">ใหม่</span>`;
+            }
+            const diff = ((newVal - oldVal) / Math.abs(oldVal)) * 100;
+            const isGood = diff >= 0;
+            const colorClass = isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+            const iconClass = isGood ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            return `<span class="text-[10px] ${colorClass} px-1.5 py-0.5 rounded font-bold"><i class="fa-solid ${iconClass}"></i> ${Math.abs(diff).toFixed(1)}%</span>`;
+        }
+
+        // วาดกราฟโดนัท + รายการสัดส่วนประเภทลูกค้า พร้อม % เปลี่ยนแปลงเทียบเดือน/ปีก่อนหน้า ในการ์ด "สัดส่วนประเภทลูกค้า"
+        function renderCategoryBreakdownChart(data) {
+            const emptyEl = document.getElementById('categoryBreakdownEmpty');
+            const contentEl = document.getElementById('categoryBreakdownContent');
+            const baseTotalEl = document.getElementById('categoryBaseTotalText');
+            const compareLabelEl = document.getElementById('categoryCompareLabelText');
+            const breakdown = data.categoryBreakdown || [];
+
+            if (!emptyEl || !contentEl) return;
+
+            if (!breakdown.length) {
+                emptyEl.classList.remove('hidden');
+                contentEl.classList.add('hidden');
+                if (baseTotalEl) baseTotalEl.innerText = 'ฐานข้อมูลที่ลิงก์ได้: -';
+                if (compareLabelEl) compareLabelEl.classList.add('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+
+            const CATEGORY_COLORS = ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#6366F1'];
+            const sorted = [...breakdown].sort((a, b) => b.unitCount - a.unitCount);
+
+            if (baseTotalEl) {
+                const base = data.categoryBaseTotal || sorted.reduce((s, b) => s + b.unitCount, 0);
+                baseTotalEl.innerText = `ฐานข้อมูลที่ลิงก์ได้: ${base.toLocaleString()} รายการ`;
+            }
+
+            // เตรียมข้อมูลเปรียบเทียบกับช่วงก่อนหน้า (เดือนก่อนหน้า หรือปีก่อนหน้าถ้าเลือก "รวมทั้งปี")
+            const hasCompareData = Array.isArray(data.categoryBreakdownPrev) && data.categoryBreakdownPrev.length > 0;
+            const prevMap = {};
+            (data.categoryBreakdownPrev || []).forEach(b => { prevMap[b.category] = b.estimatedSamples || 0; });
+
+            if (compareLabelEl) {
+                if (hasCompareData) {
+                    compareLabelEl.classList.remove('hidden');
+                    compareLabelEl.innerText = `เทียบกับ: ${data.compareLabel || 'ช่วงก่อนหน้า'}`;
+                } else {
+                    compareLabelEl.classList.add('hidden');
+                }
+            }
+
+            const donutOptions = {
+                series: sorted.map(b => b.estimatedSamples),
+                chart: { type: 'donut', height: 300, fontFamily: 'Prompt, sans-serif' },
+                labels: sorted.map(b => b.category),
+                colors: CATEGORY_COLORS,
+                plotOptions: { pie: { donut: { size: '65%' } } },
+                dataLabels: { enabled: false },
+                stroke: { show: false },
+                legend: { show: false },
+                tooltip: { y: { formatter: (val) => Number(val).toLocaleString() + ' ตัวอย่าง (ประมาณการ)' } }
+            };
+
+            if (categoryDonutChartInstance) { categoryDonutChartInstance.destroy(); }
+            categoryDonutChartInstance = new ApexCharts(document.querySelector("#category-donut-chart"), donutOptions);
+            categoryDonutChartInstance.render();
+
+            const listEl = document.getElementById('category-breakdown-list');
+            if (listEl) {
+                listEl.innerHTML = sorted.map((b, idx) => {
+                    const changeBadge = hasCompareData
+                        ? categoryChangeBadgeHtml(prevMap.hasOwnProperty(b.category) ? prevMap[b.category] : 0, b.estimatedSamples)
+                        : '';
+                    return `
+                    <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-2 last:border-0">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}"></span>
+                            <span class="text-sm font-medium text-slate-700 truncate">${b.category}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-sm font-bold text-slate-800">${Number(b.estimatedSamples).toLocaleString()}</span>
+                            <span class="text-xs text-slate-400">(${b.percent}%)</span>
+                            ${changeBadge}
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
         }
 
         function reRenderSampleTable() {
@@ -3924,7 +4646,7 @@
 
         // ผูกปุ่มการทำงาน
         async function fetchSampleDataAgg(year, month) {
-            let data = { totalSamples: 0, totalAmount: 0, items: [], totalISO: 0, totalNonISO: 0 };
+            let data = { totalSamples: 0, totalAmount: 0, items: [], totalISO: 0, totalNonISO: 0, categoryBreakdown: [], categoryBaseTotal: 0 };
             try {
                 const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(month);
                 const fiscalYear = (isLateYear && month !== 'all') ? parseInt(year) + 1 : parseInt(year);
@@ -3932,12 +4654,23 @@
                 if (month === 'all') {
                     const snap = await getDocs(collection(db, `sample_reports_${year}`));
                     if (snap.empty) return null;
+                    const categoryAgg = {}; // รวมสัดส่วนประเภทลูกค้าจากทุกเดือนในปี
                     snap.forEach(doc => {
                         let d = doc.data();
                         data.totalSamples += d.totalSamples || 0;
                         data.totalAmount += d.totalAmount || 0;
                         data.items = data.items.concat(d.items || []);
+                        (d.categoryBreakdown || []).forEach(b => {
+                            if (!categoryAgg[b.category]) categoryAgg[b.category] = { category: b.category, unitCount: 0, estimatedSamples: 0 };
+                            categoryAgg[b.category].unitCount += b.unitCount || 0;
+                            categoryAgg[b.category].estimatedSamples += b.estimatedSamples || 0;
+                        });
+                        data.categoryBaseTotal += d.categoryBaseTotal || 0;
                     });
+                    const aggList = Object.values(categoryAgg);
+                    const unitSum = aggList.reduce((s, b) => s + b.unitCount, 0);
+                    aggList.forEach(b => { b.percent = unitSum > 0 ? Math.round((b.unitCount / unitSum) * 1000) / 10 : 0; });
+                    data.categoryBreakdown = aggList;
                 } else {
                     const docId = `${month} ${year}`;
                     const snap = await getDoc(doc(db, `sample_reports_${fiscalYear}`, docId));
@@ -3946,6 +4679,8 @@
                         data.totalSamples = d.totalSamples || 0;
                         data.totalAmount = d.totalAmount || 0;
                         data.items = d.items || [];
+                        data.categoryBreakdown = d.categoryBreakdown || [];
+                        data.categoryBaseTotal = d.categoryBaseTotal || 0;
                     } else return null;
                 }
                 
@@ -3998,8 +4733,8 @@
                         currData.fileId = fetchMonth === 'all' ? 'AGGREGATED' : 'FETCHED';
                         
                         sampleExtractedData = { totalSamples: currData.totalSamples, totalAmount: currData.totalAmount, items: currData.items };
-                        renderSampleDashboard(currData);
-                        
+
+                        // หาช่วงก่อนหน้าเพื่อเทียบ: เลือก "รวมทั้งปี" -> เทียบกับปีก่อนหน้า (รวมทุกเดือน) / เลือกเดือนเดียว -> เทียบกับเดือนก่อนหน้า
                         let prevYear = fetchYear;
                         let prevMonth = fetchMonth;
                         if (fetchMonth === 'all') {
@@ -4012,6 +4747,11 @@
                         }
                         
                         const prevData = await fetchSampleDataAgg(prevYear, prevMonth);
+
+                        currData.categoryBreakdownPrev = prevData ? (prevData.categoryBreakdown || []) : [];
+                        currData.compareLabel = fetchMonth === 'all' ? `ปีก่อนหน้า (${prevYear})` : `เดือนก่อนหน้า (${prevMonth} ${prevYear})`;
+
+                        renderSampleDashboard(currData);
                         
                         updateSampleBadge('badge-total', prevData ? prevData.totalSamples : 0, currData.totalSamples);
                         updateSampleBadge('badge-amount', prevData ? prevData.totalAmount : 0, currData.totalAmount);
@@ -4030,7 +4770,10 @@
                 }
             });
         }
-        if(els.btnResetSampleDashboard) els.btnResetSampleDashboard.addEventListener('click', () => showSection('uploadSection'));
+        if(els.btnResetSampleDashboard) els.btnResetSampleDashboard.addEventListener('click', () => {
+            resetSampleFileAOnly();
+            showSection('sampleUploadSection');
+        });
 
         // ระบบสรุปและวาดแดชบอร์ดวันหยุด
         function renderHolidayDashboard(data) {

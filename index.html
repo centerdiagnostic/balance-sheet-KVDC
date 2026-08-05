@@ -504,6 +504,9 @@
                         </p>
                     </div>
                 </div>
+                <button id="btnManualPnl" type="button" class="shrink-0 px-3 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5" title="เปิดคู่มือการใช้งาน">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">คู่มือการใช้งาน</span>
+                </button>
             </div>
 
             <div id="export-pnl-filter" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
@@ -804,6 +807,9 @@
                         </p>
                     </div>
                 </div>
+                <button id="btnManualBs" type="button" class="shrink-0 px-3 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5" title="เปิดคู่มือการใช้งาน">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">คู่มือการใช้งาน</span>
+                </button>
             </div>
 
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
@@ -946,6 +952,9 @@
                         </p>
                     </div>
                 </div>
+                <button id="btnManualSample" type="button" class="shrink-0 px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5" title="เปิดคู่มือการใช้งาน">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">คู่มือการใช้งาน</span>
+                </button>
             </div>
 
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
@@ -1231,6 +1240,9 @@
                         </p>
                     </div>
                 </div>
+                <button id="btnManualHoliday" type="button" class="shrink-0 px-3 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5" title="เปิดคู่มือการใช้งาน">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">คู่มือการใช้งาน</span>
+                </button>
             </div>
 
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 relative z-20">
@@ -1395,6 +1407,38 @@
                         <p class="text-sm text-slate-500 mt-1">จัดการรายชื่อ กำหนดสิทธิ์การเข้าถึงข้อมูล และตรวจสอบสถานะบัญชี</p>
                     </div>
                 </div>
+            </div>
+
+            <div id="adminManualLinksCard" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book text-indigo-500"></i> จัดการลิงก์คู่มือการใช้งาน</h3>
+                    <p class="text-sm text-slate-500 mt-1">แนบลิงก์ Google Drive คู่มือแยกตามแท็บ ผู้ใช้แต่ละคนจะเห็นปุ่มคู่มือเฉพาะแท็บที่ตัวเองมีสิทธิ์เข้าถึง เปลี่ยนลิงก์ตรงนี้แล้วมีผลทันทีโดยไม่ต้องแก้โค้ด</p>
+                </div>
+
+                <form id="manualLinksForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่มือแท็บ งบกำไรขาดทุน (PnL)</label>
+                        <input type="url" id="manualLinkPnl" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่มือแท็บ งบดุล (Balance Sheet)</label>
+                        <input type="url" id="manualLinkBs" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่มือแท็บ จำนวนตัวอย่าง</label>
+                        <input type="url" id="manualLinkSample" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่มือแท็บ ตัวอย่างวันหยุด</label>
+                        <input type="url" id="manualLinkHoliday" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400" placeholder="https://drive.google.com/...">
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end">
+                        <button type="submit" id="btnSaveManualLinks" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> บันทึกลิงก์คู่มือ
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <div id="adminUserListView" class="bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
@@ -6334,6 +6378,7 @@
         // 5. การตั้งค่าเริ่มต้นเมื่อเปิดโปรแกรม (Init Flow) คำนวณย้อนหลังกลับไป 1 เดือนอัตโนมัติ
         // ==========================================
         async function initApp() {
+            loadManualLinks(); // โหลดลิงก์คู่มือแบบไม่บล็อกการโหลดข้อมูลส่วนอื่น
             showLoading('กำลังโหลดข้อมูลล่าสุด...');
             
             const dateObj = new Date();
@@ -6510,6 +6555,85 @@
                     // คืนค่าสถานะปุ่มกลับมาเหมือนเดิม
                     btnContent.innerHTML = originalContent;
                     btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        // ==========================================
+        // ระบบลิงก์คู่มือการใช้งานแยกตามแท็บ (ตั้งค่าได้จากหน้า Admin โดยไม่ต้องแก้โค้ด)
+        // เก็บไว้ที่ Firestore document: settings/manualLinks
+        // ==========================================
+        let manualLinks = { pnl: '', bs: '', sample: '', holiday: '' };
+
+        async function loadManualLinks() {
+            try {
+                const snap = await getDoc(doc(db, 'settings', 'manualLinks'));
+                if (snap.exists()) {
+                    const d = snap.data();
+                    manualLinks = { pnl: d.pnl || '', bs: d.bs || '', sample: d.sample || '', holiday: d.holiday || '' };
+                }
+            } catch (err) {
+                console.error('Load Manual Links Error:', err);
+            }
+
+            // เติมค่าปัจจุบันลงฟอร์มในหน้า Admin (ถ้าอยู่ในหน้า DOM แล้ว)
+            const fieldMap = { pnl: 'manualLinkPnl', bs: 'manualLinkBs', sample: 'manualLinkSample', holiday: 'manualLinkHoliday' };
+            Object.keys(fieldMap).forEach(key => {
+                const input = document.getElementById(fieldMap[key]);
+                if (input) input.value = manualLinks[key] || '';
+            });
+        }
+
+        // เปิดลิงก์คู่มือของแท็บที่ระบุ ถ้ายังไม่ได้ตั้งค่าไว้จะแจ้งเตือนแทน
+        function openManualLink(tabKey) {
+            const url = manualLinks[tabKey];
+            if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                showToast('ยังไม่ได้ตั้งค่าลิงก์คู่มือสำหรับแท็บนี้ กรุณาติดต่อผู้ดูแลระบบ', 'error');
+            }
+        }
+
+        const btnManualPnl = document.getElementById('btnManualPnl');
+        const btnManualBs = document.getElementById('btnManualBs');
+        const btnManualSample = document.getElementById('btnManualSample');
+        const btnManualHoliday = document.getElementById('btnManualHoliday');
+        if (btnManualPnl) btnManualPnl.addEventListener('click', () => openManualLink('pnl'));
+        if (btnManualBs) btnManualBs.addEventListener('click', () => openManualLink('bs'));
+        if (btnManualSample) btnManualSample.addEventListener('click', () => openManualLink('sample'));
+        if (btnManualHoliday) btnManualHoliday.addEventListener('click', () => openManualLink('holiday'));
+
+        // ฟอร์มบันทึกลิงก์คู่มือในหน้า Admin
+        const manualLinksForm = document.getElementById('manualLinksForm');
+        if (manualLinksForm) {
+            manualLinksForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btnSubmit = document.getElementById('btnSaveManualLinks');
+                const originalText = btnSubmit ? btnSubmit.innerHTML : '';
+                if (btnSubmit) {
+                    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+                    btnSubmit.disabled = true;
+                }
+
+                const updates = {
+                    pnl: (document.getElementById('manualLinkPnl').value || '').trim(),
+                    bs: (document.getElementById('manualLinkBs').value || '').trim(),
+                    sample: (document.getElementById('manualLinkSample').value || '').trim(),
+                    holiday: (document.getElementById('manualLinkHoliday').value || '').trim()
+                };
+
+                try {
+                    await setDoc(doc(db, 'settings', 'manualLinks'), updates, { merge: true });
+                    manualLinks = updates;
+                    showToast('บันทึกลิงก์คู่มือเรียบร้อยแล้ว', 'success');
+                } catch (err) {
+                    console.error('Save Manual Links Error:', err);
+                    showToast('บันทึกลิงก์คู่มือไม่สำเร็จ', 'error');
+                } finally {
+                    if (btnSubmit) {
+                        btnSubmit.innerHTML = originalText;
+                        btnSubmit.disabled = false;
+                    }
                 }
             });
         }

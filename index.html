@@ -985,6 +985,15 @@
                     <button id="btnFetchSampleData" class="px-3 sm:px-4 py-1.5 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 transition shadow-sm shrink-0">
                         <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">ดึงข้อมูล</span>
                     </button>
+
+                    <div id="sampleYearModeGroup" class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner shrink-0" title="เลือกรูปแบบการนับปี (มีผลเมื่อเลือก 'รวมทั้งปี')">
+                        <button type="button" id="btnSampleModeFiscal" data-mode="fiscal" class="sample-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-white dark:bg-slate-700 text-blue-600 shadow-sm">
+                            <i class="fa-solid fa-building-columns mr-1"></i> ปีงบประมาณ
+                        </button>
+                        <button type="button" id="btnSampleModeCalendar" data-mode="calendar" class="sample-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-500 hover:text-blue-600">
+                            <i class="fa-regular fa-calendar mr-1"></i> ปีปฏิทิน
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
@@ -4689,18 +4698,23 @@
         }
 
         // ผูกปุ่มการทำงาน
-        async function fetchSampleDataAgg(year, month) {
+        // โหมดการนับปีของแท็บจำนวนตัวอย่าง: 'fiscal' = ปีงบประมาณ (ต.ค. ปีก่อน - ก.ย. ปีนั้น) / 'calendar' = ปีปฏิทิน (ม.ค. - ธ.ค.)
+        window.sampleYearMode = window.sampleYearMode || 'fiscal';
+
+        async function fetchSampleDataAgg(year, month, yearMode) {
+            const modeYear = yearMode || window.sampleYearMode || 'fiscal';
             let data = { totalSamples: 0, totalAmount: 0, items: [], totalISO: 0, totalNonISO: 0, categoryBreakdown: [], categoryBaseTotal: 0 };
             try {
                 const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(month);
                 const fiscalYear = (isLateYear && month !== 'all') ? parseInt(year) + 1 : parseInt(year);
 
                 if (month === 'all') {
-                    const snap = await getDocs(collection(db, `sample_reports_${year}`));
-                    if (snap.empty) return null;
                     const categoryAgg = {}; // รวมสัดส่วนประเภทลูกค้าจากทุกเดือนในปี
-                    snap.forEach(doc => {
-                        let d = doc.data();
+                    let foundAny = false;
+
+                    // ฟังก์ชันย่อยสำหรับสะสมยอดจากเอกสารแต่ละเดือน
+                    const accumulateDoc = (d) => {
+                        foundAny = true;
                         data.totalSamples += d.totalSamples || 0;
                         data.totalAmount += d.totalAmount || 0;
                         data.items = data.items.concat(d.items || []);
@@ -4710,7 +4724,32 @@
                             categoryAgg[b.category].estimatedSamples += b.estimatedSamples || 0;
                         });
                         data.categoryBaseTotal += d.categoryBaseTotal || 0;
-                    });
+                    };
+
+                    if (modeYear === 'calendar') {
+                        // ปีปฏิทิน: ม.ค.-ก.ย. อยู่ในคอลเลกชันปีเดียวกัน ส่วน ต.ค.-ธ.ค. ถูกเก็บไว้ในคอลเลกชันปีงบประมาณถัดไป
+                        const targetYear = parseInt(year);
+                        for (const colYear of [targetYear, targetYear + 1]) {
+                            try {
+                                const snapCal = await getDocs(collection(db, `sample_reports_${colYear}`));
+                                snapCal.forEach(docSnap => {
+                                    const parts = String(docSnap.id).trim().split(/\s+/);
+                                    const docYear = parseInt(parts[parts.length - 1]);
+                                    if (docYear !== targetYear) return; // ข้ามเดือนที่ไม่ได้อยู่ในปีปฏิทินที่เลือก
+                                    accumulateDoc(docSnap.data());
+                                });
+                            } catch (errCol) {
+                                console.warn('ไม่พบคอลเลกชัน sample_reports_' + colYear, errCol);
+                            }
+                        }
+                    } else {
+                        // ปีงบประมาณ: ทั้งคอลเลกชันคือ ต.ค. ปีก่อน ถึง ก.ย. ปีนั้น
+                        const snapFy = await getDocs(collection(db, `sample_reports_${year}`));
+                        snapFy.forEach(docSnap => accumulateDoc(docSnap.data()));
+                    }
+
+                    if (!foundAny) return null;
+
                     const aggList = Object.values(categoryAgg);
                     const unitSum = aggList.reduce((s, b) => s + b.unitCount, 0);
                     aggList.forEach(b => { b.percent = unitSum > 0 ? Math.round((b.unitCount / unitSum) * 1000) / 10 : 0; });
@@ -4766,13 +4805,14 @@
                 const fetchYear = document.getElementById('fetchSampleYear').value;
                 if(!fetchYear) return showToast('กรุณาระบุปีที่ต้องการดึงข้อมูล', 'error');
 
-                showLoading(`กำลังดึงข้อมูลจำนวนตัวอย่าง${fetchMonth === 'all' ? 'รวมทั้งปี' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
+                const yearModeLabel = (window.sampleYearMode === 'calendar') ? 'ปีปฏิทิน ม.ค.-ธ.ค.' : 'ปีงบประมาณ ต.ค.-ก.ย.';
+                showLoading(`กำลังดึงข้อมูลจำนวนตัวอย่าง${fetchMonth === 'all' ? 'รวมทั้งปี (' + yearModeLabel + ')' : 'เดือน ' + fetchMonth} ปี ${fetchYear}...`);
 
                 try {
                     const currData = await fetchSampleDataAgg(fetchYear, fetchMonth);
                     
                     if (currData && currData.items.length > 0) {
-                        currData.month = fetchMonth === 'all' ? 'รวมทั้งปี' : fetchMonth;
+                        currData.month = fetchMonth === 'all' ? `รวมทั้งปี (${yearModeLabel})` : fetchMonth;
                         currData.year = fetchYear;
                         currData.fileId = fetchMonth === 'all' ? 'AGGREGATED' : 'FETCHED';
                         
@@ -4814,6 +4854,25 @@
                 }
             });
         }
+
+        // สลับรูปแบบการนับปีของแท็บจำนวนตัวอย่าง (ปีงบประมาณ / ปีปฏิทิน)
+        function setSampleYearMode(mode, autoRefetch = true) {
+            window.sampleYearMode = (mode === 'calendar') ? 'calendar' : 'fiscal';
+            document.querySelectorAll('.sample-year-mode-btn').forEach(btn => {
+                const isActive = btn.dataset.mode === window.sampleYearMode;
+                btn.className = `sample-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${isActive ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-blue-600'}`;
+            });
+            const yearInput = document.getElementById('fetchSampleYear');
+            const fetchBtn = document.getElementById('btnFetchSampleData');
+            if (autoRefetch && yearInput && yearInput.value && fetchBtn) {
+                fetchBtn.click();
+            }
+        }
+
+        document.querySelectorAll('.sample-year-mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => setSampleYearMode(btn.dataset.mode));
+        });
+
         if(els.btnResetSampleDashboard) els.btnResetSampleDashboard.addEventListener('click', () => {
             resetSampleFileAOnly();
             showSection('sampleUploadSection');

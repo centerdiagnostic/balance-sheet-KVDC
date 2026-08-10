@@ -1212,6 +1212,7 @@
                                     <th scope="col" class="px-6 py-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="testName">ชื่อรายการ (Test Name) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                     <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="total">จำนวนทั้งหมด <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                     <th scope="col" class="px-6 py-4 font-semibold text-right text-emerald-600 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="amount">จำนวนเงินรวม (฿) <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right text-indigo-500 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="avgPrice">ราคาเฉลี่ย/ตัวอย่าง <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                     <th scope="col" class="px-6 py-4 font-semibold text-right text-blue-600 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="ISO">ISO Certified <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                     <th scope="col" class="px-6 py-4 font-semibold text-right text-amber-500 whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="Non-ISO">Non-ISO <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
                                     <th scope="col" class="px-6 py-4 font-semibold text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition" data-sort-sample="percent">% ISO <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
@@ -1224,6 +1225,7 @@
                                     <td colspan="2" class="px-6 py-4 text-right">รวมทั้งหมด (Total)</td>
                                     <td id="tfoot-total" class="px-6 py-4 text-right">0</td>
                                     <td id="tfoot-amount" class="px-6 py-4 text-right text-emerald-700">0.00</td>
+                                    <td id="tfoot-avg-price" class="px-6 py-4 text-right text-indigo-600">0.00</td>
                                     <td id="tfoot-iso" class="px-6 py-4 text-right text-blue-700">0</td>
                                     <td id="tfoot-noniso" class="px-6 py-4 text-right text-amber-600">0</td>
                                     <td id="tfoot-percent" class="px-6 py-4 text-right text-slate-800">0%</td>
@@ -3042,6 +3044,12 @@
                         let name = cleanThaiText(match[1]);
                         let rawValue = match[2];
                         if (name.length < 3 || !isNaN(name)) return;
+                        
+                        // บังคับนำรายการตกหล่นเข้ากลุ่ม "ค่าใช้สอย"
+                        if (name.includes('ค่าธรรมเนียมลงทะเบียน') || name.includes('ค่าใช้จ่ายเดินทางราชการ')) {
+                            name = 'ค่าใช้สอย - ' + name;
+                        }
+
                         let isNegative = rawValue.includes('(') || rawValue.includes('-');
                         let cleanNum = rawValue.replace(/[^0-9]/g, ''); 
                         let value = parseInt(cleanNum, 10) / 100;
@@ -4204,6 +4212,7 @@
 
             document.getElementById('tfoot-total').innerText = currentTotalSamples.toLocaleString();
             if(document.getElementById('tfoot-amount')) document.getElementById('tfoot-amount').innerText = currentTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if(document.getElementById('tfoot-avg-price')) document.getElementById('tfoot-avg-price').innerText = currentTotalSamples > 0 ? (currentTotalAmount / currentTotalSamples).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
             document.getElementById('tfoot-iso').innerText = currentTotalISO.toLocaleString();
             document.getElementById('tfoot-noniso').innerText = currentTotalNonISO.toLocaleString();
             document.getElementById('tfoot-percent').innerText = `${isoPercentage.toFixed(1)}%`;
@@ -4621,6 +4630,9 @@
                     if (sampleSortField === 'percent') {
                         valA = a.total > 0 ? (a.ISO / a.total) * 100 : 0;
                         valB = b.total > 0 ? (b.ISO / b.total) * 100 : 0;
+                    } else if (sampleSortField === 'avgPrice') {
+                        valA = a.total > 0 ? (a.amount / a.total) : 0;
+                        valB = b.total > 0 ? (b.amount / b.total) : 0;
                     } else if (sampleSortField === 'ISO') {
                         valA = a.ISO;
                         valB = b.ISO;
@@ -4651,7 +4663,7 @@
                 const trHeader = document.createElement('tr');
                 trHeader.className = `cursor-pointer border-y bg-slate-100/80 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 hover:opacity-90 transition select-none font-bold`;
                 trHeader.innerHTML = `
-                    <td colspan="7" class="py-3 px-6 relative z-10">
+                    <td colspan="8" class="py-3 px-6 relative z-10">
                         <div class="flex justify-between items-center">
                             <span>
                                 <i class="fa-solid fa-flask mr-2 text-blue-600 dark:text-sky-400"></i>ห้องปฏิบัติการ: ${labName} 
@@ -4666,6 +4678,7 @@
                 const itemRows = [];
                 gItems.forEach(row => {
                     const percent = row.total > 0 ? ((row.ISO / row.total) * 100).toFixed(1) : '0.0';
+                    const avgPrice = row.total > 0 ? (row.amount / row.total) : 0;
                     const trItem = document.createElement('tr');
                     trItem.className = "bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors";
                     trItem.innerHTML = `
@@ -4673,6 +4686,7 @@
                         <td class="px-6 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">${row.testName}</td>
                         <td class="px-6 py-4 text-right font-medium text-slate-800 dark:text-slate-200">${row.total.toLocaleString()}</td>
                         <td class="px-6 py-4 text-right font-medium text-emerald-600 dark:text-emerald-400">${row.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="px-6 py-4 text-right font-medium text-indigo-500 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/10">${avgPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="px-6 py-4 text-right font-medium text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-950/10">${row.ISO.toLocaleString()}</td>
                         <td class="px-6 py-4 text-right font-medium text-amber-500 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-950/10">${row['Non-ISO'].toLocaleString()}</td>
                         <td class="px-6 py-4 text-right font-bold text-slate-700 dark:text-slate-300">${percent}%</td>

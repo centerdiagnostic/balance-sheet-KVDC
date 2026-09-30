@@ -5884,7 +5884,8 @@
                     } 
                     else {
                         // หมวดที่ 4: ค่าสาธารณูปโภค
-                        if (name.includes('ไฟฟ') || name.includes('ประปา') || name.includes('โทรศ') || name.includes('โทรสาร') || name.includes('สาธารณูปโภค') || name.includes('ไปรษณ') || name.includes('อากร')) {
+                        // กันรายการ "ซื้อวัสดุไฟฟ้า" ไม่ให้ถูกนับเป็นค่าสาธารณูปโภค (คำว่า 'ไฟฟ' ไปจับโดนรายการวัสดุ)
+                        if (!name.includes('วัสดุ') && (name.includes('ไฟฟ') || name.includes('ประปา') || name.includes('โทรศ') || name.includes('โทรสาร') || name.includes('สาธารณูปโภค') || name.includes('ไปรษณ') || name.includes('อากร'))) {
                             buckets.utilities += val;
                         }
                         // หมวดที่ 6: ค่าเสื่อมครุภัณฑ์

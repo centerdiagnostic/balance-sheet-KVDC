@@ -695,6 +695,17 @@
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <div id="compareYearModeGroup" class="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-inner shrink-0" title="เลือกรูปแบบการนับปี">
+                        <button type="button" data-mode="fiscal" class="compare-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-white dark:bg-slate-700 text-blue-600 shadow-sm">
+                            <i class="fa-solid fa-building-columns mr-1"></i> ปีงบประมาณ
+                        </button>
+                        <button type="button" data-mode="calendar" class="compare-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-500 hover:text-blue-600">
+                            <i class="fa-regular fa-calendar mr-1"></i> ปีปฏิทิน
+                        </button>
+                    </div>
+                    <p id="compareYearModeHint" class="text-xs text-slate-500"></p>
+                </div>
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
                         <h3 class="font-semibold text-blue-800 mb-3"><i class="fa-solid fa-chart-pie mr-2"></i>ชุดข้อมูลที่ 1 (ฐานในการเปรียบเทียบ)</h3>
@@ -774,7 +785,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 dark:hover:shadow-none hover:-translate-y-1">
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4">กราฟวิเคราะห์โครงสร้าง (Radar Chart)</h3>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4">กราฟเปรียบเทียบ (Bar Chart)</h3>
                         <div class="relative h-80 w-full flex justify-center"><canvas id="comparisonChartCanvas"></canvas></div>
                     </div>
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-x-auto transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 dark:hover:shadow-none hover:-translate-y-1">
@@ -6145,16 +6156,23 @@
         // ==========================================
 
         const allMonthsList = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+        const fiscalMonthsList = ['ตุลาคม','พฤศจิกายน','ธันวาคม','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน'];
+        let compareYearMode = 'fiscal'; // 'fiscal' = ปีงบประมาณ (ต.ค.-ก.ย.), 'calendar' = ปีปฏิทิน (ม.ค.-ธ.ค.)
 
         const compOptions = {
             month: `<option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option>`,
             quarter: `<option value="q1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="q2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="q3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="q4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option>`,
+            quarterFiscal: `<option value="q1">ไตรมาส 1 (ต.ค.-ธ.ค.)</option><option value="q2">ไตรมาส 2 (ม.ค.-มี.ค.)</option><option value="q3">ไตรมาส 3 (เม.ย.-มิ.ย.)</option><option value="q4">ไตรมาส 4 (ก.ค.-ก.ย.)</option>`,
             year: `<option value="all">ข้อมูลรวมทั้งปี</option>`
         };
 
         function populateCustomMonths(selectId) {
             const el = document.getElementById(selectId);
-            if(el) el.innerHTML = compOptions.month;
+            if(!el) return;
+            const prevValue = el.value;
+            const list = compareYearMode === 'fiscal' ? fiscalMonthsList : allMonthsList;
+            el.innerHTML = list.map(m => `<option value="${m}">${m}</option>`).join('');
+            if (prevValue && list.includes(prevValue)) el.value = prevValue;
         }
 
         function updatePeriodSelect(typeId, periodId, containerId, customContainerId) {
@@ -6170,8 +6188,36 @@
                 container.classList.remove('hidden');
                 customContainer.classList.add('hidden');
                 customContainer.classList.remove('flex');
-                document.getElementById(periodId).innerHTML = compOptions[type];
+                const periodEl = document.getElementById(periodId);
+                const prevValue = periodEl.value;
+                const optionKey = (type === 'quarter' && compareYearMode === 'fiscal') ? 'quarterFiscal' : type;
+                periodEl.innerHTML = compOptions[optionKey];
+                if (prevValue && Array.from(periodEl.options).some(o => o.value === prevValue)) periodEl.value = prevValue;
             }
+        }
+
+        function setCompareYearMode(mode) {
+            compareYearMode = (mode === 'calendar') ? 'calendar' : 'fiscal';
+            document.querySelectorAll('.compare-year-mode-btn').forEach(btn => {
+                const isActive = btn.dataset.mode === compareYearMode;
+                btn.className = `compare-year-mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${isActive ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-blue-600'}`;
+            });
+            const hint = document.getElementById('compareYearModeHint');
+            if (hint) {
+                hint.innerText = compareYearMode === 'fiscal'
+                    ? 'ช่องปีของรายปี/รายไตรมาส/กำหนดช่วงเดือน = ปีงบประมาณ เช่น 2569 คือ ต.ค. 2568 – ก.ย. 2569 (รายเดือนใช้ปีปฏิทินตามปกติ)'
+                    : 'นับปีแบบปีปฏิทิน ม.ค. – ธ.ค.';
+            }
+            if (!document.getElementById('compType1')) return;
+            populateCustomMonths('compStartMonth1');
+            populateCustomMonths('compEndMonth1');
+            populateCustomMonths('compStartMonth2');
+            populateCustomMonths('compEndMonth2');
+            updatePeriodSelect('compType1', 'compPeriod1', 'compPeriod1Container', 'compCustom1Container');
+            updatePeriodSelect('compType2', 'compPeriod2', 'compPeriod2Container', 'compCustom2Container');
+            // ผลเดิมไม่ตรงกับโหมดใหม่ จึงซ่อนไว้จนกว่าจะกดประมวลผลอีกครั้ง
+            const resultArea = document.getElementById('compareResultArea');
+            if (resultArea) resultArea.classList.add('hidden');
         }
 
         // เชื่อม Event ผู้ใช้งานเมื่อโหลด DOM เสร็จ
@@ -6187,6 +6233,11 @@
             updatePeriodSelect('compType1', 'compPeriod1', 'compPeriod1Container', 'compCustom1Container');
             updatePeriodSelect('compType2', 'compPeriod2', 'compPeriod2Container', 'compCustom2Container');
         }
+
+        document.querySelectorAll('.compare-year-mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => setCompareYearMode(btn.dataset.mode));
+        });
+        setCompareYearMode('fiscal');
 
         // ==========================================
         // ระบบแดชบอร์ดเปรียบเทียบ (Dynamic Comparison System)
@@ -6235,57 +6286,94 @@
             else showSection('sampleSection');
         });
 
-        async function fetchAggregatedData(type, period, startMonth, endMonth, year, mode) {
+        async function fetchAggregatedData(type, period, startMonth, endMonth, year, mode, yearMode) {
             let v1 = 0, v2 = 0, v3 = 0;
             let labelText = "";
-            let monthsToFetch = [];
+            let monthsToFetch = []; // รายการ { month, calYear }
+            const Y = parseInt(year);
+            // ปีงบประมาณ: 3 เดือนแรก (ต.ค.-ธ.ค.) อยู่ในปีปฏิทินก่อนหน้า
+            const toFiscalItem = (m) => ({ month: m, calYear: fiscalMonthsList.indexOf(m) < 3 ? Y - 1 : Y });
 
             if (type === 'month') {
-                monthsToFetch = [period];
-                labelText = `${period} ${year}`;
-            } else if (type === 'quarter') {
-                const quarterMap = {
-                    'q1': ['มกราคม', 'กุมภาพันธ์', 'มีนาคม'], 'q2': ['เมษายน', 'พฤษภาคม', 'มิถุนายน'],
-                    'q3': ['กรกฎาคม', 'สิงหาคม', 'กันยายน'], 'q4': ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']
-                };
-                monthsToFetch = quarterMap[period];
-                labelText = `${period.toUpperCase()} ปี ${year}`;
-            } else if (type === 'year') {
-                monthsToFetch = allMonthsList;
-                labelText = `รวมทั้งปี ${year}`;
-            } else if (type === 'custom') {
-                const startIndex = allMonthsList.indexOf(startMonth);
-                const endIndex = allMonthsList.indexOf(endMonth);
-                if(startIndex <= endIndex) {
-                    monthsToFetch = allMonthsList.slice(startIndex, endIndex + 1);
-                } else {
-                    monthsToFetch = allMonthsList.slice(endIndex, startIndex + 1);
+                monthsToFetch = [{ month: period, calYear: Y }];
+                labelText = `${period} ${Y}`;
+            } else if (yearMode === 'calendar') {
+                if (type === 'quarter') {
+                    const quarterMap = {
+                        'q1': ['มกราคม', 'กุมภาพันธ์', 'มีนาคม'], 'q2': ['เมษายน', 'พฤษภาคม', 'มิถุนายน'],
+                        'q3': ['กรกฎาคม', 'สิงหาคม', 'กันยายน'], 'q4': ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']
+                    };
+                    monthsToFetch = quarterMap[period].map(m => ({ month: m, calYear: Y }));
+                    labelText = `${period.toUpperCase()} ปีปฏิทิน ${Y}`;
+                } else if (type === 'year') {
+                    monthsToFetch = allMonthsList.map(m => ({ month: m, calYear: Y }));
+                    labelText = `ปีปฏิทิน ${Y}`;
+                } else if (type === 'custom') {
+                    const startIndex = allMonthsList.indexOf(startMonth);
+                    const endIndex = allMonthsList.indexOf(endMonth);
+                    let months;
+                    if(startIndex <= endIndex) {
+                        months = allMonthsList.slice(startIndex, endIndex + 1);
+                    } else {
+                        months = allMonthsList.slice(endIndex, startIndex + 1);
+                    }
+                    monthsToFetch = months.map(m => ({ month: m, calYear: Y }));
+                    labelText = `${startMonth}-${endMonth} ${Y}`;
                 }
-                labelText = `${startMonth}-${endMonth} ${year}`;
+            } else {
+                if (type === 'quarter') {
+                    const qNum = parseInt(period.replace('q', ''));
+                    monthsToFetch = fiscalMonthsList.slice((qNum - 1) * 3, qNum * 3).map(toFiscalItem);
+                    labelText = `ไตรมาส ${qNum} ปีงบ ${Y}`;
+                } else if (type === 'year') {
+                    monthsToFetch = fiscalMonthsList.map(toFiscalItem);
+                    labelText = `ปีงบประมาณ ${Y}`;
+                } else if (type === 'custom') {
+                    const startIndex = fiscalMonthsList.indexOf(startMonth);
+                    const endIndex = fiscalMonthsList.indexOf(endMonth);
+                    let months;
+                    if(startIndex <= endIndex) {
+                        months = fiscalMonthsList.slice(startIndex, endIndex + 1);
+                    } else {
+                        months = fiscalMonthsList.slice(endIndex, startIndex + 1);
+                    }
+                    monthsToFetch = months.map(toFiscalItem);
+                    const first = monthsToFetch[0];
+                    const last = monthsToFetch[monthsToFetch.length - 1];
+                    labelText = `${first.month} ${first.calYear} - ${last.month} ${last.calYear}`;
+                }
             }
 
             let colPrefix = mode === 'pnl' ? 'financial_reports_' : (mode === 'bs' ? 'balance_sheet_' : 'sample_reports_');
 
             if (mode === 'bs') {
                 // งบดุล (Balance Sheet) ดึงข้อมูลเฉพาะเดือนสุดท้ายของช่วงที่เลือก (Snapshot)
-                let lastMonth = monthsToFetch[monthsToFetch.length - 1];
-                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(lastMonth);
-                const fiscalYear = isLateYear ? parseInt(year) + 1 : parseInt(year);
-                const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${lastMonth} ${year}`));
+                let lastItem = monthsToFetch[monthsToFetch.length - 1];
+                const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(lastItem.month);
+                const fiscalYear = isLateYear ? lastItem.calYear + 1 : lastItem.calYear;
+                const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${lastItem.month} ${lastItem.calYear}`));
                 if (docSnap.exists()) {
                     const d = docSnap.data();
                     v1 = d.totalAssets || 0; v2 = d.totalLiabilities || 0; v3 = d.totalEquity || 0;
                 }
             } else {
                 // กำไรขาดทุน และ จำนวนตัวอย่าง ให้บวกสะสมทุกเดือนที่เลือก
-                for(let m of monthsToFetch) {
-                    const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(m);
-                    const fiscalYear = isLateYear ? parseInt(year) + 1 : parseInt(year);
-                    const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${m} ${year}`));
+                for(let item of monthsToFetch) {
+                    const isLateYear = ['ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].includes(item.month);
+                    const fiscalYear = isLateYear ? item.calYear + 1 : item.calYear;
+                    const docSnap = await getDoc(doc(db, `${colPrefix}${fiscalYear}`, `${item.month} ${item.calYear}`));
                     if (docSnap.exists()) {
                         const d = docSnap.data();
                         if (mode === 'pnl') {
-                            v1 += d.totalRevenue || 0; v2 += d.totalExpense || 0; v3 += d.netProfit || 0;
+                            const items = d.items || [];
+                            const calcOpRev = items.filter(i => i.category === 'revenue').reduce((s, i) => s + Math.abs(i.value), 0);
+                            const opRev = calcOpRev > 0 ? calcOpRev : (d.opRevenue || 0);
+                            const cogs = d.cogs || 0;
+                            const rawExpense = d.totalExpense || 0;
+                            const grossProfit = opRev - cogs;
+                            v1 += grossProfit;              // กำไรขั้นต้น
+                            v2 += rawExpense + cogs;        // ค่าใช้จ่ายรวม (รวมต้นทุนขาย ให้ตรงกับการ์ดบนแดชบอร์ด)
+                            v3 += grossProfit - rawExpense; // กำไรสุทธิ
                         } else if (mode === 'sample') {
                             v1 += d.totalSamples || 0; v2 += d.totalAmount || 0;
                         }
@@ -6348,8 +6436,8 @@
                 els.btnExecuteCompare.disabled = true;
 
                 try {
-                    const d1 = await fetchAggregatedData(t1, p1, sm1, em1, y1, currentCompareMode);
-                    const d2 = await fetchAggregatedData(t2, p2, sm2, em2, y2, currentCompareMode);
+                    const d1 = await fetchAggregatedData(t1, p1, sm1, em1, y1, currentCompareMode, compareYearMode);
+                    const d2 = await fetchAggregatedData(t2, p2, sm2, em2, y2, currentCompareMode, compareYearMode);
 
                     const diff1 = calculateDiff(d1.v1, d2.v1);
                     const diff2 = calculateDiff(d1.v2, d2.v2);
@@ -6403,24 +6491,68 @@
                 ds2Data = [d2.v1, d2.v2];
             }
             
-            // วาดกราฟ Radar
-            mainComparisonChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: chartLabels,
-                    datasets: [
-                        { label: d1.label, data: ds1Data, backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3b82f6', pointBackgroundColor: '#3b82f6', borderWidth: 2 },
-                        { label: d2.label, data: ds2Data, backgroundColor: 'rgba(168, 85, 247, 0.2)', borderColor: '#a855f7', pointBackgroundColor: '#a855f7', borderWidth: 2 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { r: { beginAtZero: true, ticks: { display: false } } },
-                    plugins: {
-                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH').format(ctx.raw)}` } }
+            // แปลงหน่วยแกนเงิน (รองรับค่าติดลบ)
+            const formatMoneyTick = (value) => {
+                const abs = Math.abs(value);
+                if (abs >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                if (abs >= 1000) return (value / 1000).toFixed(0) + 'k';
+                return value;
+            };
+
+            // วาดกราฟแท่งคู่ (Grouped Bar)
+            if (mode === 'sample') {
+                // จำนวนตัวอย่างกับยอดเงินต่างสเกลกันมาก จึงใช้ 2 แกน y
+                mainComparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['จำนวนตัวอย่าง', 'จำนวนเงินรวม'],
+                        datasets: [
+                            { label: d1.label, data: [d1.v1, null], yAxisID: 'y', backgroundColor: '#3b82f6', skipNull: true, borderRadius: 4 },
+                            { label: d2.label, data: [d2.v1, null], yAxisID: 'y', backgroundColor: '#a855f7', skipNull: true, borderRadius: 4 },
+                            { label: d1.label, data: [null, d1.v2], yAxisID: 'y1', backgroundColor: '#3b82f6', skipNull: true, borderRadius: 4 },
+                            { label: d2.label, data: [null, d2.v2], yAxisID: 'y1', backgroundColor: '#a855f7', skipNull: true, borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { position: 'left', beginAtZero: true, title: { display: true, text: 'จำนวนตัวอย่าง' } },
+                            y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'บาท' }, ticks: { callback: formatMoneyTick } }
+                        },
+                        plugins: {
+                            legend: { labels: { filter: (item) => item.datasetIndex < 2 } },
+                            tooltip: {
+                                filter: (ctx) => ctx.raw !== null,
+                                callbacks: {
+                                    label: (ctx) => {
+                                        if (ctx.raw === null) return null;
+                                        if (ctx.dataset.yAxisID === 'y') return `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH', {maximumFractionDigits: 0}).format(ctx.raw)} ตัวอย่าง`;
+                                        return `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(ctx.raw)} บาท`;
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                mainComparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [
+                            { label: d1.label, data: ds1Data, backgroundColor: '#3b82f6', borderRadius: 4 },
+                            { label: d2.label, data: ds2Data, backgroundColor: '#a855f7', borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, ticks: { callback: formatMoneyTick } } },
+                        plugins: {
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(ctx.raw)} บาท` } }
+                        }
+                    }
+                });
+            }
 
             // วาดตาราง Side-by-Side
             document.getElementById('compTableLabel1').innerText = d1.label;
@@ -6441,12 +6573,17 @@
                     diffClass = diff > 0 ? 'text-red-600' : (diff < 0 ? 'text-green-600' : 'text-gray-500');
                 }
 
+                // โหมดจำนวนตัวอย่าง แถว "จำนวนตัวอย่าง" แสดงแบบไม่มีทศนิยม
+                const numFmt = (mode === 'sample' && i === 0)
+                    ? new Intl.NumberFormat('th-TH', {maximumFractionDigits: 0})
+                    : new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2});
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="py-3 px-4 font-medium text-gray-800">${chartLabels[i]}</td>
-                        <td class="py-3 px-4 text-right text-gray-600">${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(v1)}</td>
-                        <td class="py-3 px-4 text-right text-gray-600">${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(v2)}</td>
-                        <td class="py-3 px-4 text-right font-bold ${diffClass}">${diffPrefix}${new Intl.NumberFormat('th-TH', {minimumFractionDigits: 2}).format(diff)}</td>
+                        <td class="py-3 px-4 text-right text-gray-600">${numFmt.format(v1)}</td>
+                        <td class="py-3 px-4 text-right text-gray-600">${numFmt.format(v2)}</td>
+                        <td class="py-3 px-4 text-right font-bold ${diffClass}">${diffPrefix}${numFmt.format(diff)}</td>
                     </tr>
                 `;
             }

@@ -788,7 +788,7 @@
                                     <th class="py-3 px-4 font-semibold text-gray-600 dark:text-slate-300 text-right">ผลต่าง (+/-)</th>
                                 </tr>
                             </thead>
-                            <tbody id="bsDetailTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            <tbody id="compTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
                             </tbody>
                         </table>
                     </div>
@@ -6426,6 +6426,7 @@
             document.getElementById('compTableLabel1').innerText = d1.label;
             document.getElementById('compTableLabel2').innerText = d2.label;
             const tbody = document.getElementById('compTableBody');
+            if (!tbody) { console.error('ไม่พบ element #compTableBody'); return; }
             tbody.innerHTML = '';
             
             for(let i=0; i<chartLabels.length; i++) {
